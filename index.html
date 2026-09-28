@@ -190,8 +190,68 @@ audio{width:100%;margin-top:10px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
 @media(min-width:461px){#app{box-shadow:0 0 0 1px rgba(0,0,0,.03),0 30px 80px rgba(34,24,18,.10)}}
+
+/* ===== PSSND V0.2 ===== */
+button:disabled{opacity:.42;cursor:not-allowed}
+.version-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:800}
+.selection-count{display:inline-flex;padding:7px 10px;border-radius:999px;background:#FFF1EA;color:#944C3C;font-size:12px;font-weight:800;margin-top:14px}
+.match-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}
+.match-toolbar .small{font-weight:700}
+.deck-wrap{position:relative;min-height:505px;margin-top:18px}
+.deck-shadow{
+  position:absolute;left:10px;right:10px;top:14px;height:470px;border-radius:30px;
+  background:#fff;border:1px solid var(--line);opacity:.62;transform:scale(.96);box-shadow:var(--shadow-soft)
+}
+.swipe-card{
+  position:relative;z-index:2;background:#fff;border:1px solid var(--line);border-radius:30px;padding:20px;
+  box-shadow:0 22px 54px rgba(39,25,17,.10);touch-action:pan-y;user-select:none;
+  transition:transform .22s ease,opacity .22s ease;
+}
+.swipe-card.dragging{transition:none}
+.swipe-stamp{
+  position:absolute;top:28px;padding:8px 13px;border:3px solid;border-radius:12px;font-weight:950;
+  letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none
+}
+.swipe-stamp.nope{left:22px;color:#E45C49;border-color:#E45C49;transform:rotate(-10deg)}
+.swipe-stamp.like{right:22px;color:#D7831A;border-color:#D7831A;transform:rotate(10deg)}
+.swipe-actions{display:grid;grid-template-columns:1fr .9fr 1fr;gap:10px;margin-top:14px}
+.round-action{
+  border:1px solid var(--line);background:#fff;border-radius:19px;padding:14px 10px;font-weight:850;color:var(--ink);
+  box-shadow:0 8px 22px rgba(38,26,18,.04)
+}
+.round-action.like{background:linear-gradient(135deg,var(--mango),var(--coral));border:0;color:#2b180e}
+.match-mini-reasons{display:grid;gap:8px;margin-top:16px}
+.match-mini-reasons div{font-size:13px;line-height:1.42;padding:10px 11px;border-radius:14px;background:#FFF9F5;border:1px solid #F4E7DE}
+.match-mini-reasons .warning{background:#FFF4EF}
+.score-breakdown{display:grid;gap:12px;margin-top:18px}
+.score-line{display:grid;grid-template-columns:105px 1fr 34px;gap:9px;align-items:center;font-size:12px}
+.score-line b{font-size:12px}
+.score-track{height:7px;background:#EFE9E3;border-radius:999px;overflow:hidden}
+.score-track span{display:block;height:100%;background:linear-gradient(90deg,var(--mango),var(--coral));border-radius:999px}
+.sheet-backdrop{position:fixed;z-index:80;inset:0;background:rgba(24,20,17,.28);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:min(100%,460px);background:var(--cream);border-radius:28px 28px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -16px 50px rgba(30,20,14,.16)}
+.sheet h3{font-size:24px;margin-bottom:7px}
+.feedback-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
+.feedback-btn{border:1px solid var(--line);background:#fff;border-radius:17px;padding:13px 10px;font-size:13px;font-weight:750;color:var(--ink)}
+.feedback-skip{margin-top:10px}
+.match-empty-icon{font-size:42px;margin-bottom:12px}
+.voice-status{display:flex;align-items:center;gap:8px;margin-top:11px;padding:10px 12px;border-radius:14px;background:#FFF6EF;font-size:12px;color:#6A5149}
+.record-timer{font-variant-numeric:tabular-nums;font-weight:850;color:var(--coral-deep)}
+.profile-health{display:flex;align-items:center;gap:12px;margin-top:15px}
+.ring{
+  width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-weight:900;
+  background:conic-gradient(var(--coral) var(--pct),#EFE7E0 0);position:relative
+}
+.ring::before{content:"";position:absolute;inset:7px;background:#fff;border-radius:50%}
+.ring span{position:relative;z-index:1;font-size:13px}
+.top-match-card{margin-top:14px;padding:16px;border-radius:22px;background:linear-gradient(135deg,#FFF4E8,#FFF0EA);border:1px solid #F4DBCC}
+.inline-link{border:0;background:transparent;color:#C7543D;font-weight:800;padding:0;text-decoration:none}
+.coach-context{margin-top:14px;padding:13px 14px;border-radius:17px;background:#FFF4ED;border:1px solid #F4DCCE;font-size:12px;color:#634B43;line-height:1.48}
+.privacy-note{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:13px 14px;border-radius:17px;background:#fff;border:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.45}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
 </style>
-  <title>PSSND</title>
+  <title>PSSND V0.2</title>
 </head>
 <body>
   <div id="app">
@@ -214,33 +274,37 @@ audio{width:100%;margin-top:10px}
 
   <div id="toast" class="toast"></div>
   <script>
+
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
+const APP_VERSION = "0.2";
 
 const demoJobs = [
-  {id:1,title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät"},
-  {id:2,title:"Mitarbeiter Warenannahme",company:"RheinWest Handel",city:"Bochum",salaryMin:2950,salaryMax:3150,distance:19,night:false,weekend:false,field:"warenannahme",tags:["waren","lager","organisation"],growth:true,stress:"niedrig",shift:"tag"},
-  {id:3,title:"Produktionslogistiker",company:"Mova Industries",city:"Essen",salaryMin:3200,salaryMax:3450,distance:27,night:true,weekend:false,field:"produktionslogistik",tags:["produktion","lager","organisation"],growth:true,stress:"mittel",shift:"3-schicht"},
-  {id:4,title:"Versandmitarbeiter",company:"ParcelPoint",city:"Gelsenkirchen",salaryMin:2850,salaryMax:3050,distance:9,night:false,weekend:true,field:"versand",tags:["versand","lager","team"],growth:false,stress:"hoch",shift:"früh/spät"},
-  {id:5,title:"Materialversorger",company:"WestForm Technik",city:"Herne",salaryMin:3000,salaryMax:3350,distance:18,night:false,weekend:false,field:"material",tags:["produktion","waren","organisation"],growth:true,stress:"niedrig",shift:"tag"},
-  {id:6,title:"Koordinator Lager & Versand",company:"Unitra GmbH",city:"Dortmund",salaryMin:3300,salaryMax:3600,distance:16,night:false,weekend:false,field:"koordination",tags:["organisation","team","lager","versand"],growth:true,stress:"mittel",shift:"tag"},
-  {id:7,title:"Quereinsteiger Disposition",company:"RouteNow",city:"Essen",salaryMin:3100,salaryMax:3400,distance:25,night:false,weekend:false,field:"disposition",tags:["organisation","telefon","team"],growth:true,stress:"mittel",shift:"tag"},
-  {id:8,title:"Lagermitarbeiter",company:"CargoBase",city:"Recklinghausen",salaryMin:2750,salaryMax:2950,distance:31,night:false,weekend:false,field:"logistik",tags:["lager","stapler"],growth:false,stress:"niedrig",shift:"tag"},
-  {id:9,title:"Mitarbeiter Produktionsversorgung",company:"ForgeLine",city:"Bochum",salaryMin:3150,salaryMax:3350,distance:22,night:false,weekend:true,field:"produktionslogistik",tags:["produktion","lager","team"],growth:true,stress:"mittel",shift:"früh/spät"},
-  {id:10,title:"Servicekoordinator",company:"Fixaro Services",city:"Dortmund",salaryMin:3000,salaryMax:3500,distance:12,night:false,weekend:false,field:"service",tags:["organisation","kunden","telefon","team"],growth:true,stress:"mittel",shift:"tag"},
-  {id:11,title:"Mitarbeiter Bestandssteuerung",company:"StockPilot",city:"Essen",salaryMin:3250,salaryMax:3500,distance:24,night:false,weekend:false,field:"bestand",tags:["organisation","waren","lager"],growth:true,stress:"niedrig",shift:"tag"},
-  {id:12,title:"Teamunterstützung Logistik",company:"FlowHub",city:"Gelsenkirchen",salaryMin:3000,salaryMax:3250,distance:10,night:false,weekend:false,field:"logistik",tags:["team","lager","organisation"],growth:true,stress:"mittel",shift:"tag"}
+  {id:1,title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
+  {id:2,title:"Mitarbeiter Warenannahme",company:"RheinWest Handel",city:"Bochum",salaryMin:2950,salaryMax:3150,distance:19,night:false,weekend:false,field:"warenannahme",tags:["waren","lager","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Prüfen, koordinieren und dafür sorgen, dass im Wareneingang alles läuft."},
+  {id:3,title:"Produktionslogistiker",company:"Mova Industries",city:"Essen",salaryMin:3200,salaryMax:3450,distance:27,night:true,weekend:false,field:"produktionslogistik",tags:["produktion","lager","organisation"],growth:true,stress:"mittel",shift:"3-schicht",summary:"Materialfluss zwischen Lager und Produktion organisieren."},
+  {id:4,title:"Versandmitarbeiter",company:"ParcelPoint",city:"Gelsenkirchen",salaryMin:2850,salaryMax:3050,distance:9,night:false,weekend:true,field:"versand",tags:["versand","lager","team"],growth:false,stress:"hoch",shift:"früh/spät",summary:"Sendungen vorbereiten, kontrollieren und im Team auf den Weg bringen."},
+  {id:5,title:"Materialversorger",company:"WestForm Technik",city:"Herne",salaryMin:3000,salaryMax:3350,distance:18,night:false,weekend:false,field:"material",tags:["produktion","waren","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Produktion zuverlässig mit Material versorgen und Bestände im Blick behalten."},
+  {id:6,title:"Koordinator Lager & Versand",company:"Unitra GmbH",city:"Dortmund",salaryMin:3300,salaryMax:3600,distance:16,night:false,weekend:false,field:"koordination",tags:["organisation","team","lager","versand"],growth:true,stress:"mittel",shift:"tag",summary:"Abläufe koordinieren, Prioritäten setzen und den Überblick behalten."},
+  {id:7,title:"Quereinsteiger Disposition",company:"RouteNow",city:"Essen",salaryMin:3100,salaryMax:3400,distance:25,night:false,weekend:false,field:"disposition",tags:["organisation","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Touren, Termine und Menschen miteinander koordinieren."},
+  {id:8,title:"Lagermitarbeiter",company:"CargoBase",city:"Recklinghausen",salaryMin:2750,salaryMax:2950,distance:31,night:false,weekend:false,field:"logistik",tags:["lager","stapler"],growth:false,stress:"niedrig",shift:"tag",summary:"Klassische Lagerarbeit mit klaren Abläufen und Tagschicht."},
+  {id:9,title:"Mitarbeiter Produktionsversorgung",company:"ForgeLine",city:"Bochum",salaryMin:3150,salaryMax:3350,distance:22,night:false,weekend:true,field:"produktionslogistik",tags:["produktion","lager","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Material bereitstellen und Produktionsabläufe am Laufen halten."},
+  {id:10,title:"Servicekoordinator",company:"Fixaro Services",city:"Dortmund",salaryMin:3000,salaryMax:3500,distance:12,night:false,weekend:false,field:"service",tags:["organisation","kunden","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Anliegen koordinieren und zwischen Kunden und Technik vermitteln."},
+  {id:11,title:"Mitarbeiter Bestandssteuerung",company:"StockPilot",city:"Essen",salaryMin:3250,salaryMax:3500,distance:24,night:false,weekend:false,field:"bestand",tags:["organisation","waren","lager"],growth:true,stress:"niedrig",shift:"tag",summary:"Bestände prüfen, Abweichungen erkennen und Warenflüsse verbessern."},
+  {id:12,title:"Teamunterstützung Logistik",company:"FlowHub",city:"Gelsenkirchen",salaryMin:3000,salaryMax:3250,distance:10,night:false,weekend:false,field:"logistik",tags:["team","lager","organisation"],growth:true,stress:"mittel",shift:"tag",summary:"Im Tagesgeschäft mit anpacken und gleichzeitig Abläufe zusammenhalten."}
 ];
 
 const initialState = {
+  version:APP_VERSION,
   route:"welcome",
   onboardingStep:0,
   mood:"",
   problems:[],
   wishes:[],
   experience:"",
-  recorded:false,
   recognizedText:"",
+  recorded:false,
   skills:[],
   salary:2900,
   distance:25,
@@ -250,430 +314,534 @@ const initialState = {
   fields:[],
   interested:[],
   skipped:[],
+  rejectionFeedback:{},
   checkins:[],
   profileReady:false,
+  activeJobId:null,
   chat:[
-    {role:"bot",text:"Hi 👋 Ich bin dein PSSND Coach. In dieser kostenlosen Demo antworte ich noch lokal. Später kann hier die echte KI angebunden werden."}
+    {role:"bot",text:"Hi 👋 Ich bin dein PSSND Coach. Ich kenne dein Profil und helfe dir, deine Optionen zu sortieren. In V0.2 antworte ich noch lokal und ohne kostenpflichtige KI."}
   ]
 };
 
 let state = loadState();
 let mediaRecorder = null;
-let audioChunks = [];
 let mediaStream = null;
+let audioChunks = [];
 let lastAudioURL = null;
+let recTimer = null;
+let recSeconds = 0;
+let recognition = null;
 
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function loadState(){
   try{
     const parsed = JSON.parse(localStorage.getItem("pssnd_state") || "null");
-    return parsed ? {...structuredClone(initialState), ...parsed} : structuredClone(initialState);
-  }catch(e){ return structuredClone(initialState); }
+    const merged = parsed ? {...clone(initialState), ...parsed} : clone(initialState);
+    merged.version = APP_VERSION;
+    merged.problems = Array.isArray(merged.problems)?merged.problems:[];
+    merged.wishes = Array.isArray(merged.wishes)?merged.wishes:[];
+    merged.skills = Array.isArray(merged.skills)?merged.skills:[];
+    merged.interested = Array.isArray(merged.interested)?merged.interested:[];
+    merged.skipped = Array.isArray(merged.skipped)?merged.skipped:[];
+    merged.checkins = Array.isArray(merged.checkins)?merged.checkins:[];
+    merged.chat = Array.isArray(merged.chat)&&merged.chat.length?merged.chat:clone(initialState.chat);
+    merged.rejectionFeedback = merged.rejectionFeedback || {};
+    return merged;
+  }catch(e){ return clone(initialState); }
 }
-function saveState(){
-  localStorage.setItem("pssnd_state", JSON.stringify(state));
-}
+function saveState(){ localStorage.setItem("pssnd_state", JSON.stringify(state)); }
 function resetState(){
-  if(confirm("PSSND auf den Anfang zurücksetzen?")){
+  if(confirm("PSSND wirklich zurücksetzen? Deine lokal gespeicherten Angaben werden gelöscht.")){
+    stopRecording(true);
     localStorage.removeItem("pssnd_state");
-    state = structuredClone(initialState);
+    state=clone(initialState);
     route("welcome");
   }
 }
 function toast(msg){
   const t=$("#toast"); t.textContent=msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),1800);
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.remove("show"),1900);
 }
 function route(name){
-  state.route=name;
-  saveState();
-  render();
-  window.scrollTo({top:0,behavior:"smooth"});
+  state.route=name; saveState(); render(); window.scrollTo({top:0,behavior:"smooth"});
 }
 function setOnboarding(step){
-  state.route="onboarding";
-  state.onboardingStep=step;
-  saveState();
-  render();
-  window.scrollTo({top:0,behavior:"smooth"});
+  state.route="onboarding"; state.onboardingStep=step; saveState(); render(); window.scrollTo({top:0,behavior:"smooth"});
 }
-function toggleIn(arr, val){
-  const i=arr.indexOf(val);
-  if(i>=0) arr.splice(i,1); else arr.push(val);
-  saveState();
-  render();
+function toggleIn(arr,val){
+  const i=arr.indexOf(val); i>=0?arr.splice(i,1):arr.push(val); saveState(); render();
 }
-function progress(step,total=7){ return Math.round((step/total)*100); }
+function escapeHTML(s=""){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function avg(arr){return arr.length?arr.reduce((s,x)=>s+x.value,0)/arr.length:0}
+function money(v){return Number(v).toLocaleString("de-DE")+" €"}
 
 function headerControls(){
-  const nav=$("#bottomNav");
-  const back=$("#backBtn");
-  const reset=$("#resetBtn");
-
+  const nav=$("#bottomNav"), back=$("#backBtn"), reset=$("#resetBtn");
   const mainRoutes=["home","matches","chances","coach","profile"];
-  nav.classList.toggle("hidden", !mainRoutes.includes(state.route));
-  back.classList.toggle("hidden", state.route==="welcome" || mainRoutes.includes(state.route));
-
+  nav.classList.toggle("hidden",!mainRoutes.includes(state.route));
+  back.classList.toggle("hidden",state.route==="welcome"||mainRoutes.includes(state.route));
   back.onclick=()=>{
     if(state.route==="onboarding"){
-      if(state.onboardingStep<=0) route("welcome");
-      else setOnboarding(state.onboardingStep-1);
-    }else if(state.route==="matchDetail"){ route("matches"); }
-    else if(state.route==="matchMoment"){ route("matches"); }
-    else route("welcome");
+      state.onboardingStep<=1?route("welcome"):setOnboarding(state.onboardingStep-1);
+    } else if(state.route==="matchDetail") route("matches");
+    else route("home");
   };
   reset.onclick=resetState;
-
   $$("#bottomNav button").forEach(b=>{
-    b.classList.toggle("active", b.dataset.tab===state.route);
+    b.classList.toggle("active",b.dataset.tab===state.route);
     b.onclick=()=>route(b.dataset.tab);
   });
 }
 
 function render(){
   headerControls();
-  if(state.route==="welcome") return renderWelcome();
-  if(state.route==="onboarding") return renderOnboarding();
-  if(state.route==="home") return renderHome();
-  if(state.route==="matches") return renderMatches();
-  if(state.route==="matchDetail") return renderMatchDetail(state.activeJobId);
-  if(state.route==="matchMoment") return renderMatchMoment(state.activeJobId);
-  if(state.route==="chances") return renderChances();
-  if(state.route==="coach") return renderCoach();
-  if(state.route==="profile") return renderProfile();
+  const map={
+    welcome:renderWelcome,
+    onboarding:renderOnboarding,
+    home:renderHome,
+    matches:renderMatches,
+    matchDetail:()=>renderMatchDetail(state.activeJobId),
+    chances:renderChances,
+    coach:renderCoach,
+    profile:renderProfile
+  };
+  (map[state.route]||renderWelcome)();
+}
+function progressHTML(step){
+  const pct=Math.round(step/7*100);
+  return `<div class="progress-wrap"><div class="progress-top"><span>Dein PSSND-Profil</span><span>${step} / 7</span></div><div class="progress"><div style="width:${pct}%"></div></div></div>`;
+}
+function wishText(arr){
+  const m={geld:"mehr Geld",zeiten:"bessere Arbeitszeiten",stress:"weniger Stress",nahe:"einen kürzeren Arbeitsweg",entwicklung:"mehr Entwicklung",leben:"mehr Zeit fürs Leben",neu:"etwas komplett Neues",homeoffice:"Homeoffice"};
+  return arr.map(x=>m[x]).filter(Boolean).join(", ");
 }
 
 function renderWelcome(){
-  $("#view").innerHTML=`
-  <section class="screen hero-space">
+  $("#view").innerHTML=`<section class="screen hero-space">
     <div class="eyebrow">Arbeit, die zu dir passt.</div>
     <h1>Dein nächster Schritt muss sich nach dir anfühlen.</h1>
-    <p>PSSND lernt zuerst dich kennen – und zeigt dir danach Jobs, die wirklich zu deinem Leben passen könnten.</p>
-    <div class="hero-card">
-      <div class="hero-icon"><img src="data:image/png;base64,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" alt=""></div>
-      <div class="hero-path"></div>
-    </div>
-    <button class="btn btn-primary" id="startBtn">Los geht's →</button>
+    <p>PSSND versteht zuerst dich – und zeigt dir danach Arbeit, die besser zu deinem Leben passen könnte.</p>
+    <div class="hero-card"><div class="hero-icon"><img src="${ICON_SRC}" alt=""></div><div class="hero-path"></div></div>
+    <button class="btn btn-primary" id="startBtn">${state.profileReady?"Profil neu abstimmen":"Los geht's"} →</button>
     ${state.profileReady?`<button class="btn btn-ghost" id="continueBtn">Zu meinem PSSND</button>`:""}
+    <div style="display:flex;justify-content:center;margin-top:8px"><span class="version-pill">PSSND V${APP_VERSION} · lokal & kostenlos</span></div>
   </section>`;
   $("#startBtn").onclick=()=>setOnboarding(1);
-  if($("#continueBtn")) $("#continueBtn").onclick=()=>route("home");
-}
-
-function progressHTML(step){
-  return `<div class="progress-wrap">
-    <div class="progress-top"><span>Dein PSSND-Profil</span><span>${step} / 7</span></div>
-    <div class="progress"><div style="width:${progress(step)}%"></div></div>
-  </div>`;
+  $("#continueBtn")?.addEventListener("click",()=>route("home"));
 }
 
 function renderOnboarding(){
-  const step=state.onboardingStep;
-  const v=$("#view");
+  const v=$("#view"), step=state.onboardingStep;
   if(step===1){
     const opts=[["😍","Ich liebe meinen Job","love"],["🙂","Eigentlich ganz gut","good"],["😐","Geht so","meh"],["😕","Ich bin unzufrieden","bad"],["🔥","Ich muss hier raus","escape"],["🔎","Ich suche gerade Arbeit","search"]];
-    v.innerHTML=`<section class="screen">${progressHTML(1)}<div class="eyebrow">Kurz bei dir einchecken</div><h1>Wie fühlt sich Arbeit gerade für dich an?</h1><p>Es gibt keine falsche Antwort. Wähl einfach das, was deinem Gefühl am nächsten kommt.</p><div class="choices">${opts.map(o=>`<button class="choice ${state.mood===o[2]?"selected":""}" data-mood="${o[2]}"><span class="emoji">${o[0]}</span>${o[1]}</button>`).join("")}</div><div class="actions one"><button class="btn btn-primary" id="next" ${!state.mood?"disabled":""}>Weiter →</button></div></section>`;
+    v.innerHTML=`<section class="screen">${progressHTML(1)}<div class="eyebrow">Kurz bei dir einchecken</div><h1>Wie fühlt sich Arbeit gerade für dich an?</h1><p>Wähl das, was deinem Gefühl am nächsten kommt.</p><div class="choices">${opts.map(o=>`<button class="choice ${state.mood===o[2]?"selected":""}" data-mood="${o[2]}"><span class="emoji">${o[0]}</span>${o[1]}</button>`).join("")}</div><div class="actions one"><button class="btn btn-primary" id="next" ${!state.mood?"disabled":""}>Weiter →</button></div></section>`;
     $$("[data-mood]").forEach(b=>b.onclick=()=>{state.mood=b.dataset.mood;saveState();render()});
     $("#next").onclick=()=>setOnboarding(2);
-  } else if(step===2){
-    const opts=[["💶","Mein Gehalt","gehalt"],["🕐","Meine Arbeitszeiten","zeiten"],["😵‍💫","Zu viel Stress","stress"],["🧭","Führung & Umgang","fuehrung"],["👥","Team / Kollegen","team"],["🥱","Die Aufgaben","aufgaben"],["🚗","Arbeitsweg","weg"],["📉","Mir fehlt Perspektive","perspektive"]];
-    v.innerHTML=`<section class="screen">${progressHTML(2)}<div class="eyebrow">Was drückt gerade?</div><h1>Was nervt dich an deiner Arbeit am meisten?</h1><p>Du kannst mehrere Dinge auswählen.</p><div class="grid-choices">${opts.map(o=>`<button class="tile ${state.problems.includes(o[2])?"selected":""}" data-problem="${o[2]}"><span class="tile-icon">${o[0]}</span><strong>${o[1]}</strong></button>`).join("")}</div><div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next" ${state.problems.length===0?"disabled":""}>Weiter</button></div></section>`;
+    return;
+  }
+  if(step===2){
+    const opts=[["💶","Mein Gehalt","gehalt"],["🕐","Meine Arbeitszeiten","zeiten"],["😵‍💫","Zu viel Stress","stress"],["🧭","Führung & Umgang","fuehrung"],["👥","Team / Kollegen","team"],["🥱","Die Aufgaben","aufgaben"],["🚗","Arbeitsweg","weg"],["📉","Mir fehlt Perspektive","perspektive"],["⚖️","Arbeit passt nicht zum Leben","leben"]];
+    v.innerHTML=`<section class="screen">${progressHTML(2)}<div class="eyebrow">Was drückt gerade?</div><h1>Was nervt dich an deiner Arbeit am meisten?</h1><p>Mehrfachauswahl ist ausdrücklich erlaubt.</p><div class="selection-count">${state.problems.length} ausgewählt</div><div class="grid-choices">${opts.map(o=>`<button class="tile ${state.problems.includes(o[2])?"selected":""}" data-problem="${o[2]}"><span class="tile-icon">${o[0]}</span><strong>${o[1]}</strong></button>`).join("")}</div><div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next">Weiter</button></div></section>`;
     $$("[data-problem]").forEach(b=>b.onclick=()=>toggleIn(state.problems,b.dataset.problem));
     $("#back").onclick=()=>setOnboarding(1); $("#next").onclick=()=>setOnboarding(3);
-  } else if(step===3){
+    return;
+  }
+  if(step===3){
     const opts=[["💰","Mehr verdienen","geld"],["☀️","Bessere Arbeitszeiten","zeiten"],["🫶","Weniger Stress","stress"],["📍","Näher an Zuhause","nahe"],["🚀","Mehr Entwicklung","entwicklung"],["🌤️","Mehr Zeit fürs Leben","leben"],["✨","Etwas komplett Neues","neu"],["🏠","Homeoffice","homeoffice"]];
-    v.innerHTML=`<section class="screen">${progressHTML(3)}<div class="eyebrow">Jetzt nach vorn</div><h1>Was müsste dein nächster Job besser machen?</h1><p>Genau danach richtet PSSND später deine Matches aus.</p><div class="grid-choices">${opts.map(o=>`<button class="tile ${state.wishes.includes(o[2])?"selected":""}" data-wish="${o[2]}"><span class="tile-icon">${o[0]}</span><strong>${o[1]}</strong></button>`).join("")}</div>${state.wishes.length?`<div class="note"><strong>PSSND merkt sich:</strong><br>${wishText(state.wishes)}.</div>`:""}<div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next" ${state.wishes.length===0?"disabled":""}>Weiter</button></div></section>`;
+    v.innerHTML=`<section class="screen">${progressHTML(3)}<div class="eyebrow">Jetzt nach vorn</div><h1>Was müsste dein nächster Job besser machen?</h1><p>Wähle alles, was für dich wirklich einen Unterschied macht.</p><div class="selection-count">${state.wishes.length} ausgewählt</div><div class="grid-choices">${opts.map(o=>`<button class="tile ${state.wishes.includes(o[2])?"selected":""}" data-wish="${o[2]}"><span class="tile-icon">${o[0]}</span><strong>${o[1]}</strong></button>`).join("")}</div>${state.wishes.length?`<div class="note"><strong>PSSND merkt sich:</strong><br>${wishText(state.wishes)}.</div>`:""}<div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next" ${!state.wishes.length?"disabled":""}>Weiter</button></div></section>`;
     $$("[data-wish]").forEach(b=>b.onclick=()=>toggleIn(state.wishes,b.dataset.wish));
     $("#back").onclick=()=>setOnboarding(2); $("#next").onclick=()=>setOnboarding(4);
-  } else if(step===4){
-    v.innerHTML=`<section class="screen">${progressHTML(4)}<div class="eyebrow">Kein Lebenslauf-Deutsch</div><h1>Was hast du bisher gemacht?</h1><p>Schreib einfach drauflos – oder erzähl es uns.</p><div class="note"><strong>💬 Sprich mit PSSND wie mit einem Freund.</strong><br>Zum Beispiel: „Ich arbeite seit sechs Jahren im Lager, fahre Stapler und bin meistens derjenige, der den Überblick behält.“</div><div class="textbox"><textarea id="experience" placeholder="Erzähl uns kurz von dir …">${escapeHTML(state.experience)}</textarea></div><div class="mic-card"><button class="mic-button" id="micBtn">🎙️</button><div class="mic-copy"><strong id="micTitle">${state.recorded?"Aufnahme vorhanden":"Lieber erzählen?"}</strong><span class="small" id="micText">${state.recorded?"Du kannst neu aufnehmen oder mit dem Text weitermachen.":"Tippe auf das Mikrofon und sprich einfach frei."}</span></div></div><div id="audioWrap"></div><div class="small" style="margin-top:10px">Die Aufnahme bleibt in dieser Version lokal. Falls dein Browser Sprache-zu-Text unterstützt, übernimmt PSSND den gesprochenen Text direkt.</div><div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next">Stärken erkennen</button></div></section>`;
+    return;
+  }
+  if(step===4){
+    const secure=window.isSecureContext;
+    const mediaOK=!!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+    v.innerHTML=`<section class="screen">${progressHTML(4)}<div class="eyebrow">Kein Lebenslauf-Deutsch</div><h1>Was hast du bisher gemacht?</h1><p>Schreib einfach drauflos – oder erzähl es uns.</p>
+      <div class="note"><strong>💬 Sprich mit PSSND wie mit einem Freund.</strong><br>„Ich arbeite seit sechs Jahren im Lager, fahre Stapler und bin meistens derjenige, der den Überblick behält.“</div>
+      <div class="textbox"><textarea id="experience" placeholder="Erzähl uns kurz von dir …">${escapeHTML(state.experience)}</textarea></div>
+      <div class="mic-card"><button class="mic-button" id="micBtn" ${!mediaOK?"disabled":""}>🎙️</button><div class="mic-copy"><strong id="micTitle">${state.recorded?"Aufnahme vorhanden":"Lieber erzählen?"}</strong><span class="small" id="micText">${mediaOK?"Tippe auf das Mikrofon und sprich einfach frei.":"Dieser Browser stellt keine Aufnahmefunktion bereit."}</span></div></div>
+      <div id="audioWrap"></div>
+      <div class="voice-status"><span>${secure?"🔒":"⚠️"}</span><span>${secure?"Die Seite läuft sicher über HTTPS – gut für den Mikrofonzugriff.":"Mikrofonzugriff funktioniert am zuverlässigsten über deine GitHub-Pages-Adresse."}</span><span class="record-timer" id="recordTimer"></span></div>
+      <div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next">Stärken erkennen</button></div></section>`;
     $("#experience").oninput=e=>{state.experience=e.target.value;saveState()};
-    $("#back").onclick=()=>setOnboarding(3);
-    $("#next").onclick=()=>{inferSkills();setOnboarding(5)};
-    $("#micBtn").onclick=toggleRecording;
-  } else if(step===5){
-    if(!state.skills.length) inferSkills();
-    v.innerHTML=`<section class="screen">${progressHTML(5)}<div class="eyebrow">Das steckt in dir</div><h1>Du kannst mehr, als dein Jobtitel sagt.</h1><p>Keine Bewerbungsfloskeln. PSSND beschreibt, wie du wahrscheinlich wirklich arbeitest.</p><div class="chips">${state.skills.map((s,i)=>`<button class="chip selectable ${s.active===false?"off":""}" data-skill="${i}">${s.text}</button>`).join("")}</div><div class="card soft"><h3>Warum das wichtig ist</h3><p>Diese Stärken öffnen Jobs, nach denen du vielleicht selbst nie gesucht hättest.</p></div><div class="actions"><button class="btn btn-secondary" id="back">Ändern</button><button class="btn btn-primary" id="next">Passt zu mir</button></div></section>`;
+    $("#back").onclick=()=>setOnboarding(3); $("#next").onclick=()=>{inferSkills();setOnboarding(5)};
+    $("#micBtn")?.addEventListener("click",toggleRecording);
+    return;
+  }
+  if(step===5){
+    if(!state.skills.length)inferSkills();
+    v.innerHTML=`<section class="screen">${progressHTML(5)}<div class="eyebrow">Das steckt in dir</div><h1>Du kannst mehr, als dein Jobtitel sagt.</h1><p>Tippe eine Stärke an, wenn sie nicht zu dir passt. PSSND lernt daraus.</p><div class="chips">${state.skills.map((s,i)=>`<button class="chip selectable ${s.active===false?"off":""}" data-skill="${i}">${escapeHTML(s.text)}</button>`).join("")}</div><div class="card soft"><h3>${activeSkills().length} Stärken aktiv</h3><p>Sie fließen später in deine Job-Matches ein – aber sie sind keine starren Ausschlusskriterien.</p></div><div class="actions"><button class="btn btn-secondary" id="back">Ändern</button><button class="btn btn-primary" id="next">Passt zu mir</button></div></section>`;
     $$("[data-skill]").forEach(b=>b.onclick=()=>{const s=state.skills[+b.dataset.skill];s.active=s.active===false?true:false;saveState();render()});
     $("#back").onclick=()=>setOnboarding(4); $("#next").onclick=()=>setOnboarding(6);
-  } else if(step===6){
-    v.innerHTML=`<section class="screen">${progressHTML(6)}<div class="eyebrow">Was muss wirklich passen?</div><h1>Was muss dein nächster Job können?</h1><p>Nur die Dinge, die deinen Alltag wirklich verändern.</p>
-      <div class="field"><label><span>Wunschgehalt brutto</span><span class="value" id="salaryValue">${state.salary.toLocaleString("de-DE")} €</span></label><input type="range" min="2200" max="5000" step="50" value="${state.salary}" id="salary"></div>
+    return;
+  }
+  if(step===6){
+    v.innerHTML=`<section class="screen">${progressHTML(6)}<div class="eyebrow">Was muss wirklich passen?</div><h1>Was muss dein nächster Job können?</h1><p>Diese Angaben haben beim Matching besonders viel Gewicht.</p>
+      <div class="field"><label><span>Wunschgehalt brutto</span><span class="value" id="salaryValue">${money(state.salary)}</span></label><input type="range" min="2200" max="5000" step="50" value="${state.salary}" id="salary"></div>
       <div class="field"><label><span>Maximale Entfernung</span><span class="value" id="distanceValue">${state.distance} km</span></label><input type="range" min="5" max="80" step="5" value="${state.distance}" id="distance"></div>
       <div class="field"><label>Arbeitszeit</label><div class="segmented">${["Vollzeit","Teilzeit","Flexibel"].map(x=>`<button class="seg ${state.employment===x?"selected":""}" data-employment="${x}">${x}</button>`).join("")}</div></div>
       <div class="field"><label>Nachtschicht</label><div class="segmented">${["Nein","Egal","Ja"].map(x=>`<button class="seg ${state.night===x?"selected":""}" data-night="${x}">${x}</button>`).join("")}</div></div>
       <div class="field"><label>Wochenenden</label><div class="segmented">${["Möglichst frei","Gelegentlich okay","Egal"].map(x=>`<button class="seg ${state.weekends===x?"selected":""}" data-weekends="${x}">${x}</button>`).join("")}</div></div>
       <div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next">Profil ansehen</button></div></section>`;
-    $("#salary").oninput=e=>{state.salary=+e.target.value;$("#salaryValue").textContent=state.salary.toLocaleString("de-DE")+" €";saveState()};
+    $("#salary").oninput=e=>{state.salary=+e.target.value;$("#salaryValue").textContent=money(state.salary);saveState()};
     $("#distance").oninput=e=>{state.distance=+e.target.value;$("#distanceValue").textContent=state.distance+" km";saveState()};
     $$("[data-employment]").forEach(b=>b.onclick=()=>{state.employment=b.dataset.employment;saveState();render()});
     $$("[data-night]").forEach(b=>b.onclick=()=>{state.night=b.dataset.night;saveState();render()});
     $$("[data-weekends]").forEach(b=>b.onclick=()=>{state.weekends=b.dataset.weekends;saveState();render()});
     $("#back").onclick=()=>setOnboarding(5); $("#next").onclick=()=>{deriveFields();setOnboarding(7)};
-  } else if(step===7){
-    deriveFields();
-    v.innerHTML=`<section class="screen">${progressHTML(7)}<div class="eyebrow">Dein PSSND-Profil</div><h1>Das bist du beruflich.</h1><p>Kein klassischer Lebenslauf – sondern das, was für dein Matching wichtig ist.</p>
-      <div class="profile-block"><b>Was du mitbringst</b><p>${activeSkills().slice(0,4).map(s=>s.short).join(" · ") || "Praxiserfahrung · Verlässlichkeit · Lernbereitschaft"}</p></div>
-      <div class="profile-block"><b>Was besser werden soll</b><p>${wishText(state.wishes) || "Passendere Arbeitsbedingungen"}</p></div>
-      <div class="profile-block"><b>Rahmen</b><p>ab ${state.salary.toLocaleString("de-DE")} € · max. ${state.distance} km · ${state.employment} · Nachtschicht: ${state.night}</p></div>
-      <div class="profile-block"><b>Wofür du offen bist</b><p>${state.fields.join(" · ")}</p></div>
-      <div class="badges"><div class="badge">Profil bereit</div><div class="badge">${rankJobs().filter(x=>x.score>=80).length} starke Matches gefunden</div></div>
-      <div class="actions"><button class="btn btn-secondary" id="back">Ändern</button><button class="btn btn-primary" id="finish">Matches starten</button></div></section>`;
-    $("#back").onclick=()=>setOnboarding(6);
-    $("#finish").onclick=()=>{state.profileReady=true;saveState();route("matches")};
+    return;
   }
-}
-
-function wishText(arr){
-  const m={geld:"mehr Geld",zeiten:"bessere Arbeitszeiten",stress:"weniger Stress",nahe:"einen kürzeren Arbeitsweg",entwicklung:"mehr Entwicklung",leben:"mehr Zeit fürs Leben",neu:"etwas Neues",homeoffice:"Homeoffice"};
-  return arr.map(x=>m[x]).join(", ");
+  deriveFields();
+  const pc=profileCompleteness();
+  v.innerHTML=`<section class="screen">${progressHTML(7)}<div class="eyebrow">Dein PSSND-Profil</div><h1>Das bist du beruflich.</h1><p>Kein klassischer Lebenslauf – sondern das, was für dein Matching wichtig ist.</p>
+    <div class="profile-health"><div class="ring" style="--pct:${pc}%"><span>${pc}%</span></div><div><strong>Profil bereit fürs Matching</strong><p class="small">Du kannst später jederzeit etwas ändern.</p></div></div>
+    <div class="profile-block"><b>Was du mitbringst</b><p>${activeSkills().slice(0,5).map(s=>escapeHTML(s.short)).join(" · ")||"Praxiserfahrung · Lernbereitschaft"}</p></div>
+    <div class="profile-block"><b>Was besser werden soll</b><p>${escapeHTML(wishText(state.wishes)||"Passendere Arbeitsbedingungen")}</p></div>
+    <div class="profile-block"><b>Rahmen</b><p>ab ${money(state.salary)} · max. ${state.distance} km · ${state.employment} · Nachtschicht: ${state.night}</p></div>
+    <div class="profile-block"><b>Wofür du offen bist</b><p>${state.fields.join(" · ")}</p></div>
+    <div class="badges"><div class="badge">${rankJobs().filter(x=>x.score>=80).length} starke Demo-Matches</div><div class="badge">V${APP_VERSION}</div></div>
+    <div class="actions"><button class="btn btn-secondary" id="back">Ändern</button><button class="btn btn-primary" id="finish">Matches starten</button></div></section>`;
+  $("#back").onclick=()=>setOnboarding(6);
+  $("#finish").onclick=()=>{state.profileReady=true;saveState();route("matches")};
 }
 
 function inferSkills(){
   const t=(state.experience+" "+state.recognizedText).toLowerCase();
   const skills=[];
-  const add=(text,short,tags)=>skills.push({text,short,tags,active:true});
-  if(/lager|kommission|waren|versand|logistik/.test(t)) add("Du kennst Abläufe aus der Praxis – nicht nur aus der Theorie.","Praxisabläufe",["lager","waren","versand"]);
-  if(/stapler|gabelstapler/.test(t)) add("Du gehst routiniert mit Verantwortung und Arbeitsmitteln um.","Verantwortung",["stapler","lager"]);
-  if(/kasse|verkauf|kunden|service|einzelhandel/.test(t)) add("Du kannst mit Menschen umgehen – auch wenn es mal stressig wird.","Menschenumgang",["kunden","service"]);
-  if(/organis|plan|koord|überblick|ueberblick/.test(t)) add("Du behältst den Überblick, wenn mehrere Dinge gleichzeitig laufen.","Überblick",["organisation"]);
-  if(/team|kolleg/.test(t)) add("Du weißt, wann du selbst anpacken und wann du dich mit anderen abstimmen musst.","Teamarbeit",["team"]);
-  if(/chef|leitung|verantwort|einarbeit/.test(t)) add("Andere verlassen sich auf dich, wenn Verantwortung übernommen werden muss.","Verlässlichkeit",["team","organisation"]);
-  if(/telefon|mail|büro|buero|verwaltung/.test(t)) add("Du kannst Informationen sortieren und verständlich weitergeben.","Kommunikation",["telefon","organisation"]);
-  if(/maschine|produktion|montage|fertigung/.test(t)) add("Du arbeitest praktisch, konzentriert und nah am echten Ergebnis.","Praktisch arbeiten",["produktion"]);
-  if(/pflege|betreuung|patient|bewohner/.test(t)) add("Du kannst Verantwortung für Menschen übernehmen und bleibst aufmerksam.","Verantwortung für Menschen",["service","team"]);
-  if(/\d+\s*(jahr|jahre)/.test(t)) add("Du bringst echte Erfahrung mit – nicht nur Theorie.","Erfahrung",[]);
-  if(state.wishes.includes("entwicklung")) add("Du willst nicht einfach nur wechseln – du willst dich weiterentwickeln.","Entwicklungswille",["organisation"]);
-  if(state.problems.includes("stress") && state.wishes.includes("stress")) add("Du weißt inzwischen ziemlich genau, welche Arbeitsweise dir nicht mehr guttut.","Klarheit über Grenzen",[]);
-  const fallback=[
-    ["Du kennst deinen Arbeitsalltag aus der Praxis und weißt, worauf es wirklich ankommt.","Praxiserfahrung",["lager"]],
+  const add=(text,short,tags=[])=>{if(!skills.some(s=>s.short===short))skills.push({text,short,tags,active:true})};
+  if(/lager|kommission|waren|versand|logistik/.test(t))add("Du kennst Abläufe aus der Praxis – nicht nur aus der Theorie.","Praxisabläufe",["lager","waren","versand"]);
+  if(/stapler|gabelstapler/.test(t))add("Du gehst routiniert mit Verantwortung und Arbeitsmitteln um.","Verantwortung",["stapler","lager"]);
+  if(/kasse|verkauf|kunden|service|einzelhandel/.test(t))add("Du kannst mit Menschen umgehen – auch wenn es mal stressig wird.","Menschenumgang",["kunden","service"]);
+  if(/organis|plan|koord|überblick|ueberblick/.test(t))add("Du behältst den Überblick, wenn mehrere Dinge gleichzeitig laufen.","Überblick",["organisation"]);
+  if(/team|kolleg/.test(t))add("Du weißt, wann du selbst anpacken und wann du dich mit anderen abstimmen musst.","Teamarbeit",["team"]);
+  if(/chef|leitung|verantwort|einarbeit/.test(t))add("Andere verlassen sich auf dich, wenn Verantwortung übernommen werden muss.","Verlässlichkeit",["team","organisation"]);
+  if(/telefon|mail|büro|buero|verwaltung/.test(t))add("Du kannst Informationen sortieren und verständlich weitergeben.","Kommunikation",["telefon","organisation"]);
+  if(/maschine|produktion|montage|fertigung/.test(t))add("Du arbeitest praktisch, konzentriert und nah am echten Ergebnis.","Praktisch arbeiten",["produktion"]);
+  if(/\d+\s*(jahr|jahre)/.test(t))add("Du bringst echte Erfahrung mit – nicht nur Theorie.","Erfahrung",[]);
+  if(state.wishes.includes("entwicklung"))add("Du willst nicht nur wechseln – du willst dich weiterentwickeln.","Entwicklungswille",["organisation"]);
+  if(state.problems.includes("stress"))add("Du weißt inzwischen ziemlich genau, welche Arbeitsweise langfristig besser zu dir passt.","Klarheit über Bedingungen",[]);
+  [
     ["Andere können sich darauf verlassen, dass du Dinge zu Ende bringst.","Verlässlichkeit",["team"]],
-    ["Du kannst ziemlich klar benennen, was dein nächster Job besser machen soll.","Klarheit",[]]
-  ];
-  let idx=0;
-  while(skills.length<4){
-    const f=fallback[idx++%fallback.length];
-    if(!skills.some(s=>s.short===f[1])) add(...f);
-  }
-  state.skills=skills.slice(0,7);
-  saveState();
+    ["Du kennst deinen Arbeitsalltag aus der Praxis und weißt, worauf es ankommt.","Praxiserfahrung",["lager"]],
+    ["Du kannst klar benennen, was dein nächster Job besser machen soll.","Klarheit",[]]
+  ].forEach(f=>{if(skills.length<5)add(...f)});
+  state.skills=skills.slice(0,8);saveState();
 }
-
 function activeSkills(){return state.skills.filter(s=>s.active!==false)}
-
 function deriveFields(){
-  const tags=new Set(activeSkills().flatMap(s=>s.tags||[]));
-  const fields=[];
-  if(tags.has("lager")||tags.has("waren")) fields.push("Lager & Logistik","Warenannahme");
-  if(tags.has("produktion")) fields.push("Produktionslogistik");
-  if(tags.has("organisation")) fields.push("Koordination");
-  if(tags.has("telefon")||tags.has("kunden")) fields.push("Service / Disposition");
-  if(state.wishes.includes("neu")) fields.push("Quereinstieg");
-  if(!fields.length) fields.push("Quereinstieg","Logistik","Service");
-  state.fields=[...new Set(fields)].slice(0,5);
-  saveState();
+  const tags=new Set(activeSkills().flatMap(s=>s.tags||[])), f=[];
+  if(tags.has("lager")||tags.has("waren"))f.push("Lager & Logistik","Warenannahme");
+  if(tags.has("produktion"))f.push("Produktionslogistik");
+  if(tags.has("organisation"))f.push("Koordination");
+  if(tags.has("telefon")||tags.has("kunden"))f.push("Service / Disposition");
+  if(state.wishes.includes("neu"))f.push("Quereinstieg");
+  if(!f.length)f.push("Quereinstieg","Logistik","Service");
+  state.fields=[...new Set(f)].slice(0,5);saveState();
+}
+function skillTags(){return new Set(activeSkills().flatMap(s=>s.tags||[]))}
+function profileCompleteness(){
+  let p=20;
+  if(state.mood)p+=8;
+  if(state.problems.length)p+=10;
+  if(state.wishes.length)p+=15;
+  if(state.experience.trim().length>15)p+=18;
+  if(activeSkills().length>=3)p+=14;
+  if(state.salary)p+=8;
+  if(state.distance)p+=7;
+  return Math.min(100,p);
 }
 
-function skillTags(){
-  return new Set(activeSkills().flatMap(s=>s.tags||[]));
-}
+/* Matching V0.2: transparent weighted fit, not a claim of objective suitability. */
 function scoreJob(job){
-  let score=52;
-  const reasons=[];
-  const warns=[];
-  if(job.salaryMax>=state.salary){score+=12;reasons.push("Gehalt erreicht deinen Wunsch");}
-  else {score-=10;warns.push("Gehalt liegt unter deinem Wunsch");}
-  if(job.distance<=state.distance){score+=10;reasons.push("Arbeitsweg liegt in deiner Grenze");}
-  else {score-=9;warns.push("Arbeitsweg ist weiter als gewünscht");}
-  if(state.night==="Nein"){
-    if(!job.night){score+=10;reasons.push("Keine Nachtschicht");}
-    else {score-=18;warns.push("Nachtschicht gehört dazu");}
-  }
-  if(state.weekends==="Möglichst frei"){
-    if(!job.weekend){score+=6;reasons.push("Wochenenden sind frei");}
-    else {score-=5;warns.push("Gelegentliche Samstagsarbeit");}
-  }
-  if(state.wishes.includes("entwicklung") && job.growth){score+=6;reasons.push("Entwicklungsmöglichkeiten vorhanden");}
-  if(state.wishes.includes("stress") && job.stress==="niedrig"){score+=6;reasons.push("Ruhigeres Arbeitsumfeld");}
-  const tags=skillTags();
-  const overlap=job.tags.filter(t=>tags.has(t)).length;
-  if(overlap){score+=Math.min(10,overlap*4);reasons.push("Deine bisherigen Erfahrungen passen");}
-  score=Math.max(28,Math.min(98,score));
-  return {score,reasons:[...new Set(reasons)].slice(0,4),warns:[...new Set(warns)].slice(0,2)};
+  const reasons=[],warns=[],breakdown={};
+  let total=0;
+  // Salary: 22
+  const mid=(job.salaryMin+job.salaryMax)/2;
+  let sal=job.salaryMax>=state.salary?22:mid>=state.salary*.9?14:6;
+  total+=sal; breakdown.Gehalt=Math.round(sal/22*100);
+  sal===22?reasons.push("Gehalt erreicht deinen Wunsch"):warns.push("Gehalt liegt unter deinem Wunsch");
+
+  // Distance: 18
+  let dist=0;
+  if(job.distance<=state.distance)dist=18;
+  else dist=Math.max(0,18-(job.distance-state.distance)*1.2);
+  total+=dist;breakdown.Entfernung=Math.round(dist/18*100);
+  dist>=16?reasons.push("Arbeitsweg liegt in deiner Grenze"):warns.push("Arbeitsweg ist weiter als gewünscht");
+
+  // Nights: 16
+  let night=12;
+  if(state.night==="Nein")night=job.night?0:16;
+  else if(state.night==="Ja")night=job.night?16:10;
+  total+=night;breakdown.Schichten=Math.round(night/16*100);
+  if(state.night==="Nein"&&!job.night)reasons.push("Keine Nachtschicht");
+  if(state.night==="Nein"&&job.night)warns.push("Nachtschicht gehört dazu");
+
+  // Weekend: 8
+  let week=6;
+  if(state.weekends==="Möglichst frei")week=job.weekend?2:8;
+  if(state.weekends==="Gelegentlich okay")week=job.weekend?6:8;
+  total+=week;breakdown.Wochenende=Math.round(week/8*100);
+  if(state.weekends==="Möglichst frei"&&!job.weekend)reasons.push("Wochenenden sind frei");
+  if(state.weekends==="Möglichst frei"&&job.weekend)warns.push("Gelegentliche Wochenendarbeit");
+
+  // Work wishes: 14
+  let wishes=7;
+  if(state.wishes.includes("entwicklung")&&job.growth)wishes+=3;
+  if(state.wishes.includes("stress")&&job.stress==="niedrig")wishes+=3;
+  if(state.wishes.includes("zeiten")&&!job.night)wishes+=1;
+  wishes=Math.min(14,wishes);
+  total+=wishes;breakdown.Wünsche=Math.round(wishes/14*100);
+  if(state.wishes.includes("entwicklung")&&job.growth)reasons.push("Entwicklungsmöglichkeiten vorhanden");
+  if(state.wishes.includes("stress")&&job.stress==="niedrig")reasons.push("Ruhigeres Arbeitsumfeld");
+
+  // Transferable skills: 22
+  const tags=skillTags(), overlap=job.tags.filter(t=>tags.has(t)).length;
+  let skills=8;
+  if(overlap===1)skills=14;
+  if(overlap===2)skills=18;
+  if(overlap>=3)skills=22;
+  if(state.wishes.includes("neu")&&overlap===0)skills=11;
+  total+=skills;breakdown.Erfahrung=Math.round(skills/22*100);
+  overlap?reasons.push("Deine bisherigen Erfahrungen lassen sich gut übertragen"):reasons.push("Quereinstieg ist grundsätzlich denkbar");
+
+  // learn from explicit rejection reasons
+  const feedback=Object.values(state.rejectionFeedback||{});
+  if(feedback.includes("zu_weit")&&job.distance>state.distance)total-=4;
+  if(feedback.includes("schicht")&&job.night)total-=5;
+  if(feedback.includes("gehalt")&&job.salaryMax<state.salary)total-=4;
+
+  const score=Math.max(32,Math.min(98,Math.round(total)));
+  return {score,breakdown,reasons:[...new Set(reasons)].slice(0,4),warns:[...new Set(warns)].slice(0,2)};
 }
-function rankJobs(){
-  return demoJobs.map(job=>({...job,...scoreJob(job)})).sort((a,b)=>b.score-a.score);
+function rankJobs(){return demoJobs.map(j=>({...j,...scoreJob(j)})).sort((a,b)=>b.score-a.score)}
+
+function renderMatches(){
+  if(!state.profileReady)return setOnboarding(1);
+  const jobs=rankJobs().filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id));
+  const all=rankJobs();
+  const top=jobs[0];
+  $("#view").innerHTML=`<section class="screen">
+    <div class="eyebrow">Matches zuerst</div><h1>Was passt heute zu dir?</h1>
+    <p>Wische nach links, wenn es nicht passt. Nach rechts, wenn du interessiert bist.</p>
+    <div class="match-toolbar"><span class="small">${jobs.length} offene Matches</span><span class="version-pill">${all.filter(j=>j.score>=80).length} über 80 %</span></div>
+    ${top?`<div class="deck-wrap"><div class="deck-shadow"></div>${swipeCard(top,jobs.length)}</div>
+      <div class="swipe-actions"><button class="round-action" id="rejectBtn">✕ Nicht meins</button><button class="round-action" id="detailsBtn">Details</button><button class="round-action like" id="likeBtn">♥ Interessiert</button></div>`
+    :`<div class="card empty"><div class="match-empty-icon">✨</div><h3>Du bist durch.</h3><p>Du hast alle Demo-Jobs bewertet. Du kannst abgelehnte Jobs für weitere Tests zurückholen.</p><button class="btn btn-secondary" id="restoreJobs" style="margin-top:16px">Demo-Matches zurücksetzen</button></div>`}
+    <div class="card soft"><h3>PSSND lernt mit.</h3><p>Deine „Nein“-Gründe beeinflussen die Reihenfolge der nächsten Demo-Matches leicht. Später soll daraus echtes persönliches Matching werden.</p></div>
+  </section>`;
+  if(!top){$("#restoreJobs").onclick=()=>{state.skipped=[];state.interested=[];state.rejectionFeedback={};saveState();render()};return}
+  $("#detailsBtn").onclick=()=>{state.activeJobId=top.id;saveState();route("matchDetail")};
+  $("#likeBtn").onclick=()=>acceptJob(top.id);
+  $("#rejectBtn").onclick=()=>showFeedbackSheet(top.id);
+  setupSwipe($("#swipeCard"),top.id);
 }
-function jobCard(job,compact=false){
-  return `<article class="match-card" data-job="${job.id}">
+function swipeCard(job,count){
+  return `<article class="swipe-card" id="swipeCard">
+    <div class="swipe-stamp nope" id="nopeStamp">Nein</div><div class="swipe-stamp like" id="likeStamp">PSSND</div>
     <span class="fit">♥ ${job.score} % PSSND</span>
-    <h2>${job.title}</h2>
-    <div class="subtitle">${job.company} · ${job.city}</div>
+    <h2>${escapeHTML(job.title)}</h2><div class="subtitle">${escapeHTML(job.company)} · ${escapeHTML(job.city)}</div>
+    <p style="margin-top:12px">${escapeHTML(job.summary)}</p>
     <div class="info-grid">
-      <div class="info"><b>Gehalt</b><span>${job.salaryMin.toLocaleString("de-DE")}–${job.salaryMax.toLocaleString("de-DE")} €</span></div>
+      <div class="info"><b>Gehalt</b><span>${money(job.salaryMin)}–${money(job.salaryMax).replace(" €","")} €</span></div>
       <div class="info"><b>Entfernung</b><span>${job.distance} km</span></div>
       <div class="info"><b>Schicht</b><span>${job.night?"mit Nacht":job.shift}</span></div>
       <div class="info"><b>Entwicklung</b><span>${job.growth?"Ja":"Begrenzt"}</span></div>
     </div>
-    ${compact?"":`<div class="reasons">${job.reasons.map(r=>`<div class="reason good">${r}</div>`).join("")}${job.warns.map(r=>`<div class="reason warn">${r}</div>`).join("")}</div>`}
-    <div class="match-actions">
-      <button class="btn btn-secondary skip-job" data-id="${job.id}">Weiter</button>
-      <button class="btn btn-primary open-job" data-id="${job.id}">${compact?"Ansehen":"Interessiert ❤️"}</button>
-    </div>
+    <div class="match-mini-reasons">${job.reasons.slice(0,2).map(r=>`<div>✓ ${escapeHTML(r)}</div>`).join("")}${job.warns.slice(0,1).map(r=>`<div class="warning">⚠️ ${escapeHTML(r)}</div>`).join("")}</div>
+    <div class="small" style="text-align:center;margin-top:14px">${count>1?"Nächstes Match wartet dahinter":"Letztes offenes Demo-Match"}</div>
   </article>`;
 }
+function setupSwipe(card,id){
+  if(!card)return;
+  let startX=0,currentX=0,dragging=false;
+  const nope=$("#nopeStamp"),like=$("#likeStamp");
+  const down=e=>{dragging=true;startX=e.clientX??e.touches?.[0]?.clientX??0;currentX=0;card.classList.add("dragging")};
+  const move=e=>{
+    if(!dragging)return;
+    const x=e.clientX??e.touches?.[0]?.clientX??startX;
+    currentX=x-startX;
+    card.style.transform=`translateX(${currentX}px) rotate(${currentX/22}deg)`;
+    const op=Math.min(1,Math.abs(currentX)/90);
+    if(currentX<0){nope.style.opacity=op;like.style.opacity=0}else{like.style.opacity=op;nope.style.opacity=0}
+  };
+  const up=()=>{
+    if(!dragging)return;dragging=false;card.classList.remove("dragging");
+    if(currentX>95){card.style.transform="translateX(520px) rotate(18deg)";card.style.opacity="0";setTimeout(()=>acceptJob(id),180)}
+    else if(currentX<-95){card.style.transform="translateX(-520px) rotate(-18deg)";card.style.opacity="0";setTimeout(()=>showFeedbackSheet(id),180)}
+    else{card.style.transform="";nope.style.opacity=0;like.style.opacity=0}
+  };
+  card.addEventListener("pointerdown",down);window.addEventListener("pointermove",move);window.addEventListener("pointerup",up,{once:false});
+}
+function acceptJob(id){
+  if(!state.interested.includes(id))state.interested.push(id);
+  saveState();toast("♥ Interesse gespeichert");render();
+}
+function rejectJob(id,reason){
+  if(!state.skipped.includes(id))state.skipped.push(id);
+  if(reason)state.rejectionFeedback[id]=reason;
+  saveState();closeSheet();toast("Verstanden – nächstes Match.");render();
+}
+function showFeedbackSheet(id){
+  const old=$("#feedbackSheet");if(old)old.remove();
+  const wrap=document.createElement("div");wrap.id="feedbackSheet";wrap.className="sheet-backdrop";
+  wrap.innerHTML=`<div class="sheet"><h3>Was passt nicht?</h3><p>Optional – damit PSSND deine nächsten Matches besser sortieren kann.</p>
+    <div class="feedback-grid">
+      <button class="feedback-btn" data-reason="gehalt">💶 Gehalt</button>
+      <button class="feedback-btn" data-reason="zu_weit">📍 Zu weit</button>
+      <button class="feedback-btn" data-reason="schicht">🌙 Arbeitszeiten</button>
+      <button class="feedback-btn" data-reason="aufgabe">🧩 Aufgabe</button>
+      <button class="feedback-btn" data-reason="branche">🏭 Bereich</button>
+      <button class="feedback-btn" data-reason="gefuehl">🤷 Einfach nicht meins</button>
+    </div><button class="btn btn-ghost feedback-skip" id="skipFeedback">Ohne Grund weiter</button></div>`;
+  document.body.appendChild(wrap);
+  $$("[data-reason]",wrap).forEach(b=>b.onclick=()=>rejectJob(id,b.dataset.reason));
+  $("#skipFeedback").onclick=()=>rejectJob(id,"");
+  wrap.onclick=e=>{if(e.target===wrap)rejectJob(id,"")};
+}
+function closeSheet(){$("#feedbackSheet")?.remove()}
 
-function renderMatches(){
-  if(!state.profileReady){return setOnboarding(1)}
-  const jobs=rankJobs().filter(j=>!state.skipped.includes(j.id));
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Matches zuerst</div><h1>Was passt heute zu dir?</h1><p>PSSND zeigt dir nicht nur Jobs – sondern warum sie zu deinen Wünschen und Erfahrungen passen.</p><div class="badges"><div class="badge">${jobs.filter(j=>j.score>=80).length} starke Matches</div><div class="badge">${state.interested.length} gespeichert</div></div><div class="match-list">${jobs.length?jobs.slice(0,5).map(j=>jobCard(j,true)).join(""):`<div class="empty">Für diese Demo sind gerade keine weiteren Jobs übrig.<br><button class="btn btn-ghost" id="restoreJobs">Jobs zurückholen</button></div>`}</div></section>`;
-  $$(".open-job").forEach(b=>b.onclick=()=>{state.activeJobId=+b.dataset.id;saveState();route("matchDetail")});
-  $$(".skip-job").forEach(b=>b.onclick=()=>{if(!state.skipped.includes(+b.dataset.id))state.skipped.push(+b.dataset.id);saveState();render();toast("Diesen Job zeigen wir dir nicht mehr.")});
-  if($("#restoreJobs")) $("#restoreJobs").onclick=()=>{state.skipped=[];saveState();render()};
-}
 function renderMatchDetail(id){
-  const job=rankJobs().find(j=>j.id===id) || rankJobs()[0];
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Für dich ausgewählt</div><h1>${job.score} % PSSND.</h1><p>Du siehst offen, was passt – und was vielleicht nicht perfekt ist.</p>${jobCard(job,false)}</section>`;
-  $$(".open-job").forEach(b=>b.onclick=()=>{const jid=+b.dataset.id;if(!state.interested.includes(jid))state.interested.push(jid);saveState();state.activeJobId=jid;route("matchMoment")});
-  $$(".skip-job").forEach(b=>b.onclick=()=>{const jid=+b.dataset.id;if(!state.skipped.includes(jid))state.skipped.push(jid);saveState();route("matches")});
-}
-function renderMatchMoment(id){
-  const job=demoJobs.find(j=>j.id===id);
-  $("#view").innerHTML=`<section class="screen hero-space"><div class="hero-icon" style="position:relative;left:auto;top:auto;margin-bottom:22px"><img src="data:image/png;base64,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"></div><div class="eyebrow">Interesse gespeichert</div><h1>Gefällt dir. 👀</h1><p>PSSND merkt sich dein Interesse an <strong>${job?.title||"diesem Job"}</strong>. Wenn der Arbeitgeber dich ebenfalls interessant findet, entsteht später der echte Match-Moment.</p><div class="card soft"><h3>Dann wird's einfach.</h3><p>Profil freigeben · direkt Kontakt aufnehmen · Bewerbung vereinfachen.</p></div><div class="actions one"><button class="btn btn-primary" id="homeBtn">Zu meinem Home →</button></div></section>`;
-  $("#homeBtn").onclick=()=>route("home");
+  const job=rankJobs().find(j=>j.id===id)||rankJobs()[0];
+  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Warum passt das?</div><h1>${job.score} % PSSND.</h1><p>Der Wert ist ein transparenter Demo-Matchingwert – keine objektive Bewertung eines Menschen oder Jobs.</p>
+    <div class="match-card"><span class="fit">♥ ${job.score} % PSSND</span><h2>${escapeHTML(job.title)}</h2><div class="subtitle">${escapeHTML(job.company)} · ${escapeHTML(job.city)}</div><p style="margin-top:12px">${escapeHTML(job.summary)}</p>
+      <div class="info-grid"><div class="info"><b>Gehalt</b><span>${money(job.salaryMin)}–${money(job.salaryMax).replace(" €","")} €</span></div><div class="info"><b>Entfernung</b><span>${job.distance} km</span></div><div class="info"><b>Schicht</b><span>${job.night?"mit Nacht":job.shift}</span></div><div class="info"><b>Entwicklung</b><span>${job.growth?"Ja":"Begrenzt"}</span></div></div>
+      <div class="reasons">${job.reasons.map(r=>`<div class="reason good">${escapeHTML(r)}</div>`).join("")}${job.warns.map(r=>`<div class="reason warn">${escapeHTML(r)}</div>`).join("")}</div>
+      <h3 style="margin-top:20px">So setzt sich dein Match zusammen</h3><div class="score-breakdown">${Object.entries(job.breakdown).map(([k,v])=>`<div class="score-line"><b>${k}</b><div class="score-track"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join("")}</div>
+      <div class="match-actions"><button class="btn btn-secondary" id="detailReject">Nicht für mich</button><button class="btn btn-primary" id="detailLike">Interessiert ♥</button></div>
+    </div></section>`;
+  $("#detailReject").onclick=()=>showFeedbackSheet(job.id);
+  $("#detailLike").onclick=()=>{acceptJob(job.id);route("matches")};
 }
 
 function renderHome(){
-  if(!state.profileReady) return setOnboarding(1);
-  const jobs=rankJobs();
-  const recent=state.checkins.slice(-5);
+  if(!state.profileReady)return setOnboarding(1);
+  const jobs=rankJobs(), open=jobs.filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id)), top=open[0]||jobs[0], recent=state.checkins.slice(-5);
   $("#view").innerHTML=`<section class="screen">
-    <div class="home-hero"><div class="eyebrow">Schön, dass du da bist 👋</div><h1>Was ist heute PSSND für dich?</h1><p>Matches bleiben zentral. Der kurze Check-in hilft PSSND nur dabei, dich mit der Zeit noch besser zu verstehen.</p></div>
-    <div class="stat-grid"><div class="stat"><div class="num">${jobs.filter(j=>j.score>=80).length}</div><div class="label">starke Matches</div></div><div class="stat"><div class="num">${state.interested.length}</div><div class="label">interessant gefunden</div></div></div>
-    <div class="card"><div class="card-row"><div><h3>Deine Matches</h3><p>${jobs[0].title} liegt aktuell bei ${jobs[0].score} % PSSND.</p></div></div><button class="btn btn-primary" id="goMatches" style="margin-top:14px">Matches ansehen</button></div>
-    <div class="card"><h3>30-Sekunden-Check</h3><p>Wie war Arbeit diese Woche?</p><div class="checkin">${[["😍",5],["🙂",4],["😐",3],["😕",2],["😣",1]].map(([e,v])=>`<button class="mood-btn" data-checkin="${v}">${e}</button>`).join("")}</div>${recent.length?`<div class="trend">${recent.map(x=>`<div class="bar" style="height:${12+x.value*11}px" title="${x.value}/5"></div>`).join("")}</div><div class="small">Dein kleiner Verlauf – nur unterstützend, nicht der Mittelpunkt.</div>`:""}</div>
-    <div class="card soft"><h3>${recent.length && avg(recent)>=4?"Du bist gerade ziemlich PSSND.":"Was könnte diese Woche besser passen?"}</h3><p>${recent.length && avg(recent)>=4?"Schön zu sehen: Deine letzten Check-ins sind positiv. Du musst gerade nichts verändern – wir helfen dir trotzdem, deinen Job gut zu halten und dich weiterzuentwickeln.":"Wenn du willst, kannst du im Coach kurz festhalten, was dich gerade beschäftigt."}</p></div>
+    <div class="home-hero"><div class="eyebrow">Schön, dass du da bist 👋</div><h1>Was ist heute PSSND für dich?</h1><p>Deine Matches stehen im Mittelpunkt. Alles andere hilft nur, sie persönlicher zu machen.</p></div>
+    <div class="stat-grid"><div class="stat"><div class="num">${open.filter(j=>j.score>=80).length}</div><div class="label">starke offene Matches</div></div><div class="stat"><div class="num">${state.interested.length}</div><div class="label">interessant gefunden</div></div></div>
+    <div class="top-match-card"><span class="fit">${top.score} % PSSND</span><h3 style="margin-top:12px">${escapeHTML(top.title)}</h3><p>${escapeHTML(top.company)} · ${top.distance} km</p><button class="btn btn-primary" id="goMatches" style="margin-top:14px">Matches ansehen</button></div>
+    <div class="card"><h3>30-Sekunden-Check</h3><p>Wie war Arbeit diese Woche?</p><div class="checkin">${[["😍",5],["🙂",4],["😐",3],["😕",2],["😣",1]].map(([e,val])=>`<button class="mood-btn" data-checkin="${val}">${e}</button>`).join("")}</div>${recent.length?`<div class="trend">${recent.map(x=>`<div class="bar" style="height:${12+x.value*11}px"></div>`).join("")}</div><div class="small">Nur ein leichter Verlauf – PSSND bleibt eine Matching-App.</div>`:""}</div>
+    <div class="card soft"><h3>${recent.length&&avg(recent)>=4?"Du bist gerade ziemlich PSSND.":"PSSND beobachtet keine Probleme – es sucht Passung."}</h3><p>${recent.length&&avg(recent)>=4?"Deine letzten Check-ins sind positiv. Vielleicht musst du gerade gar nichts verändern. Deine Matches bleiben trotzdem als Marktüberblick da.":"Wenn du unsicher bist, hilft dir der Coach beim Sortieren – ohne dich zu einem Wechsel zu drängen."}</p></div>
   </section>`;
   $("#goMatches").onclick=()=>route("matches");
   $$("[data-checkin]").forEach(b=>b.onclick=()=>{state.checkins.push({date:new Date().toISOString(),value:+b.dataset.checkin});state.checkins=state.checkins.slice(-12);saveState();toast("Check-in gespeichert");render()});
 }
-function avg(arr){return arr.reduce((s,x)=>s+x.value,0)/arr.length}
 
 function renderChances(){
   deriveFields();
   const tags=skillTags();
-  const chances=[
-    {name:"Warenannahme",desc:"Passt gut, wenn du Abläufe, Waren und Überblick kennst.",show:tags.has("waren")||tags.has("lager")},
-    {name:"Produktionslogistik",desc:"Interessant, wenn du praktisch arbeitest und Materialflüsse verstehst.",show:tags.has("produktion")||tags.has("lager")},
-    {name:"Koordination",desc:"Für Menschen, die Überblick behalten und andere gut abstimmen können.",show:tags.has("organisation")},
-    {name:"Disposition / Service",desc:"Wenn Organisation, Kommunikation und Tempo zu dir passen.",show:tags.has("telefon")||tags.has("kunden")||tags.has("organisation")},
-    {name:"Quereinstieg",desc:"Jobs, bei denen Erfahrung und Haltung wichtiger sind als ein perfekter Abschluss.",show:true}
-  ].filter(c=>c.show);
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Mehr als dein Jobtitel</div><h1>Was könnte noch zu dir passen?</h1><p>PSSND übersetzt deine bisherigen Erfahrungen in neue Möglichkeiten.</p>${chances.map(c=>`<div class="chance-card"><strong>${c.name}</strong><p>${c.desc}</p><button class="btn btn-ghost chanceMatches" style="justify-content:flex-start;padding-left:0">Passende Matches ansehen →</button></div>`).join("")}</section>`;
+  const items=[
+    {name:"Warenannahme",icon:"📦",desc:"Passt gut, wenn du Abläufe, Waren und Überblick kennst.",show:tags.has("waren")||tags.has("lager")},
+    {name:"Produktionslogistik",icon:"🏭",desc:"Interessant, wenn du praktisch arbeitest und Materialflüsse verstehst.",show:tags.has("produktion")||tags.has("lager")},
+    {name:"Koordination",icon:"🧭",desc:"Für Menschen, die Überblick behalten und Dinge gut abstimmen können.",show:tags.has("organisation")},
+    {name:"Disposition / Service",icon:"☎️",desc:"Wenn Organisation, Kommunikation und Tempo zu dir passen.",show:tags.has("telefon")||tags.has("kunden")||tags.has("organisation")},
+    {name:"Quereinstieg",icon:"✨",desc:"Jobs, bei denen Erfahrung und Haltung wichtiger sein können als ein perfekter Abschluss.",show:true}
+  ].filter(x=>x.show);
+  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Mehr als dein Jobtitel</div><h1>Was könnte noch zu dir passen?</h1><p>PSSND sucht nach übertragbaren Fähigkeiten – nicht nur nach identischen Berufsbezeichnungen.</p>${items.map(x=>`<div class="chance-card"><strong>${x.icon} ${x.name}</strong><p>${x.desc}</p><button class="inline-link chanceMatches" style="margin-top:10px">Passende Matches ansehen →</button></div>`).join("")}</section>`;
   $$(".chanceMatches").forEach(b=>b.onclick=()=>route("matches"));
 }
 
+function coachContext(){
+  const top=rankJobs()[0];
+  return `Aktuell: ${activeSkills().slice(0,3).map(s=>s.short).join(", ")||"Profil im Aufbau"} · Wunsch: ${wishText(state.wishes)||"noch offen"} · Top-Demo-Match: ${top.title} (${top.score} %)`;
+}
 function localCoachReply(msg){
-  const m=msg.toLowerCase();
-  if(m.includes("künd")||m.includes("wechsel")){
-    return "Ein Wechsel muss nicht automatisch die beste Lösung sein. Bei dir würde ich zuerst schauen, ob vor allem Arbeitszeiten, Stress oder Entwicklung das Problem sind. Deine Matches können dir zeigen, ob ein anderer Arbeitgeber dieselbe Tätigkeit besser passend anbietet.";
-  }
-  if(m.includes("gehalt")||m.includes("verdien")){
-    return `Du hast aktuell mindestens ${state.salary.toLocaleString("de-DE")} € als Wunsch angegeben. In deinen Demo-Matches liegen mehrere Jobs darüber. Später können wir dafür echte regionale Gehaltsdaten anbinden.`;
-  }
-  if(m.includes("welche")||m.includes("jobs")||m.includes("machen")){
-    return `Aus deinem Profil ergeben sich aktuell vor allem ${state.fields.join(", ")}. Unter „Chancen“ zeige ich dir, warum diese Bereiche zu deinen Erfahrungen passen könnten.`;
-  }
-  if(m.includes("stress")){
-    return "Du hast Stress als wichtiges Thema genannt. PSSND sollte deshalb Jobs mit ruhigeren Bedingungen höher gewichten – ohne daraus eine medizinische Bewertung zu machen.";
-  }
-  return "Ich würde das gern gemeinsam mit deinem Profil betrachten. In dieser Demo antworte ich noch regelbasiert. Später bekommt der Coach dein PSSND-Profil als Kontext und kann viel persönlicher mit dir sprechen.";
+  const m=msg.toLowerCase(),top=rankJobs()[0];
+  if(m.includes("warum")&&m.includes("match"))return `${top.title} liegt bei ${top.score} %, weil ${top.reasons.slice(0,3).join(", ").toLowerCase()}. ${top.warns.length?"Offen gesagt: "+top.warns.join(" und ")+".":""}`;
+  if(m.includes("künd")||m.includes("wechsel"))return `Du musst nicht automatisch den Beruf wechseln. Bei dir sind aktuell besonders ${wishText(state.wishes)||"deine Arbeitsbedingungen"} wichtig. Ich würde zuerst vergleichen, ob dieselbe oder eine ähnliche Tätigkeit bei einem anderen Arbeitgeber besser passt.`;
+  if(m.includes("gehalt")||m.includes("verdien"))return `Dein eingestellter Wunsch liegt bei mindestens ${money(state.salary)} brutto. In der Demo erfüllen ${rankJobs().filter(j=>j.salaryMax>=state.salary).length} von ${demoJobs.length} Jobs diese Grenze. Für eine echte Einschätzung brauchen wir später aktuelle regionale Gehaltsdaten.`;
+  if(m.includes("welche")||m.includes("jobs")||m.includes("machen"))return `Aus deinem Profil ergeben sich aktuell vor allem ${state.fields.join(", ")}. Das sind Möglichkeiten – keine Festlegung. Unter „Chancen“ siehst du, warum diese Bereiche auftauchen.`;
+  if(m.includes("stress"))return `Stress ist bei dir ein relevantes Thema. Deshalb bekommen ruhigere Arbeitsumfelder in deinem Demo-Matching einen Bonus. PSSND bewertet dabei keine Gesundheit, sondern nur deine angegebenen Arbeitswünsche.`;
+  if(m.includes("unsicher")||m.includes("weiß nicht")||m.includes("weiss nicht"))return `Dann würde ich nicht mit einem Jobtitel starten. Sag mir lieber: Was möchtest du auf keinen Fall mehr – und was soll sich im Alltag spürbar verbessern? Genau daraus lässt sich ein sinnvoller nächster Schritt ableiten.`;
+  return `Ich würde das mit deinem Profil zusammen betrachten. ${top.title} ist gerade dein stärkstes Demo-Match. In einer späteren Version kann hier eine echte KI mit deinem PSSND-Kontext antworten.`;
 }
 function renderCoach(){
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Frag PSSND</div><h1>Was beschäftigt dich gerade?</h1><p>Der Coach kennt dein Profil. Noch läuft er kostenlos lokal – die echte KI-Anbindung kommt später.</p><div class="chat">${state.chat.map(x=>`<div class="bubble ${x.role}">${escapeHTML(x.text)}</div>`).join("")}</div><div class="chat-row"><input id="chatInput" placeholder="Schreib PSSND …"><button id="sendChat">→</button></div><div class="chips"><button class="chip quick" data-msg="Sollte ich wirklich wechseln?">Sollte ich wechseln?</button><button class="chip quick" data-msg="Ist mein Wunschgehalt realistisch?">Mein Wunschgehalt?</button><button class="chip quick" data-msg="Welche Jobs könnte ich noch machen?">Andere Jobs?</button></div></section>`;
-  const send=(msg)=>{
-    if(!msg.trim()) return;
-    state.chat.push({role:"user",text:msg.trim()});
-    state.chat.push({role:"bot",text:localCoachReply(msg.trim())});
-    state.chat=state.chat.slice(-20); saveState(); render();
-    setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}),50);
-  };
+  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Frag PSSND</div><h1>Was beschäftigt dich gerade?</h1><p>Der Coach soll dich beim Sortieren unterstützen – nicht für dich entscheiden.</p><div class="coach-context"><strong>Was ich gerade berücksichtige:</strong><br>${escapeHTML(coachContext())}</div><div class="chat">${state.chat.map(x=>`<div class="bubble ${x.role}">${escapeHTML(x.text)}</div>`).join("")}</div><div class="chat-row"><input id="chatInput" placeholder="Schreib PSSND …"><button id="sendChat">→</button></div><div class="chips"><button class="chip quick" data-msg="Warum ist mein bestes Match so hoch?">Warum dieser Match?</button><button class="chip quick" data-msg="Sollte ich wirklich wechseln?">Sollte ich wechseln?</button><button class="chip quick" data-msg="Welche Jobs könnte ich noch machen?">Andere Jobs?</button><button class="chip quick" data-msg="Ist mein Wunschgehalt realistisch?">Gehalt?</button></div></section>`;
+  const send=msg=>{if(!msg.trim())return;state.chat.push({role:"user",text:msg.trim()},{role:"bot",text:localCoachReply(msg.trim())});state.chat=state.chat.slice(-24);saveState();render();setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}),40)};
   $("#sendChat").onclick=()=>send($("#chatInput").value);
   $("#chatInput").onkeydown=e=>{if(e.key==="Enter")send(e.target.value)};
   $$(".quick").forEach(b=>b.onclick=()=>send(b.dataset.msg));
 }
-
 function renderProfile(){
-  const checkins=state.checkins.slice(-5);
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Ich</div><h1>Was PSSND über deine Arbeit weiß.</h1><p>Du behältst die Kontrolle. Diese Demo speichert alles nur lokal in deinem Browser.</p>
-    <div class="profile-block"><b>Meine Stärken</b><p>${activeSkills().map(s=>s.short).join(" · ") || "Noch nicht erfasst"}</p></div>
-    <div class="profile-block"><b>Meine Wünsche</b><p>${wishText(state.wishes) || "Noch nicht erfasst"}</p></div>
-    <div class="profile-block"><b>Meine Bedingungen</b><p>ab ${state.salary.toLocaleString("de-DE")} € · max. ${state.distance} km · ${state.employment}</p></div>
-    <div class="profile-block"><b>Mein Job-Check</b><p>${checkins.length?`${checkins.length} Check-ins gespeichert · Ø ${avg(checkins).toFixed(1)} / 5`:"Noch kein Check-in gespeichert"}</p></div>
-    <div class="profile-block"><b>Gespeicherte Interessen</b><p>${state.interested.length} Jobs</p></div>
+  const recent=state.checkins.slice(-5),pc=profileCompleteness();
+  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Ich</div><h1>Dein PSSND-Profil.</h1><p>Du behältst die Kontrolle. In V0.2 liegen deine Angaben ausschließlich lokal in diesem Browser.</p>
+    <div class="profile-health"><div class="ring" style="--pct:${pc}%"><span>${pc}%</span></div><div><strong>Profilstand</strong><p class="small">${state.interested.length} Interessen · ${Object.keys(state.rejectionFeedback).length} Lernsignale</p></div></div>
+    <div class="profile-block"><b>Meine Stärken</b><p>${activeSkills().map(s=>escapeHTML(s.short)).join(" · ")||"Noch nicht erfasst"}</p></div>
+    <div class="profile-block"><b>Meine Wünsche</b><p>${escapeHTML(wishText(state.wishes)||"Noch nicht erfasst")}</p></div>
+    <div class="profile-block"><b>Meine Bedingungen</b><p>ab ${money(state.salary)} · max. ${state.distance} km · ${state.employment} · Nacht: ${state.night}</p></div>
+    <div class="profile-block"><b>Mein Job-Check</b><p>${recent.length?`${recent.length} letzte Check-ins · Ø ${avg(recent).toFixed(1)} / 5`:"Noch kein Check-in gespeichert"}</p></div>
+    <div class="privacy-note"><span>🔒</span><span><strong>V0.2 Datenschutz:</strong> Keine Anmeldung, kein Server und keine Übertragung deiner Profildaten. Löschen kannst du alles oben über ↻.</span></div>
     <button class="btn btn-secondary" id="editProfile" style="margin-top:18px">Profil bearbeiten</button>
+    <div style="display:flex;justify-content:center;margin-top:14px"><span class="version-pill">PSSND V${APP_VERSION}</span></div>
   </section>`;
   $("#editProfile").onclick=()=>setOnboarding(1);
 }
 
-function escapeHTML(s=""){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-
+function bestMimeType(){
+  const types=["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"];
+  return types.find(t=>MediaRecorder.isTypeSupported?.(t))||"";
+}
 async function toggleRecording(){
-  const btn=$("#micBtn");
-  const title=$("#micTitle");
-  const text=$("#micText");
-  if(mediaRecorder && mediaRecorder.state==="recording"){
-    mediaRecorder.stop();
-    return;
-  }
+  if(mediaRecorder?.state==="recording"){stopRecording(false);return}
   try{
+    if(!window.isSecureContext)toast("Öffne PSSND über deine HTTPS-Adresse.");
     mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    audioChunks=[];
-    mediaRecorder=new MediaRecorder(mediaStream);
-    mediaRecorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
+    audioChunks=[];recSeconds=0;
+    const mime=bestMimeType();
+    mediaRecorder=new MediaRecorder(mediaStream,mime?{mimeType:mime}:undefined);
+    mediaRecorder.ondataavailable=e=>{if(e.data?.size)audioChunks.push(e.data)};
     mediaRecorder.onstop=()=>{
-      const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||"audio/webm"});
-      if(lastAudioURL) URL.revokeObjectURL(lastAudioURL);
+      clearInterval(recTimer);
+      const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||mime||"audio/mp4"});
+      if(lastAudioURL)URL.revokeObjectURL(lastAudioURL);
       lastAudioURL=URL.createObjectURL(blob);
       state.recorded=true;saveState();
-      if($("#audioWrap")) $("#audioWrap").innerHTML=`<audio controls src="${lastAudioURL}"></audio>`;
-      btn.classList.remove("recording");btn.textContent="🎙️";
-      title.textContent="Aufnahme gespeichert";
-      text.textContent="Du kannst sie anhören oder neu aufnehmen.";
-      mediaStream?.getTracks().forEach(t=>t.stop());
+      $("#audioWrap")&&( $("#audioWrap").innerHTML=`<audio controls src="${lastAudioURL}"></audio>` );
+      $("#micBtn")?.classList.remove("recording");
+      if($("#micBtn"))$("#micBtn").textContent="🎙️";
+      if($("#micTitle"))$("#micTitle").textContent="Aufnahme gespeichert";
+      if($("#micText"))$("#micText").textContent="Du kannst sie anhören oder neu aufnehmen.";
+      if($("#recordTimer"))$("#recordTimer").textContent="";
+      mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;
+      try{recognition?.stop()}catch(e){}
     };
-    mediaRecorder.start();
-    btn.classList.add("recording");btn.textContent="■";
-    title.textContent="Ich höre zu …";text.textContent="Tippe erneut, wenn du fertig bist.";
-    trySpeechRecognition();
+    mediaRecorder.start(250);
+    $("#micBtn")?.classList.add("recording");if($("#micBtn"))$("#micBtn").textContent="■";
+    if($("#micTitle"))$("#micTitle").textContent="Ich höre zu …";
+    if($("#micText"))$("#micText").textContent="Tippe erneut, wenn du fertig bist.";
+    recTimer=setInterval(()=>{recSeconds++;if($("#recordTimer"))$("#recordTimer").textContent=`${String(Math.floor(recSeconds/60)).padStart(2,"0")}:${String(recSeconds%60).padStart(2,"0")}`},1000);
+    startSpeechRecognition();
   }catch(e){
-    title.textContent="Mikrofon nicht verfügbar";
-    text.textContent="Erlaube deinem Browser den Mikrofonzugriff oder nutze das Textfeld.";
+    if($("#micTitle"))$("#micTitle").textContent="Mikrofon nicht freigegeben";
+    if($("#micText"))$("#micText").textContent="Erlaube Safari den Mikrofonzugriff oder nutze das Textfeld.";
   }
 }
-function trySpeechRecognition(){
+function stopRecording(silent=false){
+  clearInterval(recTimer);
+  if(mediaRecorder?.state==="recording")try{mediaRecorder.stop()}catch(e){}
+  mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;
+  try{recognition?.stop()}catch(e){}
+  if(silent){mediaRecorder=null;audioChunks=[]}
+}
+function startSpeechRecognition(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR) return;
+  if(!SR)return;
   try{
-    const rec=new SR();
-    rec.lang="de-DE"; rec.interimResults=false; rec.continuous=true;
-    rec.onresult=e=>{
-      let transcript="";
-      for(let i=e.resultIndex;i<e.results.length;i++) transcript+=e.results[i][0].transcript+" ";
-      state.recognizedText=(state.recognizedText+" "+transcript).trim();
-      state.experience=(state.experience+" "+transcript).trim();
-      saveState();
-      if($("#experience")) $("#experience").value=state.experience;
+    recognition=new SR();recognition.lang="de-DE";recognition.interimResults=false;recognition.continuous=false;
+    recognition.onresult=e=>{
+      const tx=[...e.results].map(r=>r[0]?.transcript||"").join(" ").trim();
+      if(tx){state.recognizedText=(state.recognizedText+" "+tx).trim();state.experience=(state.experience+" "+tx).trim();saveState();if($("#experience"))$("#experience").value=state.experience}
     };
-    rec.start();
-    setTimeout(()=>{try{rec.stop()}catch(e){}},45000);
+    recognition.start();
   }catch(e){}
 }
 
-// Initial setup
-if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
-}
+window.addEventListener("beforeunload",()=>stopRecording(true));
 render();
+
 </script>
 </body>
 </html>
