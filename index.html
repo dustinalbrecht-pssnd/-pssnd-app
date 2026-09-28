@@ -317,7 +317,7 @@ button:disabled{opacity:.42;cursor:not-allowed}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 
-/* ===== PSSND V0.4 / true visual redesign ===== */
+/* ===== PSSND V0.5 / true visual redesign ===== */
 body{
   background:
     radial-gradient(circle at 85% -5%, rgba(255,125,92,.16), transparent 30%),
@@ -505,8 +505,95 @@ p{line-height:1.5}
 .note{box-shadow:none}
 .version-pill{background:#fff}
 
+
+/* ===== V0.5 Screenbook expansion ===== */
+.job-photo{width:100%;height:100%;object-fit:cover;display:block}
+.match-visual{overflow:hidden}
+.match-visual::before,.match-visual::after{display:none!important}
+.feature-match{
+  min-height:330px;background:#252525;padding:0;display:flex;align-items:flex-end;
+}
+.feature-match::after{display:none}
+.feature-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.feature-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,15,15,.02) 25%,rgba(15,15,15,.82) 100%)}
+.feature-content{position:relative;z-index:2;width:100%;padding:20px;color:#fff}
+.feature-content h2{margin:30px 0 5px;color:#fff}
+.feature-content .feature-company{color:rgba(255,255,255,.76)}
+.feature-content .feature-fact{background:rgba(255,255,255,.16);color:#fff;backdrop-filter:blur(10px)}
+.feature-content .feature-cta{background:#fff;color:#20252B}
+.analysis-v5{padding-top:6px}
+.analysis-v5 h1{font-size:39px}
+.score-hero{
+  margin-top:18px;border-radius:31px;padding:20px;background:linear-gradient(145deg,#20252B,#34363A);
+  color:#fff;box-shadow:0 22px 50px rgba(32,37,43,.14);overflow:hidden;position:relative
+}
+.score-hero::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-50px;top:-60px;background:linear-gradient(135deg,var(--mango),var(--coral));opacity:.9}
+.score-top{display:flex;justify-content:space-between;gap:15px;position:relative;z-index:2}
+.score-main{font-size:54px;font-weight:950;letter-spacing:-.07em;line-height:1}
+.score-main small{font-size:17px;letter-spacing:0;color:rgba(255,255,255,.55)}
+.score-label{font-size:12px;color:rgba(255,255,255,.58);margin-top:5px}
+.score-trend{align-self:flex-start;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:11px;font-weight:850}
+.score-message{position:relative;z-index:2;margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,.12);font-size:13px;color:rgba(255,255,255,.76);line-height:1.45}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.metric-card{border-radius:24px;background:#fff;border:1px solid #F3E7DF;padding:15px;box-shadow:0 10px 28px rgba(47,29,18,.04)}
+.metric-icon{font-size:19px;margin-bottom:17px}
+.metric-name{font-size:11px;color:var(--muted);font-weight:750}
+.metric-value{font-size:25px;font-weight:950;letter-spacing:-.05em;margin-top:3px}
+.metric-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.metric-bar{height:5px;border-radius:999px;background:#F1EBE6;margin-top:11px;overflow:hidden}
+.metric-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mango),var(--coral))}
+.chart-card{margin-top:12px;border-radius:27px;background:#fff;border:1px solid #F3E7DF;padding:17px;box-shadow:0 10px 28px rgba(47,29,18,.04)}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.chart-head h3{font-size:17px}
+.chart-legend{display:flex;gap:9px;margin-top:6px;font-size:10px;color:var(--muted)}
+.chart-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.chart-svg{width:100%;height:150px;margin-top:10px;overflow:visible}
+.checkin-panel{margin-top:12px;border-radius:27px;padding:17px;background:linear-gradient(135deg,#FFF1E5,#FFF7F1);border:1px solid #F3DFD1}
+.checkin-panel h3{font-size:17px}
+.analysis-moods{display:flex;gap:7px;margin-top:12px}
+.analysis-moods button{flex:1;border:0;border-radius:15px;background:#fff;padding:11px 3px;font-size:20px;box-shadow:0 6px 18px rgba(50,30,18,.04)}
+.profile-v5{padding-top:5px}
+.profile-v5 h1{font-size:38px}
+.profile-cover{
+  margin-top:16px;border-radius:31px;padding:23px 18px 19px;text-align:center;
+  background:linear-gradient(145deg,#FFF0DF,#FFE9E0);border:1px solid #F5DDCF;position:relative;overflow:hidden
+}
+.profile-cover::before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-70px;top:-90px;background:linear-gradient(135deg,var(--mango),var(--coral));opacity:.22}
+.profile-photo{
+  width:94px;height:94px;border-radius:32px;margin:0 auto 12px;background:linear-gradient(135deg,#FFD36A,#FF8D69);
+  border:5px solid rgba(255,255,255,.86);box-shadow:0 13px 30px rgba(60,30,16,.10);
+  display:grid;place-items:center;font-size:39px;position:relative;overflow:hidden
+}
+.profile-photo img{width:100%;height:100%;object-fit:cover}
+.photo-add{
+  position:absolute;right:-4px;bottom:-4px;width:29px;height:29px;border-radius:10px;background:#20252B;color:#fff;
+  border:3px solid #FFF2E8;display:grid;place-items:center;font-size:13px
+}
+.profile-name{font-size:25px;font-weight:950;letter-spacing:-.045em}
+.profile-tagline{font-size:12px;color:var(--muted);max-width:270px;margin:4px auto 0}
+.profile-score-card{margin-top:12px;border-radius:27px;background:#fff;border:1px solid #F3E7DF;padding:17px}
+.profile-score-flex{display:flex;align-items:center;gap:16px}
+.profile-ring{
+  width:76px;height:76px;border-radius:50%;background:conic-gradient(var(--mango) var(--profilepct),#F1EBE6 0);
+  display:grid;place-items:center;position:relative;flex:none
+}
+.profile-ring::after{content:"";position:absolute;inset:8px;background:#fff;border-radius:50%}
+.profile-ring b{position:relative;z-index:2;font-size:18px}
+.profile-checks{display:grid;gap:6px;font-size:11px;color:#5E5652}
+.profile-checks span::before{content:"✓";display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#FFF0D1;color:#C97516;font-weight:900;margin-right:7px}
+.profile-section{margin-top:12px;border-radius:27px;background:#fff;border:1px solid #F3E7DF;padding:17px}
+.section-title-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.section-title-row h3{font-size:17px}
+.value-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.value-pills span{padding:9px 11px;border-radius:999px;background:#FFF2DE;color:#704C2E;font-size:11px;font-weight:800}
+.goal-row{display:flex;gap:12px;align-items:flex-start;margin-top:13px}
+.goal-icon{width:42px;height:42px;border-radius:15px;background:#FFF0E7;display:grid;place-items:center;font-size:19px;flex:none}
+.goal-row b{font-size:13px}
+.goal-row p{font-size:11px;margin-top:3px}
+.upload-hidden{display:none}
+
 </style>
-  <title>PSSND V0.4</title>
+  <title>PSSND V0.5</title>
 </head>
 <body>
   <div id="app">
@@ -520,7 +607,7 @@ p{line-height:1.5}
 
     <nav class="bottom-nav hidden" id="bottomNav">
       <button data-tab="home"><span>⌂</span><small>Home</small></button>
-      <button data-tab="chances"><span>✦</span><small>Chancen</small></button>
+      <button data-tab="analysis"><span>◒</span><small>Analyse</small></button>
       <button data-tab="matches" class="nav-main"><span>♥</span><small>Matches</small></button>
       <button data-tab="coach"><span>◌</span><small>Coach</small></button>
       <button data-tab="profile"><span>◉</span><small>Ich</small></button>
@@ -533,21 +620,21 @@ p{line-height:1.5}
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
-const APP_VERSION = "0.4";
+const APP_VERSION = "0.5";
 
 const demoJobs = [
-  {id:1,title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
-  {id:2,title:"Mitarbeiter Warenannahme",company:"RheinWest Handel",city:"Bochum",salaryMin:2950,salaryMax:3150,distance:19,night:false,weekend:false,field:"warenannahme",tags:["waren","lager","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Prüfen, koordinieren und dafür sorgen, dass im Wareneingang alles läuft."},
-  {id:3,title:"Produktionslogistiker",company:"Mova Industries",city:"Essen",salaryMin:3200,salaryMax:3450,distance:27,night:true,weekend:false,field:"produktionslogistik",tags:["produktion","lager","organisation"],growth:true,stress:"mittel",shift:"3-schicht",summary:"Materialfluss zwischen Lager und Produktion organisieren."},
-  {id:4,title:"Versandmitarbeiter",company:"ParcelPoint",city:"Gelsenkirchen",salaryMin:2850,salaryMax:3050,distance:9,night:false,weekend:true,field:"versand",tags:["versand","lager","team"],growth:false,stress:"hoch",shift:"früh/spät",summary:"Sendungen vorbereiten, kontrollieren und im Team auf den Weg bringen."},
-  {id:5,title:"Materialversorger",company:"WestForm Technik",city:"Herne",salaryMin:3000,salaryMax:3350,distance:18,night:false,weekend:false,field:"material",tags:["produktion","waren","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Produktion zuverlässig mit Material versorgen und Bestände im Blick behalten."},
-  {id:6,title:"Koordinator Lager & Versand",company:"Unitra GmbH",city:"Dortmund",salaryMin:3300,salaryMax:3600,distance:16,night:false,weekend:false,field:"koordination",tags:["organisation","team","lager","versand"],growth:true,stress:"mittel",shift:"tag",summary:"Abläufe koordinieren, Prioritäten setzen und den Überblick behalten."},
-  {id:7,title:"Quereinsteiger Disposition",company:"RouteNow",city:"Essen",salaryMin:3100,salaryMax:3400,distance:25,night:false,weekend:false,field:"disposition",tags:["organisation","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Touren, Termine und Menschen miteinander koordinieren."},
-  {id:8,title:"Lagermitarbeiter",company:"CargoBase",city:"Recklinghausen",salaryMin:2750,salaryMax:2950,distance:31,night:false,weekend:false,field:"logistik",tags:["lager","stapler"],growth:false,stress:"niedrig",shift:"tag",summary:"Klassische Lagerarbeit mit klaren Abläufen und Tagschicht."},
-  {id:9,title:"Mitarbeiter Produktionsversorgung",company:"ForgeLine",city:"Bochum",salaryMin:3150,salaryMax:3350,distance:22,night:false,weekend:true,field:"produktionslogistik",tags:["produktion","lager","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Material bereitstellen und Produktionsabläufe am Laufen halten."},
-  {id:10,title:"Servicekoordinator",company:"Fixaro Services",city:"Dortmund",salaryMin:3000,salaryMax:3500,distance:12,night:false,weekend:false,field:"service",tags:["organisation","kunden","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Anliegen koordinieren und zwischen Kunden und Technik vermitteln."},
-  {id:11,title:"Mitarbeiter Bestandssteuerung",company:"StockPilot",city:"Essen",salaryMin:3250,salaryMax:3500,distance:24,night:false,weekend:false,field:"bestand",tags:["organisation","waren","lager"],growth:true,stress:"niedrig",shift:"tag",summary:"Bestände prüfen, Abweichungen erkennen und Warenflüsse verbessern."},
-  {id:12,title:"Teamunterstützung Logistik",company:"FlowHub",city:"Gelsenkirchen",salaryMin:3000,salaryMax:3250,distance:10,night:false,weekend:false,field:"logistik",tags:["team","lager","organisation"],growth:true,stress:"mittel",shift:"tag",summary:"Im Tagesgeschäft mit anpacken und gleichzeitig Abläufe zusammenhalten."}
+  {id:1,image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=82",title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
+  {id:2,image:"https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=900&q=82",title:"Mitarbeiter Warenannahme",company:"RheinWest Handel",city:"Bochum",salaryMin:2950,salaryMax:3150,distance:19,night:false,weekend:false,field:"warenannahme",tags:["waren","lager","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Prüfen, koordinieren und dafür sorgen, dass im Wareneingang alles läuft."},
+  {id:3,image:"https://images.unsplash.com/photo-1565793298595-6a879b1d9492?auto=format&fit=crop&w=900&q=82",title:"Produktionslogistiker",company:"Mova Industries",city:"Essen",salaryMin:3200,salaryMax:3450,distance:27,night:true,weekend:false,field:"produktionslogistik",tags:["produktion","lager","organisation"],growth:true,stress:"mittel",shift:"3-schicht",summary:"Materialfluss zwischen Lager und Produktion organisieren."},
+  {id:4,image:"https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=900&q=82",title:"Versandmitarbeiter",company:"ParcelPoint",city:"Gelsenkirchen",salaryMin:2850,salaryMax:3050,distance:9,night:false,weekend:true,field:"versand",tags:["versand","lager","team"],growth:false,stress:"hoch",shift:"früh/spät",summary:"Sendungen vorbereiten, kontrollieren und im Team auf den Weg bringen."},
+  {id:5,image:"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=900&q=82",title:"Materialversorger",company:"WestForm Technik",city:"Herne",salaryMin:3000,salaryMax:3350,distance:18,night:false,weekend:false,field:"material",tags:["produktion","waren","organisation"],growth:true,stress:"niedrig",shift:"tag",summary:"Produktion zuverlässig mit Material versorgen und Bestände im Blick behalten."},
+  {id:6,image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=82",title:"Koordinator Lager & Versand",company:"Unitra GmbH",city:"Dortmund",salaryMin:3300,salaryMax:3600,distance:16,night:false,weekend:false,field:"koordination",tags:["organisation","team","lager","versand"],growth:true,stress:"mittel",shift:"tag",summary:"Abläufe koordinieren, Prioritäten setzen und den Überblick behalten."},
+  {id:7,image:"https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=82",title:"Quereinsteiger Disposition",company:"RouteNow",city:"Essen",salaryMin:3100,salaryMax:3400,distance:25,night:false,weekend:false,field:"disposition",tags:["organisation","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Touren, Termine und Menschen miteinander koordinieren."},
+  {id:8,image:"https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=900&q=82",title:"Lagermitarbeiter",company:"CargoBase",city:"Recklinghausen",salaryMin:2750,salaryMax:2950,distance:31,night:false,weekend:false,field:"logistik",tags:["lager","stapler"],growth:false,stress:"niedrig",shift:"tag",summary:"Klassische Lagerarbeit mit klaren Abläufen und Tagschicht."},
+  {id:9,image:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=82",title:"Mitarbeiter Produktionsversorgung",company:"ForgeLine",city:"Bochum",salaryMin:3150,salaryMax:3350,distance:22,night:false,weekend:true,field:"produktionslogistik",tags:["produktion","lager","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Material bereitstellen und Produktionsabläufe am Laufen halten."},
+  {id:10,image:"https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=82",title:"Servicekoordinator",company:"Fixaro Services",city:"Dortmund",salaryMin:3000,salaryMax:3500,distance:12,night:false,weekend:false,field:"service",tags:["organisation","kunden","telefon","team"],growth:true,stress:"mittel",shift:"tag",summary:"Anliegen koordinieren und zwischen Kunden und Technik vermitteln."},
+  {id:11,image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=82",title:"Mitarbeiter Bestandssteuerung",company:"StockPilot",city:"Essen",salaryMin:3250,salaryMax:3500,distance:24,night:false,weekend:false,field:"bestand",tags:["organisation","waren","lager"],growth:true,stress:"niedrig",shift:"tag",summary:"Bestände prüfen, Abweichungen erkennen und Warenflüsse verbessern."},
+  {id:12,image:"https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=82",title:"Teamunterstützung Logistik",company:"FlowHub",city:"Gelsenkirchen",salaryMin:3000,salaryMax:3250,distance:10,night:false,weekend:false,field:"logistik",tags:["team","lager","organisation"],growth:true,stress:"mittel",shift:"tag",summary:"Im Tagesgeschäft mit anpacken und gleichzeitig Abläufe zusammenhalten."}
 ];
 
 const initialState = {
@@ -571,6 +658,15 @@ const initialState = {
   skipped:[],
   rejectionFeedback:{},
   checkins:[],
+  analysisHistory:[
+    {label:"W1",satisfaction:58,stress:72},
+    {label:"W2",satisfaction:61,stress:68},
+    {label:"W3",satisfaction:64,stress:63},
+    {label:"W4",satisfaction:67,stress:59},
+    {label:"W5",satisfaction:71,stress:54},
+    {label:"Jetzt",satisfaction:74,stress:48}
+  ],
+  profilePhoto:"",
   profileReady:false,
   activeJobId:null,
   chat:[
@@ -599,6 +695,8 @@ function loadState(){
     merged.interested = Array.isArray(merged.interested)?merged.interested:[];
     merged.skipped = Array.isArray(merged.skipped)?merged.skipped:[];
     merged.checkins = Array.isArray(merged.checkins)?merged.checkins:[];
+    merged.analysisHistory = Array.isArray(merged.analysisHistory)&&merged.analysisHistory.length?merged.analysisHistory:clone(initialState.analysisHistory);
+    merged.profilePhoto = merged.profilePhoto || "";
     merged.chat = Array.isArray(merged.chat)&&merged.chat.length?merged.chat:clone(initialState.chat);
     merged.rejectionFeedback = merged.rejectionFeedback || {};
     return merged;
@@ -635,7 +733,7 @@ function money(v){return Number(v).toLocaleString("de-DE")+" €"}
 
 function headerControls(){
   const nav=$("#bottomNav"), back=$("#backBtn"), reset=$("#resetBtn");
-  const mainRoutes=["home","matches","chances","coach","profile"];
+  const mainRoutes=["home","matches","analysis","coach","profile"];
   nav.classList.toggle("hidden",!mainRoutes.includes(state.route));
   back.classList.toggle("hidden",state.route==="welcome"||mainRoutes.includes(state.route));
   back.onclick=()=>{
@@ -658,6 +756,7 @@ function render(){
     onboarding:renderOnboarding,
     home:renderHome,
     matches:renderMatches,
+    analysis:renderAnalysis,
     matchDetail:()=>renderMatchDetail(state.activeJobId),
     chances:renderChances,
     coach:renderCoach,
@@ -901,7 +1000,7 @@ function swipeCard(job,count){
   return `<article class="swipe-card" id="swipeCard">
     <div class="swipe-stamp nope" id="nopeStamp">Weiter</div>
     <div class="swipe-stamp like" id="likeStamp">PSSND</div>
-    <div class="match-visual"></div>
+    <div class="match-visual"><img class="job-photo" src="${job.image}" alt=""></div>
     <div class="match-body">
       <div class="match-score-row">
         <span class="match-score-big">♥ ${job.score}% PSSND</span>
@@ -1005,18 +1104,17 @@ function renderHome(){
     </div>
 
     <article class="feature-match">
-      <div class="feature-top">
-        <span class="feature-fit">♥ ${top.score}% PSSND</span>
-        <span style="font-size:19px;font-weight:900">↗</span>
+      <img class="feature-photo" src="${top.image}" alt="">
+      <div class="feature-shade"></div>
+      <div class="feature-content">
+        <div class="feature-top"><span class="feature-fit">♥ ${top.score}% PSSND</span><span style="font-size:19px;font-weight:900">↗</span></div>
+        <h2>${escapeHTML(top.title)}</h2>
+        <div class="feature-company">${escapeHTML(top.company)} · ${escapeHTML(top.city)}</div>
+        <div class="feature-facts">
+          <span class="feature-fact">${money(top.salaryMin)}+</span><span class="feature-fact">${top.distance} km</span><span class="feature-fact">${top.night?"mit Nacht":"keine Nacht"}</span>
+        </div>
+        <button class="feature-cta" id="topMatchBtn">Match ansehen</button>
       </div>
-      <h2>${escapeHTML(top.title)}</h2>
-      <div class="feature-company">${escapeHTML(top.company)} · ${escapeHTML(top.city)}</div>
-      <div class="feature-facts">
-        <span class="feature-fact">${money(top.salaryMin)}+</span>
-        <span class="feature-fact">${top.distance} km</span>
-        <span class="feature-fact">${top.night?"mit Nacht":"keine Nacht"}</span>
-      </div>
-      <button class="feature-cta" id="topMatchBtn">Match ansehen</button>
     </article>
 
     <div class="mini-grid">
@@ -1025,8 +1123,8 @@ function renderHome(){
         <div class="caption">Jobs, die du interessant findest</div>
       </div>
       <div class="mini-stat">
-        <div class="big">${profileCompleteness()}%</div>
-        <div class="caption">deines Profils helfen beim Matching</div>
+        <div class="big">${workScore()}</div>
+        <div class="caption">Work Score · deine aktuelle Arbeitssituation</div>
       </div>
     </div>
 
@@ -1042,6 +1140,83 @@ function renderHome(){
   $("#allMatches").onclick=()=>route("matches");
   $("#topMatchBtn").onclick=()=>{state.activeJobId=top.id;saveState();route("matchDetail")};
   $("#coachHomeBtn").onclick=()=>route("coach");
+}
+
+
+function workScore(){
+  const h=state.analysisHistory||initialState.analysisHistory;
+  const last=h[h.length-1]||{satisfaction:70,stress:50};
+  return Math.round(last.satisfaction*.62 + (100-last.stress)*.38);
+}
+function chartPath(values,w=300,h=120){
+  if(values.length<2)return "";
+  const max=100,min=0;
+  return values.map((v,i)=>{
+    const x=10+i*((w-20)/(values.length-1));
+    const y=8+(h-16)*(1-(v-min)/(max-min));
+    return `${i?"L":"M"}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+}
+function renderAnalysis(){
+  const hist=state.analysisHistory||initialState.analysisHistory;
+  const last=hist[hist.length-1], prev=hist[hist.length-2]||last;
+  const score=workScore(), delta=score-Math.round(prev.satisfaction*.62+(100-prev.stress)*.38);
+  const satPath=chartPath(hist.map(x=>x.satisfaction));
+  const stressPath=chartPath(hist.map(x=>x.stress));
+  const team=Math.min(100,Math.round(last.satisfaction*.92));
+  const balance=Math.max(0,Math.round(100-last.stress*.72));
+  const growth=state.wishes.includes("entwicklung")?62:72;
+  const appreciation=state.problems.includes("gehalt")?58:73;
+  $("#view").innerHTML=`<section class="screen analysis-v5">
+    <div class="eyebrow">MEIN PSSND</div>
+    <h1>Wie geht's dir mit deiner Arbeit?</h1>
+    <p>Dein Verlauf hilft dir, Veränderungen zu erkennen – ohne dich zu einem Jobwechsel zu drängen.</p>
+
+    <div class="score-hero">
+      <div class="score-top">
+        <div><div class="score-main">${score}<small>/100</small></div><div class="score-label">Work Score</div></div>
+        <div class="score-trend">${delta>=0?"↑":"↓"} ${Math.abs(delta)} Punkte</div>
+      </div>
+      <div class="score-message">${score>=72?"Deine Arbeitssituation wirkt aktuell insgesamt recht stabil. Beobachte, was sich weiter verbessert.":score>=55?"Einige Bereiche passen schon – andere kosten dich noch Energie.":"Mehrere Bereiche belasten dich aktuell. Deine Matches und dein Coach können dir helfen, Optionen zu sortieren."}</div>
+    </div>
+
+    <div class="metric-grid">
+      ${metricCard("😊","Zufriedenheit",last.satisfaction,"gut")}
+      ${metricCard("⚡","Stresslevel",last.stress,last.stress>65?"hoch":last.stress>45?"mittel":"niedrig")}
+      ${metricCard("👥","Team & Führung",team,team>70?"stabil":"ausbaufähig")}
+      ${metricCard("⚖️","Work-Life-Fit",balance,balance>70?"gut":"beobachten")}
+      ${metricCard("🚀","Entwicklung",growth,growth>70?"gut":"Potenzial")}
+      ${metricCard("💶","Wertschätzung",appreciation,appreciation>70?"gut":"Potenzial")}
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><div><h3>Dein Verlauf</h3><div class="chart-legend"><span><i class="chart-dot" style="background:#F2A900"></i>Zufriedenheit</span><span><i class="chart-dot" style="background:#FF7D5C"></i>Stress</span></div></div><span class="small">6 Wochen</span></div>
+      <svg class="chart-svg" viewBox="0 0 300 120" preserveAspectRatio="none">
+        <line x1="10" y1="30" x2="290" y2="30" stroke="#F2ECE7" stroke-width="1"/>
+        <line x1="10" y1="60" x2="290" y2="60" stroke="#F2ECE7" stroke-width="1"/>
+        <line x1="10" y1="90" x2="290" y2="90" stroke="#F2ECE7" stroke-width="1"/>
+        <path d="${satPath}" fill="none" stroke="#F2A900" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${stressPath}" fill="none" stroke="#FF7D5C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between">${hist.map(x=>`<span style="font-size:9px;color:#999">${x.label}</span>`).join("")}</div>
+    </div>
+
+    <div class="checkin-panel">
+      <h3>Kurzer Check-in</h3><p class="small">Wie zufrieden warst du diese Woche insgesamt?</p>
+      <div class="analysis-moods">${[["😣",35],["😕",48],["😐",60],["🙂",76],["😍",90]].map(([e,v])=>`<button data-analysis="${v}">${e}</button>`).join("")}</div>
+    </div>
+  </section>`;
+  $$("[data-analysis]").forEach(b=>b.onclick=()=>{
+    const satisfaction=+b.dataset.analysis;
+    const current=state.analysisHistory[state.analysisHistory.length-1];
+    const stress=Math.max(18,Math.min(90,Math.round(current.stress+(current.satisfaction-satisfaction)*.35)));
+    state.analysisHistory.push({label:"Neu",satisfaction,stress});
+    state.analysisHistory=state.analysisHistory.slice(-7);
+    saveState();toast("Check-in gespeichert");render();
+  });
+}
+function metricCard(icon,name,value,sub){
+  return `<div class="metric-card"><div class="metric-icon">${icon}</div><div class="metric-name">${name}</div><div class="metric-value">${value}%</div><div class="metric-sub">${sub}</div><div class="metric-bar"><span style="width:${value}%"></span></div></div>`;
 }
 
 function renderChances(){
@@ -1080,18 +1255,65 @@ function renderCoach(){
   $$(".quick").forEach(b=>b.onclick=()=>send(b.dataset.msg));
 }
 function renderProfile(){
-  const recent=state.checkins.slice(-5),pc=profileCompleteness();
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Ich</div><h1>Dein PSSND-Profil.</h1><p>Du behältst die Kontrolle. In V0.2 liegen deine Angaben ausschließlich lokal in diesem Browser.</p>
-    <div class="profile-health"><div class="ring" style="--pct:${pc}%"><span>${pc}%</span></div><div><strong>Profilstand</strong><p class="small">${state.interested.length} Interessen · ${Object.keys(state.rejectionFeedback).length} Lernsignale</p></div></div>
-    <div class="profile-block"><b>Meine Stärken</b><p>${activeSkills().map(s=>escapeHTML(s.short)).join(" · ")||"Noch nicht erfasst"}</p></div>
-    <div class="profile-block"><b>Meine Wünsche</b><p>${escapeHTML(wishText(state.wishes)||"Noch nicht erfasst")}</p></div>
-    <div class="profile-block"><b>Meine Bedingungen</b><p>ab ${money(state.salary)} · max. ${state.distance} km · ${state.employment} · Nacht: ${state.night}</p></div>
-    <div class="profile-block"><b>Mein Job-Check</b><p>${recent.length?`${recent.length} letzte Check-ins · Ø ${avg(recent).toFixed(1)} / 5`:"Noch kein Check-in gespeichert"}</p></div>
-    <div class="privacy-note"><span>🔒</span><span><strong>V0.2 Datenschutz:</strong> Keine Anmeldung, kein Server und keine Übertragung deiner Profildaten. Löschen kannst du alles oben über ↻.</span></div>
-    <button class="btn btn-secondary" id="editProfile" style="margin-top:18px">Profil bearbeiten</button>
-    <div style="display:flex;justify-content:center;margin-top:14px"><span class="version-pill">PSSND V${APP_VERSION}</span></div>
+  const pc=profileCompleteness(), score=workScore();
+  const photo=state.profilePhoto?`<img src="${state.profilePhoto}" alt="Profilbild">`:`👤`;
+  $("#view").innerHTML=`<section class="screen profile-v5">
+    <div class="eyebrow">ICH</div><h1>Dein Profil.</h1>
+    <p>Was dich ausmacht, was dir wichtig ist und wohin du möchtest.</p>
+
+    <div class="profile-cover">
+      <div class="profile-photo">${photo}<label class="photo-add" for="profileUpload">＋</label></div>
+      <input class="upload-hidden" type="file" id="profileUpload" accept="image/*">
+      <div class="profile-name">Mein PSSND</div>
+      <div class="profile-tagline">Auf der Suche nach Arbeit, die nicht nur fachlich – sondern auch menschlich passt.</div>
+    </div>
+
+    <div class="profile-score-card">
+      <div class="section-title-row"><h3>Profilstärke</h3><button class="inline-link" id="editProfileTop">Optimieren</button></div>
+      <div class="profile-score-flex">
+        <div class="profile-ring" style="--profilepct:${pc}%"><b>${pc}%</b></div>
+        <div class="profile-checks"><span>Interessen definiert</span><span>Stärken hinterlegt</span><span>Berufliche Ziele gesetzt</span></div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="section-title-row"><h3>Meine Top-Werte</h3><button class="inline-link" id="editValues">Bearbeiten</button></div>
+      <div class="value-pills">
+        ${(state.wishes.includes("entwicklung")?["Entwicklung"]:[]).concat(
+          state.wishes.includes("zeiten")?["Flexibilität"]:[],
+          state.problems.includes("team")?["Gutes Team"]:["Verlässlichkeit"],
+          state.wishes.includes("leben")?["Work-Life-Fit"]:[],
+          ["Faire Bedingungen"]
+        ).slice(0,5).map(x=>`<span>${x}</span>`).join("")}
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="section-title-row"><h3>Mein Ziel</h3><button class="inline-link" id="editGoal">Bearbeiten</button></div>
+      <div class="goal-row"><div class="goal-icon">🎯</div><div><b>Arbeit finden, die wirklich zu mir passt.</b><p>${escapeHTML(wishText(state.wishes)||"Bessere Bedingungen und neue Möglichkeiten entdecken.")}</p></div></div>
+    </div>
+
+    <div class="profile-section">
+      <div class="section-title-row"><h3>Meine Stärken</h3><button class="inline-link" id="editStrengths">Bearbeiten</button></div>
+      <div class="value-pills">${activeSkills().slice(0,6).map(s=>`<span>${escapeHTML(s.short)}</span>`).join("")}</div>
+    </div>
+
+    <div class="profile-section">
+      <div class="section-title-row"><h3>Aktuelle Arbeitssituation</h3><button class="inline-link" id="goAnalysis">Analyse</button></div>
+      <div class="goal-row"><div class="goal-icon">◒</div><div><b>${score}/100 Work Score</b><p>Stress, Zufriedenheit und weitere Bereiche im Verlauf ansehen.</p></div></div>
+    </div>
+
+    <div class="privacy-note"><span>🔒</span><span><strong>V0.5:</strong> Profil und Profilbild bleiben lokal auf diesem Gerät gespeichert.</span></div>
   </section>`;
-  $("#editProfile").onclick=()=>setOnboarding(1);
+  $("#profileUpload").onchange=e=>{
+    const file=e.target.files?.[0]; if(!file)return;
+    if(file.size>2.5*1024*1024){toast("Bitte ein Bild unter 2,5 MB wählen.");return}
+    const reader=new FileReader();
+    reader.onload=()=>{state.profilePhoto=reader.result;saveState();render()};
+    reader.readAsDataURL(file);
+  };
+  ["editProfileTop","editValues","editGoal","editStrengths"].forEach(id=>$("#"+id).onclick=()=>setOnboarding(1));
+  $("#goAnalysis").onclick=()=>route("analysis");
 }
 
 function bestMimeType(){
