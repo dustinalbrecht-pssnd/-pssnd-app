@@ -316,8 +316,197 @@ button:disabled{opacity:.42;cursor:not-allowed}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
+
+/* ===== PSSND V0.4 / true visual redesign ===== */
+body{
+  background:
+    radial-gradient(circle at 85% -5%, rgba(255,125,92,.16), transparent 30%),
+    radial-gradient(circle at -5% 72%, rgba(242,169,0,.12), transparent 32%),
+    #FFF9F4;
+}
+#app{
+  background:rgba(255,249,244,.96);
+  box-shadow:none;
+}
+.app-header{
+  height:70px;
+  background:rgba(255,249,244,.88);
+  border-bottom:1px solid rgba(255,255,255,.5);
+}
+.brand-logo{height:29px}
+main{padding:6px 18px 30px}
+h1{
+  font-size:clamp(38px,10vw,48px);
+  line-height:.98;
+  letter-spacing:-.065em;
+}
+p{line-height:1.5}
+.eyebrow{
+  border:0;background:transparent;padding:0;color:#CE684F;
+  font-size:11px;margin-bottom:12px;
+}
+.home-v4{padding-top:7px}
+.home-greeting{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;
+}
+.home-greeting h1{font-size:39px;max-width:350px;margin-bottom:8px}
+.home-greeting p{font-size:14px}
+.avatar-mini{
+  width:47px;height:47px;border-radius:17px;background:linear-gradient(135deg,#FFE0B1,#FFAA7D);
+  display:grid;place-items:center;font-size:22px;box-shadow:0 10px 28px rgba(84,50,28,.10);flex:none
+}
+.quick-line{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 12px
+}
+.quick-line h3{font-size:15px;letter-spacing:-.015em;margin:0}
+.quick-line button{font-size:12px}
+.feature-match{
+  position:relative;overflow:hidden;
+  border-radius:30px;padding:21px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,255,255,.32),transparent 29%),
+    linear-gradient(142deg,#FFD66E 0%,#F8B73C 34%,#FF8D69 100%);
+  color:#241710;
+  box-shadow:0 22px 55px rgba(240,128,70,.20);
+  min-height:285px;
+}
+.feature-match::after{
+  content:"";position:absolute;width:185px;height:185px;border-radius:50%;
+  right:-69px;bottom:-76px;background:rgba(255,255,255,.16)
+}
+.feature-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;position:relative;z-index:2}
+.feature-fit{
+  display:inline-flex;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.88);
+  font-size:12px;font-weight:900;box-shadow:0 6px 18px rgba(60,30,15,.08)
+}
+.feature-match h2{font-size:31px;max-width:310px;margin:42px 0 6px;position:relative;z-index:2}
+.feature-company{font-size:13px;opacity:.72;position:relative;z-index:2}
+.feature-facts{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:19px;position:relative;z-index:2
+}
+.feature-fact{
+  padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.72);
+  font-size:11px;font-weight:800
+}
+.feature-cta{
+  position:relative;z-index:2;margin-top:18px;width:100%;
+  border:0;border-radius:18px;background:#20252B;color:#fff;padding:15px 16px;
+  font-weight:850;font-size:14px
+}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mini-stat{
+  min-height:100px;border-radius:24px;padding:16px;background:#fff;
+  border:1px solid #F5E9E0;box-shadow:0 10px 30px rgba(48,30,20,.045)
+}
+.mini-stat .big{font-size:27px;font-weight:950;letter-spacing:-.05em}
+.mini-stat .caption{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+.coach-home{
+  margin-top:12px;border-radius:27px;padding:17px;background:#20252B;color:#fff;
+  box-shadow:0 18px 42px rgba(25,29,34,.13);position:relative;overflow:hidden
+}
+.coach-home::after{
+  content:"";position:absolute;width:120px;height:120px;border-radius:50%;
+  right:-48px;top:-45px;background:linear-gradient(135deg,var(--mango),var(--coral));opacity:.88
+}
+.coach-home .coach-head{display:flex;align-items:center;gap:11px;position:relative;z-index:2}
+.coach-orb{
+  width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,var(--mango),var(--coral));
+  display:grid;place-items:center;color:#21150f;font-size:20px;flex:none
+}
+.coach-home h3{font-size:18px;margin:0}
+.coach-home p{font-size:12px;color:rgba(255,255,255,.68);margin-top:3px}
+.coach-home button{
+  margin-top:14px;position:relative;z-index:2;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.09);color:#fff;padding:11px 13px;border-radius:15px;font-size:12px;font-weight:800
+}
+.bottom-nav{
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(255,249,244,.93);
+  border-top:1px solid #F2E6DD;
+}
+.bottom-nav button{
+  padding:7px 2px;
+}
+.bottom-nav button span{font-size:17px}
+.bottom-nav button small{font-size:9px;font-weight:750}
+.bottom-nav .nav-main{
+  width:58px;height:52px;justify-self:center;border-radius:19px;
+  background:linear-gradient(135deg,#F6B31B,#FF7D5C);
+  box-shadow:0 12px 26px rgba(240,128,70,.20);
+}
+
+/* Modern match deck */
+.matches-v4{padding-top:7px}
+.matches-v4 h1{font-size:38px}
+.deck-wrap{min-height:480px;margin-top:17px}
+.deck-shadow{
+  height:438px;top:18px;left:11px;right:11px;border:1px solid #F2E5DC;
+  background:#fff;border-radius:31px;
+}
+.swipe-card{
+  min-height:438px;background:#fff;border:1px solid #F2E5DC;
+  box-shadow:0 24px 55px rgba(46,28,18,.09);padding:0;overflow:hidden
+}
+.match-visual{
+  height:154px;background:
+    radial-gradient(circle at 72% 33%,rgba(255,255,255,.45),transparent 23%),
+    radial-gradient(circle at 17% 78%,rgba(255,255,255,.20),transparent 22%),
+    linear-gradient(135deg,#FFD674,#F3AB18 42%,#FF7D5C);
+  position:relative
+}
+.match-visual::before{
+  content:"";position:absolute;left:23px;bottom:22px;width:68px;height:68px;border-radius:23px;
+  background:rgba(255,255,255,.91);box-shadow:0 10px 24px rgba(59,32,17,.09)
+}
+.match-visual::after{
+  content:"P";position:absolute;left:46px;bottom:35px;font-size:31px;font-weight:950;color:#EA7850
+}
+.match-body{padding:18px 19px 20px}
+.match-body h2{font-size:29px;margin-top:11px}
+.match-score-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.match-score-big{font-size:12px;font-weight:900;color:#C8513A}
+.match-facts-v4{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.match-facts-v4 span{
+  background:#FFF6EF;border:1px solid #F4E2D7;border-radius:999px;
+  padding:7px 9px;font-size:11px;font-weight:760;color:#5B4C47
+}
+.match-why{
+  border-top:1px solid #F3E8E0;padding-top:13px;margin-top:12px;
+  display:grid;gap:7px;font-size:12px;color:#5D514C
+}
+.match-why div{display:flex;gap:8px;align-items:flex-start}
+.swipe-actions{
+  grid-template-columns:58px 1fr 58px;align-items:center;gap:10px
+}
+.round-action{
+  height:56px;border-radius:18px;padding:0;font-size:18px
+}
+#detailsBtn{font-size:13px;background:#20252B;color:#fff;border:0}
+.round-action.like{font-size:18px}
+
+/* Coach */
+.coach-v4 h1{font-size:38px}
+.coach-context{border-radius:22px;padding:15px;background:#20252B;color:#fff;border:0}
+.coach-context strong{color:#fff}
+.chat{margin-top:15px}
+.bubble{border-radius:21px;padding:14px 15px}
+.bubble.bot{background:#fff;border:1px solid #F3E6DE}
+.bubble.user{background:linear-gradient(135deg,#FFD26E,#FF9B75);border:0;color:#2A1B14}
+.chat-row input{background:#fff;border:1px solid #F0E2D9}
+.chat-row button{background:#20252B;color:#fff}
+
+/* Onboarding simplification */
+.choice,.tile,.profile-block,.chance-card,.card,.textbox,.mic-card{
+  background:#fff;
+  border:1px solid #F3E7DF;
+  box-shadow:0 10px 28px rgba(47,29,18,.04)
+}
+.tile{min-height:108px}
+.note{box-shadow:none}
+.version-pill{background:#fff}
+
 </style>
-  <title>PSSND V0.3</title>
+  <title>PSSND V0.4</title>
 </head>
 <body>
   <div id="app">
@@ -344,7 +533,7 @@ button:disabled{opacity:.42;cursor:not-allowed}
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
-const APP_VERSION = "0.3";
+const APP_VERSION = "0.4";
 
 const demoJobs = [
   {id:1,title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
@@ -689,14 +878,18 @@ function renderMatches(){
   const jobs=rankJobs().filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id));
   const all=rankJobs();
   const top=jobs[0];
-  $("#view").innerHTML=`<section class="screen">
-    <div class="eyebrow">Matches zuerst</div><h1>Was passt heute zu dir?</h1>
-    <p>Wisch nach links, wenn es nicht passt. Nach rechts, wenn du interessiert bist.</p>
-    <div class="match-toolbar"><span class="small">${jobs.length} offene Matches</span><span class="version-pill">${all.filter(j=>j.score>=80).length} über 80 %</span></div>
+  $("#view").innerHTML=`<section class="screen matches-v4">
+    <div class="eyebrow">DEINE MATCHES</div>
+    <h1>Was fühlt sich passend an?</h1>
+    <p>Links weiter. Rechts interessiert. Details, wenn du mehr wissen willst.</p>
+    <div class="match-toolbar"><span class="small">${jobs.length} offen</span><span class="version-pill">${all.filter(j=>j.score>=80).length} starke Matches</span></div>
     ${top?`<div class="deck-wrap"><div class="deck-shadow"></div>${swipeCard(top,jobs.length)}</div>
-      <div class="swipe-actions"><button class="round-action" id="rejectBtn">✕ Nicht meins</button><button class="round-action" id="detailsBtn">Details</button><button class="round-action like" id="likeBtn">♥ Interessiert</button></div>`
-    :`<div class="card empty"><div class="match-empty-icon">✨</div><h3>Du bist durch.</h3><p>Du hast alle Demo-Jobs bewertet. Du kannst abgelehnte Jobs für weitere Tests zurückholen.</p><button class="btn btn-secondary" id="restoreJobs" style="margin-top:16px">Demo-Matches zurücksetzen</button></div>`}
-    <div class="card soft"><h3>PSSND lernt mit.</h3><p>Deine „Nein“-Gründe beeinflussen die Reihenfolge der nächsten Demo-Matches leicht. Später soll daraus echtes persönliches Matching werden.</p></div>
+      <div class="swipe-actions">
+        <button class="round-action" id="rejectBtn">✕</button>
+        <button class="round-action" id="detailsBtn">Details ansehen</button>
+        <button class="round-action like" id="likeBtn">♥</button>
+      </div>`
+    :`<div class="card empty"><div class="match-empty-icon">✨</div><h3>Für jetzt alles gesehen.</h3><p>Du hast alle Demo-Matches bewertet.</p><button class="btn btn-secondary" id="restoreJobs" style="margin-top:16px">Demo-Matches zurücksetzen</button></div>`}
   </section>`;
   if(!top){$("#restoreJobs").onclick=()=>{state.skipped=[];state.interested=[];state.rejectionFeedback={};saveState();render()};return}
   $("#detailsBtn").onclick=()=>{state.activeJobId=top.id;saveState();route("matchDetail")};
@@ -706,18 +899,26 @@ function renderMatches(){
 }
 function swipeCard(job,count){
   return `<article class="swipe-card" id="swipeCard">
-    <div class="swipe-stamp nope" id="nopeStamp">Nein</div><div class="swipe-stamp like" id="likeStamp">PSSND</div>
-    <span class="fit">♥ ${job.score} % PSSND</span>
-    <h2>${escapeHTML(job.title)}</h2><div class="subtitle">${escapeHTML(job.company)} · ${escapeHTML(job.city)}</div>
-    <p style="margin-top:12px">${escapeHTML(job.summary)}</p>
-    <div class="info-grid">
-      <div class="info"><b>Gehalt</b><span>${money(job.salaryMin)}–${money(job.salaryMax).replace(" €","")} €</span></div>
-      <div class="info"><b>Entfernung</b><span>${job.distance} km</span></div>
-      <div class="info"><b>Schicht</b><span>${job.night?"mit Nacht":job.shift}</span></div>
-      <div class="info"><b>Entwicklung</b><span>${job.growth?"Ja":"Begrenzt"}</span></div>
+    <div class="swipe-stamp nope" id="nopeStamp">Weiter</div>
+    <div class="swipe-stamp like" id="likeStamp">PSSND</div>
+    <div class="match-visual"></div>
+    <div class="match-body">
+      <div class="match-score-row">
+        <span class="match-score-big">♥ ${job.score}% PSSND</span>
+        <span class="small">${count} offen</span>
+      </div>
+      <h2>${escapeHTML(job.title)}</h2>
+      <div class="subtitle">${escapeHTML(job.company)} · ${escapeHTML(job.city)}</div>
+      <div class="match-facts-v4">
+        <span>${money(job.salaryMin)}–${money(job.salaryMax).replace(" €","")} €</span>
+        <span>${job.distance} km</span>
+        <span>${job.night?"Nachtschicht":"keine Nacht"}</span>
+      </div>
+      <div class="match-why">
+        ${job.reasons.slice(0,3).map(r=>`<div><span>✓</span><span>${escapeHTML(r)}</span></div>`).join("")}
+        ${job.warns.slice(0,1).map(r=>`<div><span>•</span><span>${escapeHTML(r)}</span></div>`).join("")}
+      </div>
     </div>
-    <div class="match-mini-reasons">${job.reasons.slice(0,2).map(r=>`<div>✓ ${escapeHTML(r)}</div>`).join("")}${job.warns.slice(0,1).map(r=>`<div class="warning">⚠️ ${escapeHTML(r)}</div>`).join("")}</div>
-    <div class="small" style="text-align:center;margin-top:14px">${count>1?"Nächstes Match wartet dahinter":"Letztes offenes Demo-Match"}</div>
   </article>`;
 }
 function setupSwipe(card,id){
@@ -784,16 +985,63 @@ function renderMatchDetail(id){
 
 function renderHome(){
   if(!state.profileReady)return setOnboarding(1);
-  const jobs=rankJobs(), open=jobs.filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id)), top=open[0]||jobs[0], recent=state.checkins.slice(-5);
-  $("#view").innerHTML=`<section class="screen">
-    <div class="home-hero"><div class="eyebrow">Schön, dass du da bist 👋</div><h1>Was ist heute PSSND für dich?</h1><p>Deine Matches stehen im Mittelpunkt. Alles andere hilft nur, sie persönlicher zu machen.</p></div>
-    <div class="stat-grid"><div class="stat"><div class="num">${open.filter(j=>j.score>=80).length}</div><div class="label">starke offene Matches</div></div><div class="stat"><div class="num">${state.interested.length}</div><div class="label">interessant gefunden</div></div></div>
-    <div class="top-match-card"><span class="fit">${top.score} % PSSND</span><h3 style="margin-top:12px">${escapeHTML(top.title)}</h3><p>${escapeHTML(top.company)} · ${top.distance} km</p><button class="btn btn-primary" id="goMatches" style="margin-top:14px">Matches ansehen</button></div>
-    <div class="card"><h3>30-Sekunden-Check</h3><p>Wie war Arbeit diese Woche?</p><div class="checkin">${[["😍",5],["🙂",4],["😐",3],["😕",2],["😣",1]].map(([e,val])=>`<button class="mood-btn" data-checkin="${val}">${e}</button>`).join("")}</div>${recent.length?`<div class="trend">${recent.map(x=>`<div class="bar" style="height:${12+x.value*11}px"></div>`).join("")}</div><div class="small">Nur ein leichter Verlauf – PSSND bleibt eine Matching-App.</div>`:""}</div>
-    <div class="card soft"><h3>${recent.length&&avg(recent)>=4?"Du bist gerade ziemlich PSSND.":"PSSND beobachtet keine Probleme – es sucht Passung."}</h3><p>${recent.length&&avg(recent)>=4?"Deine letzten Check-ins sind positiv. Vielleicht musst du gerade gar nichts verändern. Deine Matches bleiben trotzdem als Marktüberblick da.":"Wenn du unsicher bist, hilft dir der Coach beim Sortieren – ohne dich zu einem Wechsel zu drängen."}</p></div>
+  const jobs=rankJobs();
+  const open=jobs.filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id));
+  const top=open[0]||jobs[0];
+  const strong=open.filter(j=>j.score>=80).length;
+  $("#view").innerHTML=`<section class="screen home-v4">
+    <div class="home-greeting">
+      <div>
+        <div class="eyebrow">DEIN PSSND</div>
+        <h1>Bereit für was, das wirklich passt?</h1>
+        <p>${strong ? `${strong} starke Matches warten auf dich.` : `Deine Matches sind bereit.`}</p>
+      </div>
+      <div class="avatar-mini">👋</div>
+    </div>
+
+    <div class="quick-line">
+      <h3>Dein stärkstes Match</h3>
+      <button class="inline-link" id="allMatches">Alle ansehen</button>
+    </div>
+
+    <article class="feature-match">
+      <div class="feature-top">
+        <span class="feature-fit">♥ ${top.score}% PSSND</span>
+        <span style="font-size:19px;font-weight:900">↗</span>
+      </div>
+      <h2>${escapeHTML(top.title)}</h2>
+      <div class="feature-company">${escapeHTML(top.company)} · ${escapeHTML(top.city)}</div>
+      <div class="feature-facts">
+        <span class="feature-fact">${money(top.salaryMin)}+</span>
+        <span class="feature-fact">${top.distance} km</span>
+        <span class="feature-fact">${top.night?"mit Nacht":"keine Nacht"}</span>
+      </div>
+      <button class="feature-cta" id="topMatchBtn">Match ansehen</button>
+    </article>
+
+    <div class="mini-grid">
+      <div class="mini-stat">
+        <div class="big">${state.interested.length}</div>
+        <div class="caption">Jobs, die du interessant findest</div>
+      </div>
+      <div class="mini-stat">
+        <div class="big">${profileCompleteness()}%</div>
+        <div class="caption">deines Profils helfen beim Matching</div>
+      </div>
+    </div>
+
+    <article class="coach-home">
+      <div class="coach-head">
+        <div class="coach-orb">✦</div>
+        <div><h3>Frag PSSND</h3><p>Unsicher, welcher Schritt gerade Sinn macht?</p></div>
+      </div>
+      <button id="coachHomeBtn">Mit deinem Coach sprechen →</button>
+    </article>
   </section>`;
-  $("#goMatches").onclick=()=>route("matches");
-  $$("[data-checkin]").forEach(b=>b.onclick=()=>{state.checkins.push({date:new Date().toISOString(),value:+b.dataset.checkin});state.checkins=state.checkins.slice(-12);saveState();toast("Check-in gespeichert");render()});
+
+  $("#allMatches").onclick=()=>route("matches");
+  $("#topMatchBtn").onclick=()=>{state.activeJobId=top.id;saveState();route("matchDetail")};
+  $("#coachHomeBtn").onclick=()=>route("coach");
 }
 
 function renderChances(){
@@ -825,7 +1073,7 @@ function localCoachReply(msg){
   return `Ich würde das mit deinem Profil zusammen betrachten. ${top.title} ist gerade dein stärkstes Demo-Match. In einer späteren Version kann hier eine echte KI mit deinem PSSND-Kontext antworten.`;
 }
 function renderCoach(){
-  $("#view").innerHTML=`<section class="screen"><div class="eyebrow">Frag PSSND</div><h1>Was beschäftigt dich gerade?</h1><p>Der Coach soll dir beim Sortieren helfen – klar, freundlich und ohne Druck.</p><div class="coach-context"><strong>Was ich gerade berücksichtige:</strong><br>${escapeHTML(coachContext())}</div><div class="chat">${state.chat.map(x=>`<div class="bubble ${x.role}">${escapeHTML(x.text)}</div>`).join("")}</div><div class="chat-row"><input id="chatInput" placeholder="Schreib PSSND …"><button id="sendChat">→</button></div><div class="chips"><button class="chip quick" data-msg="Warum ist mein bestes Match so hoch?">Warum dieser Match?</button><button class="chip quick" data-msg="Sollte ich wirklich wechseln?">Sollte ich wechseln?</button><button class="chip quick" data-msg="Welche Jobs könnte ich noch machen?">Andere Jobs?</button><button class="chip quick" data-msg="Ist mein Wunschgehalt realistisch?">Gehalt?</button></div></section>`;
+  $("#view").innerHTML=`<section class="screen coach-v4"><div class="eyebrow">FRAG PSSND</div><h1>Was beschäftigt dich gerade?</h1><p>Der Coach soll dir beim Sortieren helfen – klar, freundlich und ohne Druck.</p><div class="coach-context"><strong>Was ich gerade berücksichtige:</strong><br>${escapeHTML(coachContext())}</div><div class="chat">${state.chat.map(x=>`<div class="bubble ${x.role}">${escapeHTML(x.text)}</div>`).join("")}</div><div class="chat-row"><input id="chatInput" placeholder="Schreib PSSND …"><button id="sendChat">→</button></div><div class="chips"><button class="chip quick" data-msg="Warum ist mein bestes Match so hoch?">Warum dieser Match?</button><button class="chip quick" data-msg="Sollte ich wirklich wechseln?">Sollte ich wechseln?</button><button class="chip quick" data-msg="Welche Jobs könnte ich noch machen?">Andere Jobs?</button><button class="chip quick" data-msg="Ist mein Wunschgehalt realistisch?">Gehalt?</button></div></section>`;
   const send=msg=>{if(!msg.trim())return;state.chat.push({role:"user",text:msg.trim()},{role:"bot",text:localCoachReply(msg.trim())});state.chat=state.chat.slice(-24);saveState();render();setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}),40)};
   $("#sendChat").onclick=()=>send($("#chatInput").value);
   $("#chatInput").onkeydown=e=>{if(e.key==="Enter")send(e.target.value)};
