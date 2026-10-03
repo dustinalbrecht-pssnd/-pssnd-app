@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.4</title>
+<title>YVIA V1.5</title>
 <style>
 :root{
   --bg:#07090d;--surface:#10151e;--surface2:#151c27;--line:rgba(255,255,255,.075);
@@ -94,6 +94,63 @@ input[type=file]{display:none}
 .upload-card-v14{display:grid;grid-template-columns:1fr 1fr;gap:6px}.upload-card-v14 button{height:65px;border:1px dashed rgba(255,117,93,.25);border-radius:15px;background:#101722;color:#fff;padding:9px;display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center;text-align:left}.upload-card-v14 button>span{width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,var(--coral),var(--pink));display:grid;place-items:center}.upload-card-v14 b{font-size:7px}.upload-card-v14 small{font-size:5px;color:#7e8897}.document-list-v14{display:grid;gap:5px}.document-list-v14 article{display:grid;grid-template-columns:34px 1fr 22px;gap:7px;align-items:center;padding:7px;background:#111722;border-radius:13px}.doc-thumb-v14{width:34px;height:34px;border-radius:9px;background-size:cover;background-position:center;background-color:#202938;display:grid;place-items:center}.document-list-v14 b{font-size:7px}.document-list-v14 small{font-size:5px;color:#778291}.document-list-v14 button{border:0;background:none;color:#6f7a89}
 @media(max-height:760px){.moodfaces-v14 .moodface{height:61px!important}.moodfaces-v14 .moodface span{font-size:20px}.vertical-rate{min-height:125px}.analysis-actions-v14 small{display:none}}
 
+
+/* ===== YVIA V1.5 interaction polish ===== */
+.privacy-consent-v15{display:grid;grid-template-columns:22px 1fr;gap:9px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:14px;background:#101722;color:#9ba5b3;font-size:7px;line-height:1.4}
+.privacy-consent-v15 input{width:18px;height:18px;accent-color:var(--coral)}
+.privacy-consent-v15 button{height:auto!important;border:0!important;background:none!important;color:#ff8f72!important;padding:0!important;text-decoration:underline;font-size:inherit!important}
+.auth button:disabled{opacity:.38;filter:saturate(.5);cursor:not-allowed}
+.privacy-copy-v15{display:grid;gap:9px;margin-top:10px}.privacy-copy-v15 p{font-size:7px!important;line-height:1.5!important;color:#9aa4b2!important;margin:0!important}.privacy-copy-v15 b{color:#fff}
+
+.fine-modal-v15{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px;min-height:330px}
+.fine-modal-v15 .vertical-rate{min-height:330px!important;padding:12px!important}
+.fine-modal-v15 .vr-title span{font-size:19px!important}.fine-modal-v15 .vr-title b{font-size:9px!important}
+.fine-modal-v15 .vr-scale{gap:7px!important;margin:10px 0!important}
+.fine-modal-v15 .vr-scale button{min-height:42px!important;font-size:10px!important}
+
+.toggle-row button.on,
+.frame-choice-v14 button.on,
+.chip.on,
+.strength-card-item-v14.on,
+[data-fw].on,
+[data-fm].on,
+[data-fh].on,
+[data-fc].on,
+[data-fsh].on,
+[data-wm].on,
+[data-wt].on,
+[data-sh].on,
+[data-co].on,
+[data-start].on{
+  background:linear-gradient(135deg,var(--coral),var(--pink))!important;
+  border-color:transparent!important;
+  color:white!important;
+  box-shadow:0 8px 18px rgba(244,95,151,.15)!important
+}
+.strength-card-item-v14.on>span,.strength-card-item-v14.on em{color:#fff!important}
+.tabs button.active,.ptabs button.active{
+  background:linear-gradient(135deg,var(--coral),var(--pink))!important;
+  color:#fff!important
+}
+.moodface.on{
+  background:linear-gradient(145deg,rgba(255,117,93,.38),rgba(244,95,151,.24))!important;
+  border-color:rgba(255,117,93,.75)!important;
+  box-shadow:0 10px 26px rgba(244,95,151,.13)!important
+}
+
+/* Smoother swipe */
+.card{
+  touch-action:none!important;
+  transform:translate3d(0,0,0);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform,opacity;
+}
+.card.back{
+  transition:transform .22s linear,opacity .22s linear;
+}
+.swipe-stamp-v14{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
 </style>
 </head>
 <body>
@@ -116,18 +173,18 @@ input[type=file]{display:none}
 </div>
 
 <script>
-const VERSION="1.4", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const VERSION="1.5", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
 const jobs=[
-{id:"j1",title:"Product Manager (m/w/d)",company:"Tomorrow GmbH",city:"Berlin",salary:4400,distance:18,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:92,tags:["Strategie","Team","Entwicklung"],image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",reasons:["Mehr Entwicklung","Viel Eigenverantwortung","Flexible Arbeitsweise"],about:"Du koordinierst Produktideen, Prioritäten und Teams. Gesucht wird weniger der perfekte Lebenslauf als jemand, der Verantwortung übernimmt und Dinge voranbringt."},
-{id:"j2",title:"Teamassistenz (m/w/d)",company:"Stadtwerke Gelsenkirchen",city:"Gelsenkirchen",salary:3400,distance:7,model:"Vor Ort",hours:"Vollzeit",contract:"Unbefristet",score:89,tags:["Organisation","Team","Sicherheit"],image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",reasons:["Kurzer Weg","Organisation passt","Planbare Zeiten"],about:"Eine strukturierte Rolle mit viel Abstimmung und Verantwortung im Tagesgeschäft. Praxis und Verlässlichkeit zählen stärker als ein perfekter Abschluss."},
-{id:"j3",title:"Disponent Logistik (m/w/d)",company:"RuhrLogistik AG",city:"Essen",salary:3750,distance:14,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:87,tags:["Planung","Überblick","Kommunikation"],image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",reasons:["Praxiserfahrung passt","Mehr Verantwortung","Gehalt passt"],about:"Koordination, Planung und schnelle Entscheidungen. Besonders passend für Menschen, die Abläufe aus der Praxis kennen."},
-{id:"j4",title:"Customer Success Manager",company:"NOVA Digital",city:"Dortmund",salary:4100,distance:24,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:84,tags:["Menschen","Lösungen","Entwicklung"],image:"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",reasons:["Kommunikation passt","Abwechslung","Entwicklung"],about:"Du begleitest Kunden, löst Probleme und baust Beziehungen auf. Erfahrung mit Menschen ist wichtiger als ein klassischer Werdegang."},
-{id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,distance:21,model:"Hybrid",hours:"Teilzeit",contract:"Unbefristet",score:82,tags:["Abläufe","Organisation","Eigenständig"],image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80",reasons:["Abläufe passen","Eigenständig","Wenig Hierarchie"],about:"Du hältst operative Abläufe zusammen und sorgst dafür, dass Teams arbeitsfähig bleiben."}
+{id:"j1",title:"Product Manager (m/w/d)",company:"Tomorrow GmbH",city:"Berlin",salary:4400,distance:18,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:92,tags:["Strategie","Team","Entwicklung"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23171b25%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23ff9b69%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f45f97%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3EModernes%20B%C3%BCro%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Mehr Entwicklung","Viel Eigenverantwortung","Flexible Arbeitsweise"],about:"Du koordinierst Produktideen, Prioritäten und Teams. Gesucht wird weniger der perfekte Lebenslauf als jemand, der Verantwortung übernimmt und Dinge voranbringt."},
+{id:"j2",title:"Teamassistenz (m/w/d)",company:"Stadtwerke Gelsenkirchen",city:"Gelsenkirchen",salary:3400,distance:7,model:"Vor Ort",hours:"Vollzeit",contract:"Unbefristet",score:89,tags:["Organisation","Team","Sicherheit"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23111827%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23f5b548%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ff755d%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3ETeam%20%26%20Produkt%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Kurzer Weg","Organisation passt","Planbare Zeiten"],about:"Eine strukturierte Rolle mit viel Abstimmung und Verantwortung im Tagesgeschäft. Praxis und Verlässlichkeit zählen stärker als ein perfekter Abschluss."},
+{id:"j3",title:"Disponent Logistik (m/w/d)",company:"RuhrLogistik AG",city:"Essen",salary:3750,distance:14,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:87,tags:["Planung","Überblick","Kommunikation"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23101827%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%236488ff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a16cff%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3ELogistik%20%26%20Planung%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Praxiserfahrung passt","Mehr Verantwortung","Gehalt passt"],about:"Koordination, Planung und schnelle Entscheidungen. Besonders passend für Menschen, die Abläufe aus der Praxis kennen."},
+{id:"j4",title:"Customer Success Manager",company:"NOVA Digital",city:"Dortmund",salary:4100,distance:24,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:84,tags:["Menschen","Lösungen","Entwicklung"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23151821%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23ff755d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238f6cff%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3EKunden%20%26%20Beratung%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Kommunikation passt","Abwechslung","Entwicklung"],about:"Du begleitest Kunden, löst Probleme und baust Beziehungen auf. Erfahrung mit Menschen ist wichtiger als ein klassischer Werdegang."},
+{id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,distance:21,model:"Hybrid",hours:"Teilzeit",contract:"Unbefristet",score:82,tags:["Abläufe","Organisation","Eigenständig"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%2310151e%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23f7b457%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235f83ff%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3EOperations%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Abläufe passen","Eigenständig","Wenig Hierarchie"],about:"Du hältst operative Abläufe zusammen und sorgst dafür, dass Teams arbeitsfähig bleiben."}
 ];
 const S0={
- on:false,route:"login",moodView:"quick",mood:null,detailOpen:false,
+ on:false,privacyAccepted:false,route:"login",moodView:"quick",mood:null,detailOpen:false,
  draft:{satisfaction:3,stress:3,energy:3,note:""},entries:[],moments:[],
  liked:[],passed:[],chat:[{role:"bot",text:"Hi 👋 Sag einfach, was los ist. Ich halte mich kurz – wie ein guter Freund."}],
  name:"Alex",photo:"",profileTab:"me",
@@ -142,7 +199,7 @@ const S0={
 };
 function load(){
  try{
-   const raw=JSON.parse(localStorage.getItem("yvia_v14")||"{}");
+   const raw=JSON.parse(localStorage.getItem("yvia_v15")||"{}");
    const x=Object.assign(structuredClone(S0),raw);
    x.filters=Object.assign(structuredClone(S0.filters),raw.filters||{});
    x.changeTest=Object.assign(structuredClone(S0.changeTest),raw.changeTest||{});
@@ -154,11 +211,44 @@ function load(){
    return x;
  }catch(e){return structuredClone(S0)}
 }let s=load();
-function save(){localStorage.setItem("yvia_v14",JSON.stringify(s))}
+function save(){localStorage.setItem("yvia_v15",JSON.stringify(s))}
 function toast(t){let e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1500)}
 function route(r){s.route=r;save();render()}
 function render(){let logged=s.on;$("#topbar").classList.toggle("hidden",!logged);$("#nav").classList.toggle("hidden",!logged);let m=$("#main");if(logged){m.style.height="calc(100dvh - 70px)";m.style.padding="4px 15px calc(89px + var(--safe))";m.style.overflow="hidden";$("#avatarBtn").innerHTML=s.photo?`<img src="${s.photo}">`:"👤";$("#avatarBtn").onclick=()=>route("profile");$("#captureTop").onclick=openCapture;$$("[data-r]").forEach(b=>{b.classList.toggle("active",b.dataset.r===s.route);b.onclick=()=>route(b.dataset.r)})}if(!logged)return login(m);({mood,matches,chat,profile}[s.route]||mood)(m)}
-function login(m){m.style.height="100dvh";m.style.padding="0 17px";m.style.overflowY="auto";m.innerHTML=`<section class="login screen"><div><div class="login-brand"><div class="mark"></div><b>YVIA</b></div><div class="login-copy"><h1>Du bist mehr als dein Jobtitel.</h1><p>YVIA versteht, wie Arbeit sich für dich anfühlt, hilft dir im Alltag und zeigt dir Möglichkeiten, die wirklich zu dir passen.</p></div><div class="orb"></div></div><div class="auth"><input id="nm" placeholder="Wie dürfen wir dich nennen?" value="${esc(s.name)}"><button class="primary" id="go">Mit E-Mail starten →</button><button id="apple"> &nbsp; Mit Apple fortfahren</button><small style="text-align:center;color:#6f7988;font-size:7px">V${VERSION}</small></div></section>`;$("#go").onclick=()=>{s.name=$("#nm").value.trim()||"Alex";s.on=true;s.route="mood";save();render()};$("#apple").onclick=()=>{s.on=true;s.route="mood";save();render()}}
+function login(m){
+ m.style.height="100dvh";m.style.padding="0 17px";m.style.overflowY="auto";
+ m.innerHTML=`<section class="login screen"><div><div class="login-brand"><div class="mark"></div><b>YVIA</b></div>
+ <div class="login-copy"><h1>Du bist mehr als dein Jobtitel.</h1><p>YVIA versteht, wie Arbeit sich für dich anfühlt, hilft dir im Alltag und zeigt dir Möglichkeiten, die wirklich zu dir passen.</p></div><div class="orb"></div></div>
+ <div class="auth">
+   <input id="nm" placeholder="Wie dürfen wir dich nennen?" value="${esc(s.name)}">
+   <label class="privacy-consent-v15">
+     <input type="checkbox" id="privacyCheck" ${s.privacyAccepted?"checked":""}>
+     <span>Ich habe die <button type="button" id="privacyLink">Datenschutzhinweise</button> gelesen und verstanden. Meine in YVIA eingegebenen Demo-Daten werden lokal in diesem Browser gespeichert.</span>
+   </label>
+   <button class="primary" id="go" ${s.privacyAccepted?"":"disabled"}>Mit E-Mail starten →</button>
+   <button id="apple" ${s.privacyAccepted?"":"disabled"}> &nbsp; Mit Apple fortfahren</button>
+   <small style="text-align:center;color:#6f7988;font-size:7px">V${VERSION} · Demo</small>
+ </div></section>`;
+ const check=$("#privacyCheck"),go=$("#go"),apple=$("#apple");
+ const sync=()=>{s.privacyAccepted=!!check.checked;go.disabled=!s.privacyAccepted;apple.disabled=!s.privacyAccepted;save()};
+ check.onchange=sync;
+ $("#privacyLink").onclick=e=>{e.preventDefault();openPrivacy()};
+ go.onclick=()=>{if(!s.privacyAccepted)return toast("Bitte zuerst Datenschutz bestätigen");s.name=$("#nm").value.trim()||"Alex";s.on=true;s.route="mood";save();render()};
+ apple.onclick=()=>{if(!s.privacyAccepted)return toast("Bitte zuerst Datenschutz bestätigen");s.on=true;s.route="mood";save();render()}
+}
+function openPrivacy(){
+ $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Datenschutzhinweise · Demo</h2>
+ <div class="privacy-copy-v15">
+  <p><b>Was diese Demo speichert</b><br>Profilangaben, Stimmungen, Notizen, gemerkte Jobs, Filter und hochgeladene Dateinamen/Vorschaubilder werden ausschließlich im lokalen Browser-Speicher dieses Geräts abgelegt.</p>
+  <p><b>Keine YVIA-Cloud in dieser Version</b><br>Diese Demo überträgt deine in der App eingegebenen Inhalte nicht an einen eigenen YVIA-Server und enthält keine Analyse-, Werbe- oder Tracking-Skripte.</p>
+  <p><b>Hosting</b><br>Die Website wird über GitHub Pages ausgeliefert. Beim technischen Abruf können durch GitHub Verbindungsdaten wie IP-Adresse, Zeitpunkt und Browserinformationen verarbeitet werden.</p>
+  <p><b>Dateien</b><br>Lebenslauf, Zeugnisse und Bilder werden in dieser Demo nicht auf einen YVIA-Server hochgeladen. Die Oberfläche speichert nur lokale Vorschauen bzw. Metadaten im Browser.</p>
+  <p><b>Löschen</b><br>Die lokalen Demo-Daten können durch Löschen der Website-Daten im Browser entfernt werden. Später sollte zusätzlich eine gut sichtbare Löschfunktion direkt in YVIA vorhanden sein.</p>
+  <p><b>Wichtig vor einem echten öffentlichen Start</b><br>Für einen echten Dienst müssen Verantwortlicher, Anschrift, Kontakt, Rechtsgrundlagen, eingesetzte Auftragsverarbeiter, Speicherdauern, Betroffenenrechte und alle tatsächlich verwendeten Dienste konkret ergänzt werden. Sobald Login, Cloud, KI oder Bewerbungsunterlagen serverseitig verarbeitet werden, muss dieser Text angepasst werden.</p>
+ </div>
+ <button class="primary close-wide-v14" id="privacyClose">Verstanden</button>`;
+ openModal();$("#privacyClose").onclick=closeModal
+}
 
 /* STIMMUNG */
 const moodMap={
@@ -273,8 +363,8 @@ function mood(m){
    <div class="quick quick-v14">
     <div class="moodfaces moodfaces-v14">${Object.entries(moodMap).map(([k,v])=>`<button class="moodface ${s.mood===k?"on":""}" data-m="${k}"><span>${v.emoji}</span><small>${v.label}</small></button>`).join("")}</div>
     <div class="quicknote"><label>Optional: Was war heute los?</label><textarea id="note" placeholder="Ein Satz reicht …">${esc(s.draft.note)}</textarea></div>
-    <button class="detail-toggle" id="detailToggle">${s.detailOpen?"Feineinstellung schließen":"Optional genauer einstellen"}</button>
-    ${s.detailOpen?`<div class="vertical-detail">${verticalControl("satisfaction","Zufriedenheit","☺")}${verticalControl("stress","Stress","⚡")}${verticalControl("energy","Energie","◒")}</div>`:""}
+    <button class="detail-toggle" id="detailToggle">Optional genauer einstellen</button>
+    
     <button class="save-mood" id="saveMood">Speichern</button>
    </div>`:`
    <div class="analysis analysis-v14">
@@ -290,7 +380,7 @@ function mood(m){
  </section>`;
  $$("[data-v]").forEach(b=>b.onclick=()=>{s.moodView=b.dataset.v;save();render()});
  $$("[data-m]").forEach(b=>b.onclick=()=>{s.mood=b.dataset.m;const x=moodMap[s.mood];s.draft.satisfaction=x.sat;s.draft.stress=x.stress;s.draft.energy=x.energy;save();render()});
- $("#detailToggle")?.addEventListener("click",()=>{s.detailOpen=!s.detailOpen;save();render()});
+ $("#detailToggle")?.addEventListener("click",openFineTune);
  $$("[data-vrate]").forEach(b=>b.onclick=()=>{s.draft[b.dataset.vrate]=+b.dataset.v;save();render()});
  $("#note")?.addEventListener("input",e=>{s.draft.note=e.target.value;save()});
  $("#saveMood")?.addEventListener("click",()=>{
@@ -300,6 +390,14 @@ function mood(m){
  });
  $("#changeTest")?.addEventListener("click",openChangeTest);
  $("#diaryBtn")?.addEventListener("click",openDiary)
+}
+function openFineTune(){
+ $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Stimmung genauer einstellen</h2><p>Nur wenn du möchtest. Oben bedeutet viel, unten wenig.</p>
+ <div class="fine-modal-v15">${verticalControl("satisfaction","Zufriedenheit","☺")}${verticalControl("stress","Stress","⚡")}${verticalControl("energy","Energie","◒")}</div>
+ <button class="primary close-wide-v14" id="fineDone">Übernehmen</button>`;
+ openModal();
+ $$("[data-vrate]").forEach(b=>b.onclick=()=>{s.draft[b.dataset.vrate]=+b.dataset.v;save();openFineTune()});
+ $("#fineDone").onclick=closeModal
 }
 function openDiary(){
  const items=[
@@ -415,32 +513,71 @@ function swipe(c,id){
  yes.className="swipe-stamp-v14 like-stamp-v14";yes.textContent="MERKEN";
  no.className="swipe-stamp-v14 pass-stamp-v14";no.textContent="WEITER";
  c.append(yes,no);
- function paint(){
-  raf=0;const p=Math.min(1,Math.abs(cx)/130),rot=Math.max(-7,Math.min(7,cx/32));
-  c.style.transform=`translate3d(${cx}px,${cy*.10}px,0) rotate(${rot}deg)`;
-  yes.style.opacity=cx>0?String(p):"0";no.style.opacity=cx<0?String(p):"0";
-  if(back){back.style.transform=`translateY(${8-6*p}px) scale(${.965+.03*p})`;back.style.opacity=String(.72+.24*p)}
+
+ function frame(){
+   raf=0;
+   const progress=Math.min(1,Math.abs(cx)/145);
+   const dampedX=cx*(.92 + progress*.08);
+   const rot=Math.max(-8,Math.min(8,dampedX/34));
+   c.style.transform=`translate3d(${dampedX}px,${cy*.08}px,0) rotate(${rot}deg)`;
+   yes.style.opacity=cx>0?String(progress):"0";
+   no.style.opacity=cx<0?String(progress):"0";
+   if(back){
+     const scale=.962+.036*progress;
+     back.style.transform=`translate3d(0,${8-7*progress}px,0) scale(${scale})`;
+     back.style.opacity=String(.70+.28*progress)
+   }
  }
  c.onpointerdown=e=>{
-  if(e.target.closest("button"))return;
-  pid=e.pointerId;c.setPointerCapture?.(pid);sx=e.clientX;sy=e.clientY;lastX=e.clientX;lastT=performance.now();cx=cy=vx=0;drag=true;c.style.transition="none"
+   if(e.target.closest("button"))return;
+   if(e.pointerType==="mouse"&&e.button!==0)return;
+   pid=e.pointerId;drag=true;sx=e.clientX;sy=e.clientY;lastX=e.clientX;lastT=performance.now();cx=cy=vx=0;
+   c.setPointerCapture?.(pid);
+   c.style.transition="none";
+   if(back)back.style.transition="none"
  };
  c.onpointermove=e=>{
-  if(!drag||e.pointerId!==pid)return;
-  const now=performance.now();cx=e.clientX-sx;cy=e.clientY-sy;vx=(e.clientX-lastX)/Math.max(8,now-lastT);lastX=e.clientX;lastT=now;
-  if(!raf)raf=requestAnimationFrame(paint)
+   if(!drag||e.pointerId!==pid)return;
+   const now=performance.now();
+   cx=e.clientX-sx;cy=e.clientY-sy;
+   vx=(e.clientX-lastX)/Math.max(8,now-lastT);
+   lastX=e.clientX;lastT=now;
+   if(!raf)raf=requestAnimationFrame(frame)
  };
  function finish(){
-  if(!drag)return;drag=false;
-  const go=Math.abs(cx)>92||(Math.abs(vx)>.55&&Math.abs(cx)>32);
-  if(!go){
-   c.style.transition="transform .46s cubic-bezier(.2,.86,.2,1)";c.style.transform="translate3d(0,0,0) rotate(0deg)";yes.style.opacity=no.style.opacity="0";
-   if(back){back.style.transition="transform .46s cubic-bezier(.2,.86,.2,1),opacity .3s";back.style.transform="translateY(8px) scale(.965)";back.style.opacity=".72"}return
-  }
-  const d=cx>0?1:-1,target=d*Math.max(window.innerWidth,440)*1.25;
-  c.style.transition="transform .30s cubic-bezier(.18,.78,.23,1),opacity .24s";c.style.transform=`translate3d(${target}px,${cy*.16}px,0) rotate(${d*10}deg)`;c.style.opacity="0";
-  if(back){back.style.transition="transform .3s cubic-bezier(.18,.78,.23,1),opacity .3s";back.style.transform="translateY(0) scale(1)";back.style.opacity="1"}
-  setTimeout(()=>{if(d>0){if(!s.liked.includes(id))s.liked.push(id)}else{if(!s.passed.includes(id))s.passed.push(id)}save();render()},265)
+   if(!drag)return;
+   drag=false;
+   try{c.releasePointerCapture?.(pid)}catch(_){}
+   const flick=Math.abs(vx)>.48&&Math.abs(cx)>28;
+   const go=Math.abs(cx)>88||flick;
+   if(!go){
+     c.style.transition="transform .52s cubic-bezier(.18,.88,.22,1),opacity .25s";
+     c.style.transform="translate3d(0,0,0) rotate(0deg)";
+     yes.style.opacity=no.style.opacity="0";
+     if(back){
+       back.style.transition="transform .52s cubic-bezier(.18,.88,.22,1),opacity .25s";
+       back.style.transform="translate3d(0,8px,0) scale(.965)";
+       back.style.opacity=".72"
+     }
+     return
+   }
+   const dir=(cx!==0?Math.sign(cx):Math.sign(vx)||1);
+   const speed=Math.max(.6,Math.abs(vx));
+   const duration=Math.max(180,Math.min(300,280-speed*85));
+   const target=dir*Math.max(window.innerWidth,460)*1.35;
+   c.style.transition=`transform ${duration}ms cubic-bezier(.16,.78,.2,1),opacity ${Math.min(duration,230)}ms ease`;
+   c.style.transform=`translate3d(${target}px,${cy*.12}px,0) rotate(${dir*11}deg)`;
+   c.style.opacity="0";
+   if(back){
+     back.style.transition=`transform ${duration}ms cubic-bezier(.16,.78,.2,1),opacity ${duration}ms ease`;
+     back.style.transform="translate3d(0,0,0) scale(1)";
+     back.style.opacity="1"
+   }
+   setTimeout(()=>{
+     if(dir>0){if(!s.liked.includes(id))s.liked.push(id)}
+     else{if(!s.passed.includes(id))s.passed.push(id)}
+     save();render()
+   },duration-10)
  }
  c.onpointerup=finish;c.onpointercancel=finish
 }
