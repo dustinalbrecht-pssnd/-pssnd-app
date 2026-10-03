@@ -1156,8 +1156,327 @@ h1{color:var(--y-ink);font-weight:780;letter-spacing:-.058em}p{color:var(--y-mut
 
 @media(max-width:370px){.welcome-copy h1{font-size:44px}.mood-v8 h1,.job-v8 h1,.matches-v5 h1{font-size:40px!important}.mood-tile{min-height:118px}.metric-v8{padding:12px 9px}.metric-v8 b{font-size:24px}}
 
+
+/* ================================
+   YVIA V0.9 — refinement pass
+   ================================ */
+:root{
+  --v9-bg:#FCFAF8;
+  --v9-card:rgba(255,255,255,.86);
+  --v9-ink:#121827;
+  --v9-muted:#7C8798;
+  --v9-line:rgba(18,24,39,.07);
+  --v9-coral:#FF705F;
+  --v9-pink:#F15B9A;
+  --v9-mango:#F5B43B;
+  --v9-blue:#4E7DFF;
+  --v9-purple:#9B5CFF;
+}
+body{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(255,112,95,.12),transparent 27%),
+    radial-gradient(circle at 2% 30%,rgba(103,135,255,.07),transparent 24%),
+    var(--v9-bg);
+}
+main{padding:14px 20px 118px}
+.screen{animation:v9In .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes v9In{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.screen-kicker{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.14em;
+  color:#9CA3AF;
+  margin-bottom:12px
+}
+
+/* Login / first impression */
+.yvia-welcome{padding-top:7vh}
+.welcome-brand-lockup{gap:13px}
+.welcome-logo-orb{
+  width:54px;height:54px;border-radius:20px;
+  background:rgba(255,255,255,.74);
+  box-shadow:0 16px 44px rgba(255,112,95,.12)
+}
+.welcome-wordmark{font-size:29px;letter-spacing:.16em}
+.welcome-copy{margin-top:50px}
+.welcome-copy h1{
+  font-size:54px;
+  line-height:.94;
+  letter-spacing:-.07em;
+  font-weight:770
+}
+.welcome-copy p{font-size:16px;line-height:1.52;max-width:350px}
+.welcome-art{
+  height:220px;
+  margin:24px 0 12px;
+  filter:saturate(.92)
+}
+.auth-primary,.auth-apple{
+  min-height:58px;
+  border-radius:20px;
+  font-size:14px
+}
+.auth-primary{
+  background:linear-gradient(110deg,#FF7C64,#F45F8F);
+  box-shadow:0 16px 36px rgba(244,95,143,.18)
+}
+.auth-apple{
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--v9-line)
+}
+
+/* Stimmung */
+.mood-v8{padding-top:12px}
+.screen-title-row h1{
+  font-size:52px;
+  line-height:.93;
+  letter-spacing:-.07em
+}
+.screen-title-row p{font-size:15px;line-height:1.5;max-width:340px}
+.mood-grid{
+  gap:11px;
+  margin-top:30px
+}
+.mood-tile{
+  min-height:118px;
+  padding:17px;
+  border-radius:24px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:0 12px 36px rgba(30,35,45,.045);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transition:transform .16s ease,box-shadow .16s ease
+}
+.mood-tile:active{transform:scale(.975)}
+.mood-tile.featured{
+  background:linear-gradient(140deg,#FF8A69,#F45D92);
+  color:white;
+  box-shadow:0 16px 34px rgba(244,93,146,.18)
+}
+.mood-tile b{font-size:15px;line-height:1.25}
+.free-talk-v8{
+  margin-top:18px;
+  min-height:58px;
+  border-radius:22px;
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--v9-line);
+  box-shadow:0 10px 28px rgba(29,35,44,.04)
+}
+
+/* Mein Job */
+.job-v9{padding-top:12px}
+.job-hero-v9{
+  display:grid;
+  grid-template-columns:1fr 90px;
+  gap:16px;
+  align-items:start
+}
+.job-hero-v9 h1{
+  font-size:46px;
+  line-height:.96;
+  letter-spacing:-.066em;
+  margin:0 0 12px
+}
+.job-hero-v9 p{font-size:14px;line-height:1.48;margin:0}
+.score-orb-v9{
+  width:88px;height:88px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.95),rgba(255,255,255,.54) 35%,transparent 36%),
+    linear-gradient(145deg,#FFE0B9,#FFD3DA 50%,#D8D1FF);
+  box-shadow:0 16px 36px rgba(255,112,95,.11);
+  border:1px solid rgba(255,255,255,.85)
+}
+.score-orb-v9 span{font-size:25px;font-weight:800;letter-spacing:-.04em}
+.score-orb-v9 small{font-size:9px;color:#7C8798;margin-top:1px}
+
+.metric-grid-v9{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:26px
+}
+.metric-grid-v9 article{
+  padding:15px 12px 13px;
+  border-radius:22px;
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--v9-line);
+  box-shadow:0 10px 28px rgba(28,34,44,.035)
+}
+.metric-grid-v9 .metric-symbol{
+  display:block;font-size:18px;margin-bottom:9px
+}
+.metric-grid-v9 strong{display:block;font-size:25px;letter-spacing:-.04em}
+.metric-grid-v9 small{display:block;font-size:9px;color:#8A93A2;margin-top:2px}
+.metric-grid-v9 i{
+  display:block;height:5px;background:#EEF0F4;border-radius:999px;margin-top:11px;overflow:hidden
+}
+.metric-grid-v9 i b{
+  display:block;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,#FF9D72,#F26995)
+}
+.metric-grid-v9 article:nth-child(2) i b{background:linear-gradient(90deg,#5E8DFF,#7B66FF)}
+.metric-grid-v9 article:nth-child(3) i b{background:linear-gradient(90deg,#9E6BFF,#D35DEB)}
+
+.check-launcher-v9{
+  width:100%;
+  margin-top:13px;
+  border:1px solid var(--v9-line);
+  background:rgba(255,255,255,.88);
+  border-radius:23px;
+  padding:16px 17px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:left;
+  box-shadow:0 10px 28px rgba(28,34,44,.035)
+}
+.check-launcher-v9 small{
+  display:block;font-size:9px;letter-spacing:.08em;color:#9AA1AD;font-weight:800;margin-bottom:3px
+}
+.check-launcher-v9 b{display:block;font-size:15px}
+.check-launcher-v9 span{display:block;font-size:10px;color:#8B94A2;margin-top:2px}
+.check-launcher-v9 em{
+  width:34px;height:34px;border-radius:13px;display:grid;place-items:center;
+  background:#F5F3F1;font-style:normal;font-size:20px;color:#596273
+}
+.check-launcher-v9.open em{background:#151A23;color:white}
+
+.quick-check-v9{
+  margin-top:9px;
+  padding:15px 16px 16px;
+  border-radius:23px;
+  background:rgba(255,255,255,.92);
+  border:1px solid var(--v9-line)
+}
+.quick-row-v9{
+  padding:12px 0;
+  border-bottom:1px solid var(--v9-line)
+}
+.quick-row-v9:last-of-type{border-bottom:0}
+.quick-row-v9 label{display:block;font-size:11px;font-weight:700;margin-bottom:8px}
+.quick-row-v9>div{display:flex;gap:6px}
+.quick-row-v9 button{
+  flex:1;min-height:40px;border:0;border-radius:13px;background:#F5F4F2;
+  color:#697284;font-size:17px;font-weight:700
+}
+.quick-row-v9 button.word{font-size:10px}
+.quick-row-v9 button.selected{background:#151A23;color:white}
+.reason-wrap-v9{padding-top:12px}
+.reason-wrap-v9>small{font-size:9px;color:#9AA1AD}
+.reason-wrap-v9>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.reason-wrap-v9 button{
+  border:0;background:#F5F4F2;border-radius:999px;padding:8px 10px;font-size:9px;font-weight:700;color:#6F7886
+}
+.reason-wrap-v9 button.selected{background:#FFF0EB;color:#D45F49}
+.save-check-v9{
+  width:100%;margin-top:13px;border:0;border-radius:16px;padding:13px;
+  background:#151A23;color:#fff;font-weight:750
+}
+
+.insight-v9{
+  margin-top:13px;
+  border-radius:25px;
+  padding:20px;
+  background:#151A23;
+  color:white;
+  box-shadow:0 18px 46px rgba(21,26,35,.10)
+}
+.insight-label-v9{font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.55);font-weight:800}
+.insight-label-v9 span{color:#FFAD6A}
+.insight-v9 h2{font-size:25px;line-height:1.08;margin:12px 0 8px;letter-spacing:-.04em}
+.insight-v9 p{font-size:12px;line-height:1.5;color:rgba(255,255,255,.68)}
+
+.trend-v9{
+  margin-top:13px;
+  border-radius:24px;
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--v9-line);
+  padding:16px
+}
+.trend-head-v9{display:flex;align-items:center;justify-content:space-between}
+.trend-head-v9 small{font-size:9px;letter-spacing:.1em;color:#9AA1AD;font-weight:800}
+.trend-head-v9 h3{font-size:16px;margin-top:3px}
+.trend-head-v9 button{border:0;background:transparent;color:#8A93A2;font-size:10px}
+.trend-v9 .trend-svg{height:125px;margin-top:8px}
+
+.tomorrow-v9{
+  display:grid;grid-template-columns:38px 1fr 30px;gap:10px;align-items:center;
+  margin-top:13px;padding:16px;border-radius:24px;
+  background:linear-gradient(135deg,#FFF0E8,#FFF8F4);
+  border:1px solid rgba(255,112,95,.08)
+}
+.tip-bulb{
+  width:36px;height:36px;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#FFC35D,#FF8D6F);color:white
+}
+.tomorrow-v9 small{font-size:9px;letter-spacing:.08em;color:#A28174;font-weight:800}
+.tomorrow-v9 p{font-size:11px;line-height:1.4;margin-top:3px;color:#655B57}
+.tomorrow-v9 button{border:0;background:transparent;font-size:18px;color:#B56E59}
+
+/* Matches */
+.matches-v5{padding-top:12px}
+.matches-v5>h1{
+  font-size:45px!important;
+  line-height:.96!important;
+  letter-spacing:-.066em!important
+}
+.matches-v5>p{font-size:14px!important;line-height:1.48!important}
+.match-toolbar{margin-top:22px}
+.deck-wrap{margin-top:17px!important}
+.swipe-card{
+  border-radius:30px!important;
+  border:1px solid var(--v9-line)!important;
+  box-shadow:0 22px 58px rgba(34,39,50,.08)!important
+}
+.job-photo{height:300px!important}
+.photo-score{
+  top:15px!important;left:15px!important;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+}
+.photo-title{
+  padding:25px 18px 17px!important
+}
+.photo-title h2{font-size:29px!important;line-height:1.02!important}
+.match-body{padding:17px 18px 20px!important}
+.match-pill-row{gap:7px!important}
+.match-pill{
+  background:#F7F5F3!important;
+  border:0!important;
+  padding:8px 10px!important
+}
+.swipe-actions{
+  margin-top:11px!important;
+  grid-template-columns:58px 1fr 58px!important
+}
+#detailsBtn{
+  border-radius:18px!important;
+  background:#151A23!important
+}
+.round-action.like{
+  background:linear-gradient(145deg,#FF846B,#F35F92)!important;
+  box-shadow:0 14px 28px rgba(243,95,146,.20)!important
+}
+
+/* Navigation */
+.v8-nav,.v6-nav{
+  width:min(calc(100% - 32px),428px);
+  background:rgba(255,255,255,.88)!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  backdrop-filter:blur(26px) saturate(170%);
+  -webkit-backdrop-filter:blur(26px) saturate(170%);
+  box-shadow:0 14px 40px rgba(30,35,45,.08)!important
+}
+.v8-nav button.active,.v6-nav button.active{
+  color:#F26072!important;
+  background:transparent!important
+}
+.v8-nav button.active span,.v6-nav button.active span{transform:translateY(-1px)}
+
 </style>
-  <title>YVIA V0.8</title>
+  <title>YVIA V0.9</title>
 </head>
 <body>
   <div id="app">
@@ -1193,7 +1512,7 @@ h1{color:var(--y-ink);font-weight:780;letter-spacing:-.058em}p{color:var(--y-mut
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
-const APP_VERSION = "0.8";
+const APP_VERSION = "0.9";
 
 const demoJobs = [
   {id:1,image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=82",title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
@@ -1239,6 +1558,7 @@ const initialState = {
   friendHistory:[],
   friendFlow:null,
   dailyDraft:{},
+  quickCheckOpen:false,
   profileReady:false,
   activeJobId:null,
   chat:[
@@ -1272,6 +1592,7 @@ function loadState(){
     merged.friendHistory = Array.isArray(merged.friendHistory)?merged.friendHistory:[];
     merged.friendFlow = merged.friendFlow || null;
     merged.dailyDraft = merged.dailyDraft || {};
+    merged.quickCheckOpen = !!merged.quickCheckOpen;
     if(["coach","chances"].includes(merged.route)) merged.route="home";
     merged.chat = Array.isArray(merged.chat)&&merged.chat.length?merged.chat:clone(initialState.chat);
     merged.rejectionFeedback = merged.rejectionFeedback || {};
@@ -1369,8 +1690,8 @@ function renderWelcome(){
     </div>
 
     <div class="welcome-copy">
-      <h1>Arbeit, die<br>zu dir passt.</h1>
-      <p>Verstehe deinen Job. Finde heraus, was dir wirklich gut tut – und was besser zu dir passen könnte.</p>
+      <h1>Dein Job.<br>Mehr du.</h1>
+      <p>Verstehe, was dir bei Arbeit gut tut. Löse, was dich belastet. Entdecke, was besser zu dir passt.</p>
     </div>
 
     <div class="welcome-art" aria-hidden="true">
@@ -1595,14 +1916,14 @@ function renderMatches(){
   const jobs=rankJobs().filter(j=>!state.skipped.includes(j.id)&&!state.interested.includes(j.id));
   const all=rankJobs(), top=jobs[0];
   $("#view").innerHTML=`<section class="screen matches-v5">
-    <div class="eyebrow">DEINE MATCHES</div>
-    <h1 style="font-size:39px;margin-bottom:8px">Jobs, die zu dir passen.</h1>
-    <p style="font-size:12px">Nicht irgendein Job. Sondern einer, der besser zu dir passen könnte.</p>
+    <div class="screen-kicker">MATCHES</div>
+    <h1 style="font-size:43px;margin-bottom:10px">Vielleicht dein<br>nächster guter Schritt.</h1>
+    <p style="font-size:14px">Nicht mehr suchen. Erst schauen, ob es sich richtig anfühlt.</p>
     <div class="match-toolbar"><span class="small">${jobs.length} offen</span><span class="version-pill">${all.filter(j=>j.score>=80).length} starke Matches</span></div>
     ${top?`<div class="deck-wrap"><div class="deck-shadow"></div>${swipeCard(top,jobs.length)}</div>
       <div class="swipe-actions">
         <button class="round-action" id="rejectBtn">✕</button>
-        <button class="round-action" id="detailsBtn">Details</button>
+        <button class="round-action" id="detailsBtn">Mehr erfahren</button>
         <button class="round-action like" id="likeBtn">♥</button>
       </div>`
     :`<div class="card empty"><div class="match-empty-icon">✨</div><h3>Für jetzt alles gesehen.</h3><p>Du hast alle Demo-Matches bewertet.</p><button class="btn btn-secondary" id="restoreJobs" style="margin-top:16px">Demo-Matches zurücksetzen</button></div>`}
@@ -1987,7 +2308,7 @@ function renderHome(){
   const unresolved=latestUnresolvedMoment();
   $("#view").innerHTML=`<section class="screen mood-v8">
     <div class="screen-title-row">
-      <div><div class="eyebrow">STIMMUNG</div><h1>Was ist<br>gerade los?</h1><p>Sag's einfach. YVIA hört zu und hilft dir, den nächsten sinnvollen Schritt zu finden.</p></div>
+      <div><div class="eyebrow">STIMMUNG</div><h1>Was ist<br>gerade los?</h1><p>Ein Tap reicht für den Einstieg. Oder sag YVIA einfach in deinen Worten, was passiert ist.</p></div>
       <div class="mood-glow" aria-hidden="true"></div>
     </div>
 
@@ -2077,38 +2398,73 @@ function renderAnalysis(){
   const stress=latest?.stress??draft.stress??3;
   const energy=latest?.energy??draft.energy??3;
   const pct=v=>Math.round(Number(v||3)/5*100);
-  $("#view").innerHTML=`<section class="screen job-v8">
-    <div class="eyebrow">MEIN JOB</div>
-    <h1>Dein Arbeitstag<br>auf einen Blick.</h1>
-    <p>Ein kurzer Check reicht. YVIA erkennt mit der Zeit, was dir gut tut – und was dich immer wieder runterzieht.</p>
 
-    <div class="metric-grid-v8">
-      <button class="metric-v8" data-focus-pulse="satisfaction"><span>☺</span><b>${pct(sat)}%</b><small>Zufriedenheit</small><i style="--w:${pct(sat)}%"></i></button>
-      <button class="metric-v8" data-focus-pulse="stress"><span>⚡</span><b>${pct(stress)}%</b><small>Stress</small><i style="--w:${pct(stress)}%"></i></button>
-      <button class="metric-v8" data-focus-pulse="energy"><span>◒</span><b>${pct(energy)}%</b><small>Energie</small><i style="--w:${pct(energy)}%"></i></button>
+  $("#view").innerHTML=`<section class="screen job-v9">
+    <div class="screen-kicker">MEIN JOB</div>
+    <div class="job-hero-v9">
+      <div>
+        <h1>So fühlt sich<br>Arbeit gerade an.</h1>
+        <p>YVIA erkennt Muster, ohne dass du Tagebuch führen musst.</p>
+      </div>
+      <div class="score-orb-v9">
+        <span>${score==null?"–":score}</span>
+        <small>Work Score</small>
+      </div>
     </div>
 
-    <article class="quick-check-v8">
-      <div class="quick-head"><div><small>10-SEKUNDEN-CHECK</small><b>Wie war dein Tag?</b></div><span>${doneCount}/3</span></div>
-      <div class="quick-row"><label>Zufriedenheit</label><div>${[[1,"😣"],[2,"😕"],[3,"😐"],[4,"🙂"],[5,"😊"]].map(([v,l])=>`<button class="${Number(draft.satisfaction)===v?"selected":""}" data-pulse="satisfaction" data-value="${v}">${l}</button>`).join("")}</div></div>
-      <div class="quick-row"><label>Stress</label><div>${[[1,"ruhig"],[3,"okay"],[5,"hoch"]].map(([v,l])=>`<button class="word ${Number(draft.stress)===v?"selected":""}" data-pulse="stress" data-value="${v}">${l}</button>`).join("")}</div></div>
-      <div class="quick-row"><label>Energie</label><div>${[[1,"leer"],[3,"okay"],[5,"gut"]].map(([v,l])=>`<button class="word ${Number(draft.energy)===v?"selected":""}" data-pulse="energy" data-value="${v}">${l}</button>`).join("")}</div></div>
-      ${ready?`<div class="reason-chips-v8">${[["boss","Führung"],["team","Team"],["amount","Zu viel"],["tasks","Aufgaben"],["time","Arbeitszeit"],["money","Geld"]].map(([k,l])=>`<button class="${draft.reason===k?"selected":""}" data-reason-v8="${k}">${l}</button>`).join("")}</div><button class="save-check-v8" id="savePulse">Speichern</button>`:""}
+    <div class="metric-grid-v9">
+      <article><span class="metric-symbol warm">☺</span><strong>${pct(sat)}%</strong><small>Zufriedenheit</small><i><b style="width:${pct(sat)}%"></b></i></article>
+      <article><span class="metric-symbol blue">⚡</span><strong>${pct(stress)}%</strong><small>Stress</small><i><b style="width:${pct(stress)}%"></b></i></article>
+      <article><span class="metric-symbol purple">◒</span><strong>${pct(energy)}%</strong><small>Energie</small><i><b style="width:${pct(energy)}%"></b></i></article>
+    </div>
+
+    <button class="check-launcher-v9 ${state.quickCheckOpen?"open":""}" id="toggleQuickCheck">
+      <div><small>10-SEKUNDEN-CHECK</small><b>${state.quickCheckOpen?"Wie war dein Tag?":"Kurz einchecken"}</b><span>${state.quickCheckOpen?"Drei Antworten. Mehr nicht.":"Damit YVIA dein Bild aktuell hält."}</span></div>
+      <em>${state.quickCheckOpen?"−":"+"}</em>
+    </button>
+
+    ${state.quickCheckOpen?`<article class="quick-check-v9">
+      <div class="quick-row-v9"><label>Zufriedenheit</label><div>${[[1,"😣"],[2,"😕"],[3,"😐"],[4,"🙂"],[5,"😊"]].map(([v,l])=>`<button class="${Number(draft.satisfaction)===v?"selected":""}" data-pulse="satisfaction" data-value="${v}">${l}</button>`).join("")}</div></div>
+      <div class="quick-row-v9"><label>Stress</label><div>${[[1,"ruhig"],[3,"okay"],[5,"hoch"]].map(([v,l])=>`<button class="word ${Number(draft.stress)===v?"selected":""}" data-pulse="stress" data-value="${v}">${l}</button>`).join("")}</div></div>
+      <div class="quick-row-v9"><label>Energie</label><div>${[[1,"leer"],[3,"okay"],[5,"gut"]].map(([v,l])=>`<button class="word ${Number(draft.energy)===v?"selected":""}" data-pulse="energy" data-value="${v}">${l}</button>`).join("")}</div></div>
+      ${ready?`<div class="reason-wrap-v9"><small>Was war heute der Hauptgrund?</small><div>${[["boss","Führung"],["team","Team"],["amount","Zu viel"],["tasks","Aufgaben"],["time","Arbeitszeit"],["money","Geld"]].map(([k,l])=>`<button class="${draft.reason===k?"selected":""}" data-reason-v8="${k}">${l}</button>`).join("")}</div></div>
+      <button class="save-check-v9" id="savePulse">${ready?"Speichern":"Noch kurz ausfüllen"}</button>`:""}
+    </article>`:""}
+
+    <article class="insight-v9">
+      <div class="insight-label-v9"><span>✦</span> YVIA ERKENNT</div>
+      <h2>${escapeHTML(insight.title)}</h2>
+      <p>${escapeHTML(insight.text)}</p>
     </article>
 
-    <article class="trend-card-v8">
-      <div class="card-head-v8"><div><small>DEINE ENTWICKLUNG</small><h3>${score==null?"Noch kein Verlauf":`Work Score ${score}`}</h3></div><span>${wellbeingSeries().length>=2?"Trend":"ab 2 Checks"}</span></div>
+    <article class="trend-v9">
+      <div class="trend-head-v9"><div><small>VERLAUF</small><h3>Deine letzten Tage</h3></div><button id="trendInfo">Mehr erfahren</button></div>
       ${trendChartSVG()}
     </article>
 
-    <article class="insight-v8"><div class="insight-bulb">✦</div><div><small>YVIA ERKENNT</small><h3>${escapeHTML(insight.title)}</h3><p>${escapeHTML(insight.text)}</p></div></article>
-    <article class="tomorrow-v8"><span>☀</span><div><small>DEIN TIPP FÜR MORGEN</small><p>${escapeHTML(tipForTomorrow())}</p><button id="talkFromAnalysis">Mit YVIA darüber reden →</button></div></article>
+    <article class="tomorrow-v9">
+      <div class="tip-bulb">✦</div>
+      <div><small>FÜR MORGEN</small><p>${escapeHTML(tipForTomorrow())}</p></div>
+      <button id="talkFromAnalysis">→</button>
+    </article>
   </section>`;
 
+  $("#toggleQuickCheck").onclick=()=>{state.quickCheckOpen=!state.quickCheckOpen;saveState();render()};
   $$("[data-pulse]").forEach(b=>b.onclick=()=>{state.dailyDraft=state.dailyDraft||{};state.dailyDraft[b.dataset.pulse]=+b.dataset.value;saveState();render()});
   $$("[data-reason-v8]").forEach(b=>b.onclick=()=>{state.dailyDraft.reason=b.dataset.reasonV8;saveState();render()});
-  $("#savePulse")?.addEventListener("click",()=>{const d=state.dailyDraft||{};if(!(d.satisfaction&&d.stress&&d.energy))return;const entry={date:new Date().toISOString(),satisfaction:+d.satisfaction,stress:+d.stress,energy:+d.energy,reason:d.reason||""};entry.score=wellbeingScore(entry);state.wellbeing=state.wellbeing||[];state.wellbeing.push(entry);state.wellbeing=state.wellbeing.slice(-30);state.dailyDraft={};saveState();toast("Arbeitstag gespeichert");render()});
+  $("#savePulse")?.addEventListener("click",()=>{
+    const d=state.dailyDraft||{};
+    if(!(d.satisfaction&&d.stress&&d.energy))return toast("Noch kurz alle drei Punkte auswählen");
+    const entry={date:new Date().toISOString(),satisfaction:+d.satisfaction,stress:+d.stress,energy:+d.energy,reason:d.reason||""};
+    entry.score=wellbeingScore(entry);
+    state.wellbeing=state.wellbeing||[];
+    state.wellbeing.push(entry);
+    state.wellbeing=state.wellbeing.slice(-30);
+    state.dailyDraft={};state.quickCheckOpen=false;
+    saveState();toast("Gespeichert");render();
+  });
   $("#talkFromAnalysis").onclick=()=>route("home");
+  $("#trendInfo").onclick=()=>toast("Der Verlauf wird mit jedem Check-in genauer.");
 }
 
 function renderCoach(){state.route="home";saveState();renderHome();}
