@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.3</title>
+<title>YVIA V1.4</title>
 <style>
 :root{
   --bg:#07090d;--surface:#10151e;--surface2:#151c27;--line:rgba(255,255,255,.075);
@@ -66,13 +66,41 @@ input[type=file]{display:none}
 .capturecats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:11px}.capturecats button{height:58px;border:1px solid var(--line);border-radius:15px;background:#111722;color:white;font-size:8px}.capturecats button.on{border-color:rgba(255,121,88,.5);background:rgba(255,117,92,.12)}.capturefeel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.capturefeel button{height:40px;border:1px solid var(--line);border-radius:12px;background:#111722;color:white}.capturefeel button.on{background:#232d3b}.capturenote{width:100%;height:58px;margin-top:8px;resize:none;border:1px solid var(--line);border-radius:13px;background:#111722;color:white;padding:8px;outline:none;font-size:8px}
 .test-q{padding:3px 0}.test-progress{font-size:7px;color:#778291;margin-bottom:10px}.test-q h3{font-size:22px;line-height:1.06;margin:0 0 17px}.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.scale button{height:46px;border:1px solid var(--line);border-radius:13px;background:#111722;color:white;font-size:18px}.test-result strong{font-size:34px}.test-result h3{font-size:15px;margin:5px 0}.test-result p{font-size:8px}
 .photo-editor{display:grid;gap:10px;margin-top:10px}.cropbox{width:230px;height:230px;margin:auto;border-radius:50%;overflow:hidden;position:relative;background:#05070a;border:3px solid #181f2a;touch-action:none}.cropbox img{position:absolute;left:50%;top:50%;transform-origin:center center;user-select:none;pointer-events:none;max-width:none}.zoomrow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}.zoomrow input{width:100%;accent-color:var(--coral)}.zoomrow span{font-size:7px;color:#8b95a4}
+
+/* ===== YVIA V1.4 ===== */
+.moodfaces-v14{grid-template-columns:repeat(5,1fr)!important;gap:6px!important}
+.moodfaces-v14 .moodface{height:72px!important;padding:7px 2px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important}
+.moodfaces-v14 .moodface span{font-size:24px}.moodfaces-v14 .moodface small{font-size:6px;color:#8d97a6;font-weight:800;text-align:center}.moodfaces-v14 .moodface.on small{color:#fff}
+.quick-v14{grid-template-rows:auto minmax(58px,1fr) auto auto!important}
+.vertical-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;min-height:0}
+.vertical-rate{border:1px solid var(--line);background:#101722;border-radius:17px;padding:8px;display:grid;grid-template-rows:auto auto 1fr auto;min-height:145px}
+.vr-title{display:flex;align-items:center;gap:5px}.vr-title span{font-size:13px}.vr-title b{font-size:7px}.vertical-rate small,.vertical-rate em{font-size:5px;color:#697484;font-style:normal}.vr-scale{display:grid;grid-template-rows:repeat(5,1fr);gap:3px;margin:5px 0}.vr-scale button{min-height:18px;border:0;border-radius:7px;background:#1a2230;color:#667181;font-size:7px}.vr-scale button.on{background:linear-gradient(90deg,var(--coral),var(--pink));color:#fff}
+.analysis-v14{grid-template-rows:auto auto minmax(0,1fr) auto!important}.chart-card-v14{overflow:hidden!important}.chart-card-v14 .chart{overflow:hidden!important;position:relative!important}.analysis-svg{display:block;width:100%;height:100%;overflow:hidden}
+.analysis-actions-v14{display:grid;grid-template-columns:1fr 1fr;gap:6px}.analysis-actions-v14 button{border:1px solid var(--line);background:#101722;color:#fff;border-radius:15px;padding:9px;display:grid;grid-template-columns:27px 1fr 13px;gap:7px;align-items:center;text-align:left}.analysis-actions-v14 button>span{width:27px;height:27px;border-radius:10px;display:grid;place-items:center;background:rgba(255,117,93,.12);color:#ff9877}.analysis-actions-v14 b{font-size:7px}.analysis-actions-v14 small{font-size:5px;line-height:1.2;color:#7f8998;display:block;margin-top:2px;max-height:24px;overflow:hidden}.analysis-actions-v14 em{font-style:normal;color:#798493}
+.pattern-card-v14{margin-top:10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,rgba(255,117,93,.11),rgba(244,95,151,.06));border:1px solid rgba(255,117,93,.13)}.pattern-card-v14 small{font-size:6px;color:#ff9979;font-weight:900}.pattern-card-v14 b{display:block;font-size:10px;margin-top:4px;line-height:1.35}.pattern-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.pattern-chips span{padding:6px 8px;border-radius:999px;background:#171e29;color:#aeb6c1;font-size:6px}
+.timeline-v14{display:grid;gap:7px;margin-top:10px;max-height:48vh;overflow:auto}.timeline-v14 article{display:grid;grid-template-columns:34px 1fr;gap:9px;padding:9px;background:#111722;border-radius:14px;border:1px solid var(--line)}.tl-icon{width:34px;height:34px;border-radius:12px;background:#19212e;display:grid;place-items:center}.timeline-v14 article small{font-size:5px;color:#6f7a89}.timeline-v14 article b{display:block;font-size:8px}.timeline-v14 article p{font-size:6px;margin:2px 0;color:#87919f}.timeline-v14 blockquote{margin:5px 0 0;padding:7px;border-radius:10px;background:#171e29;color:#c6ccd4;font-size:7px}
+.empty-v14{padding:18px 8px;color:#717c8b;font-size:7px;text-align:center}.close-wide-v14{width:100%;height:42px;border-radius:14px;margin-top:10px}
+.situation-grid-v14{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.situation-grid-v14 button{height:69px;border:1px solid var(--line);border-radius:15px;background:#111722;color:#fff;padding:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.situation-grid-v14 span{font-size:16px}.situation-grid-v14 b{font-size:6px;text-align:center}.situation-note-v14{height:52px!important}
+.test-result-v14>small{font-size:6px;color:#ff9979;font-weight:900}.test-score-v14{display:flex;align-items:end;gap:7px;margin:7px 0 10px}.test-score-v14 strong{font-size:36px}.test-score-v14 span{font-size:7px;color:#84909f;margin-bottom:6px}.test-factors-v14{display:grid;gap:8px;margin:10px 0}.test-factor-v14>div{display:flex;justify-content:space-between}.test-factor-v14 span{font-size:7px;color:#98a1ad}.test-factor-v14 b{font-size:8px}.test-factor-v14 i{display:block;height:6px;border-radius:99px;background:#202733;overflow:hidden;margin-top:4px}.test-factor-v14 em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6488ff,#a16cff)}.test-result-v14 h3{font-size:14px;margin:10px 0 4px}.test-result-v14 p{font-size:7px;line-height:1.45;color:#8e98a6}.test-scale-labels-v14{display:flex;justify-content:space-between;margin-top:6px;color:#667181;font-size:6px}
+.swipe-stamp-v14{position:absolute;z-index:6;top:17px;padding:8px 10px;border:2px solid;border-radius:12px;background:rgba(7,9,13,.72);font-size:10px;font-weight:900;opacity:0;pointer-events:none}.like-stamp-v14{right:16px;color:#ff8d76;border-color:#ff8d76;transform:rotate(7deg)}.pass-stamp-v14{left:16px;color:#a6afbb;border-color:#a6afbb;transform:rotate(-7deg)}
+.filter-grid-v14{max-height:58vh;overflow:auto;padding-right:2px}.empty-match-v14{display:grid;place-items:center;text-align:center;color:#7f8998}
+.profhero-v14{padding:3px 1px 4px}.profphoto-v14{width:68px!important;height:68px!important;border-radius:50%!important;background:#0b0f15!important;box-shadow:0 12px 30px rgba(0,0,0,.28)}.profphoto-v14 img{width:100%;height:100%;object-fit:cover!important;display:block}
+.profile-overview-v14{display:grid;gap:7px}.profile-strength-v14{display:grid;grid-template-columns:72px 1fr;gap:11px;align-items:center;padding:11px;background:#101722;border:1px solid var(--line);border-radius:18px}.profile-ring-v14{--p:50;width:65px;height:65px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--orange) calc(var(--p)*1%),#242c38 0);position:relative}.profile-ring-v14:after{content:"";position:absolute;inset:7px;border-radius:50%;background:#101722}.profile-ring-v14 span{z-index:1;font-size:12px;font-weight:900}.profile-strength-v14 small,.profile-page-head-v14 small,.value-card-v14>small{font-size:5px;color:#7a8594;font-weight:900}.profile-strength-v14 b{display:block;font-size:10px}.profile-strength-v14 p{font-size:6px!important}
+.profile-section-card-v14{width:100%;border:1px solid var(--line);border-radius:16px;background:#101722;color:#fff;padding:10px;display:grid;grid-template-columns:32px 1fr 14px;gap:8px;align-items:center;text-align:left}.profile-section-card-v14>span{width:32px;height:32px;border-radius:11px;background:#19212e;display:grid;place-items:center;color:#ff9675}.profile-section-card-v14 b{font-size:8px}.profile-section-card-v14 p{font-size:6px!important;color:#838e9d!important;margin:2px 0 0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-section-card-v14 em{font-style:normal;color:#667180}
+.profile-page-v14{display:grid;gap:7px}.profile-page-head-v14{display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;padding:10px;background:#101722;border:1px solid var(--line);border-radius:17px}.profile-page-head-v14>span{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,rgba(255,117,93,.18),rgba(244,95,151,.10));display:grid;place-items:center;color:#ff9474}.profile-page-head-v14 h3{font-size:13px;margin:2px 0}.profile-page-head-v14 p{font-size:6px!important}
+.strength-cards-v14{display:grid;grid-template-columns:1fr 1fr;gap:6px}.strength-card-item-v14{height:54px;border:1px solid var(--line);border-radius:14px;background:#111722;color:#fff;padding:8px;display:grid;grid-template-columns:23px 1fr 18px;gap:6px;align-items:center;text-align:left}.strength-card-item-v14 b{font-size:7px}.strength-card-item-v14 em{font-style:normal;color:#6c7787}.strength-card-item-v14.on{border-color:rgba(255,117,93,.32);background:rgba(255,117,93,.08)}.strength-card-item-v14.on>span,.strength-card-item-v14.on em{color:#ff9475}
+.add-strength-v14{display:grid;grid-template-columns:1fr auto;gap:6px}.add-strength-v14 input,.value-card-v14 input{height:38px;border:1px solid var(--line);border-radius:12px;background:#111722;color:#fff;padding:0 9px;font-size:7px}.add-strength-v14 button{border:0;border-radius:12px;background:#202938;color:#fff;padding:0 10px;font-size:7px}
+.value-card-v14,.frame-card-v14,.frame-choice-v14{background:#101722;border:1px solid var(--line);border-radius:16px;padding:10px}.value-card-v14 input{width:100%;margin-top:8px}.frame-big-v14{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}.frame-big-v14 div{background:#151c27;border-radius:12px;padding:8px}.frame-big-v14 small{font-size:5px;color:#75808f}.frame-big-v14 b{display:block;font-size:8px}.frame-choice-v14>small{font-size:5px;color:#75808f;font-weight:900}.frame-choice-v14>div{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.frame-choice-v14 button{border:1px solid var(--line);border-radius:10px;background:#171e29;color:#8d97a5;padding:7px 8px;font-size:6px}.frame-choice-v14 button.on{background:#273140;color:#fff}
+.upload-card-v14{display:grid;grid-template-columns:1fr 1fr;gap:6px}.upload-card-v14 button{height:65px;border:1px dashed rgba(255,117,93,.25);border-radius:15px;background:#101722;color:#fff;padding:9px;display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center;text-align:left}.upload-card-v14 button>span{width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,var(--coral),var(--pink));display:grid;place-items:center}.upload-card-v14 b{font-size:7px}.upload-card-v14 small{font-size:5px;color:#7e8897}.document-list-v14{display:grid;gap:5px}.document-list-v14 article{display:grid;grid-template-columns:34px 1fr 22px;gap:7px;align-items:center;padding:7px;background:#111722;border-radius:13px}.doc-thumb-v14{width:34px;height:34px;border-radius:9px;background-size:cover;background-position:center;background-color:#202938;display:grid;place-items:center}.document-list-v14 b{font-size:7px}.document-list-v14 small{font-size:5px;color:#778291}.document-list-v14 button{border:0;background:none;color:#6f7a89}
+@media(max-height:760px){.moodfaces-v14 .moodface{height:61px!important}.moodfaces-v14 .moodface span{font-size:20px}.vertical-rate{min-height:125px}.analysis-actions-v14 small{display:none}}
+
 </style>
 </head>
 <body>
 <div id="app">
 <header class="topbar hidden" id="topbar">
   <div class="brand"><div class="mark"></div><b>YVIA</b></div>
-  <button class="capture-top" id="captureTop">⚡ FESTHALTEN</button>
+  <button class="capture-top" id="captureTop">⚡ SITUATION</button>
   <button class="avatar" id="avatarBtn">👤</button>
 </header>
 <main id="main"></main>
@@ -88,7 +116,7 @@ input[type=file]{display:none}
 </div>
 
 <script>
-const VERSION="1.3", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const VERSION="1.4", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
 const jobs=[
@@ -99,123 +127,353 @@ const jobs=[
 {id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,distance:21,model:"Hybrid",hours:"Teilzeit",contract:"Unbefristet",score:82,tags:["Abläufe","Organisation","Eigenständig"],image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80",reasons:["Abläufe passen","Eigenständig","Wenig Hierarchie"],about:"Du hältst operative Abläufe zusammen und sorgst dafür, dass Teams arbeitsfähig bleiben."}
 ];
 const S0={
- on:false,route:"login",moodView:"quick",mood:null,detailOpen:false,draft:{satisfaction:3,stress:3,energy:3,note:""},entries:[],moments:[],
+ on:false,route:"login",moodView:"quick",mood:null,detailOpen:false,
+ draft:{satisfaction:3,stress:3,energy:3,note:""},entries:[],moments:[],
  liked:[],passed:[],chat:[{role:"bot",text:"Hi 👋 Sag einfach, was los ist. Ich halte mich kurz – wie ein guter Freund."}],
- name:"Alex",photo:"",profileTab:"me",skills:["Organisation","Überblick","Kommunikation","Verlässlich"],salary:3200,distance:25,weeklyHours:39,
- workModels:["Hybrid"],workTimes:["Vollzeit"],shifts:["Tagschicht"],weekend:false,contract:["Unbefristet"],start:"Flexibel",
- filters:{salary:0,distance:100,models:[],hours:[]},
- changeTest:{active:false,index:0,answers:[],result:null},
- photoEdit:null,capture:{cat:"",feel:"",note:""}
+ name:"Alex",photo:"",profileTab:"me",
+ skills:["Organisation","Überblick","Kommunikation","Verlässlich"],
+ values:["Gutes Team","Faire Bezahlung","Flexibilität","Entwicklung"],
+ careerGoal:"Arbeit, die besser zu mir passt.",
+ salary:3200,distance:25,weeklyHours:39,workModels:["Hybrid"],workTimes:["Vollzeit"],
+ shifts:["Tagschicht"],weekend:false,contract:["Unbefristet"],start:"Flexibel",
+ filters:{salary:0,distance:100,models:[],hours:[],contracts:[],shifts:[],weekend:"egal",minScore:0},
+ changeTest:{active:false,index:0,answers:[],result:null,details:null},
+ documents:[],photoEdit:null,capture:{cat:"",note:""}
 };
-function load(){try{return Object.assign(structuredClone(S0),JSON.parse(localStorage.getItem("yvia_v13")||"{}"))}catch(e){return structuredClone(S0)}}let s=load();
-function save(){localStorage.setItem("yvia_v13",JSON.stringify(s))}
+function load(){
+ try{
+   const raw=JSON.parse(localStorage.getItem("yvia_v14")||"{}");
+   const x=Object.assign(structuredClone(S0),raw);
+   x.filters=Object.assign(structuredClone(S0.filters),raw.filters||{});
+   x.changeTest=Object.assign(structuredClone(S0.changeTest),raw.changeTest||{});
+   x.documents=Array.isArray(raw.documents)?raw.documents:[];
+   x.values=Array.isArray(raw.values)?raw.values:[...S0.values];
+   x.skills=Array.isArray(raw.skills)?raw.skills:[...S0.skills];
+   x.moments=Array.isArray(raw.moments)?raw.moments:[];
+   x.entries=Array.isArray(raw.entries)?raw.entries:[];
+   return x;
+ }catch(e){return structuredClone(S0)}
+}let s=load();
+function save(){localStorage.setItem("yvia_v14",JSON.stringify(s))}
 function toast(t){let e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1500)}
 function route(r){s.route=r;save();render()}
 function render(){let logged=s.on;$("#topbar").classList.toggle("hidden",!logged);$("#nav").classList.toggle("hidden",!logged);let m=$("#main");if(logged){m.style.height="calc(100dvh - 70px)";m.style.padding="4px 15px calc(89px + var(--safe))";m.style.overflow="hidden";$("#avatarBtn").innerHTML=s.photo?`<img src="${s.photo}">`:"👤";$("#avatarBtn").onclick=()=>route("profile");$("#captureTop").onclick=openCapture;$$("[data-r]").forEach(b=>{b.classList.toggle("active",b.dataset.r===s.route);b.onclick=()=>route(b.dataset.r)})}if(!logged)return login(m);({mood,matches,chat,profile}[s.route]||mood)(m)}
 function login(m){m.style.height="100dvh";m.style.padding="0 17px";m.style.overflowY="auto";m.innerHTML=`<section class="login screen"><div><div class="login-brand"><div class="mark"></div><b>YVIA</b></div><div class="login-copy"><h1>Du bist mehr als dein Jobtitel.</h1><p>YVIA versteht, wie Arbeit sich für dich anfühlt, hilft dir im Alltag und zeigt dir Möglichkeiten, die wirklich zu dir passen.</p></div><div class="orb"></div></div><div class="auth"><input id="nm" placeholder="Wie dürfen wir dich nennen?" value="${esc(s.name)}"><button class="primary" id="go">Mit E-Mail starten →</button><button id="apple"> &nbsp; Mit Apple fortfahren</button><small style="text-align:center;color:#6f7988;font-size:7px">V${VERSION}</small></div></section>`;$("#go").onclick=()=>{s.name=$("#nm").value.trim()||"Alex";s.on=true;s.route="mood";save();render()};$("#apple").onclick=()=>{s.on=true;s.route="mood";save();render()}}
 
 /* STIMMUNG */
-const moodMap={great:{emoji:"😊",label:"Richtig gut",sat:5,stress:1,energy:5},good:{emoji:"🙂",label:"Ganz okay",sat:4,stress:2,energy:4},neutral:{emoji:"😐",label:"Geht so",sat:3,stress:3,energy:3},bad:{emoji:"😕",label:"Nicht gut",sat:2,stress:4,energy:2},awful:{emoji:"😣",label:"Echt mies",sat:1,stress:5,energy:1}};
-function metric(k){let a=s.entries.slice(-10).map(x=>+x[k]).filter(Number.isFinite);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*20):60}
+const moodMap={
+ great:{emoji:"😄",label:"Sehr gut",sat:5,stress:1,energy:5},
+ good:{emoji:"🙂",label:"Gut",sat:4,stress:2,energy:4},
+ neutral:{emoji:"😐",label:"Mittel",sat:3,stress:3,energy:3},
+ bad:{emoji:"😕",label:"Schlecht",sat:2,stress:4,energy:2},
+ awful:{emoji:"😣",label:"Sehr schlecht",sat:1,stress:5,energy:1}
+};
+const situationMap={
+ success:{icon:"★",label:"Etwas lief richtig gut",cat:"Erfolg",sat:5,stress:1,energy:5,valence:"good"},
+ praise:{icon:"♥",label:"Lob / Anerkennung",cat:"Anerkennung",sat:5,stress:1,energy:4,valence:"good"},
+ taskgood:{icon:"✓",label:"Aufgabe hat Spaß gemacht",cat:"Aufgabe",sat:5,stress:2,energy:4,valence:"good"},
+ boss:{icon:"👤",label:"Stress mit Führung",cat:"Führung",sat:2,stress:5,energy:2,valence:"bad"},
+ team:{icon:"👥",label:"Stress im Team",cat:"Team",sat:2,stress:4,energy:2,valence:"bad"},
+ overload:{icon:"⚡",label:"Zu viel / überfordert",cat:"Arbeitsmenge",sat:2,stress:5,energy:1,valence:"bad"},
+ boring:{icon:"…",label:"Unterfordert / gelangweilt",cat:"Unterforderung",sat:2,stress:2,energy:2,valence:"bad"},
+ mistake:{icon:"!",label:"Fehler / unsicher",cat:"Unsicherheit",sat:2,stress:4,energy:2,valence:"bad"},
+ time:{icon:"◷",label:"Arbeitszeit nervt",cat:"Arbeitszeit",sat:2,stress:4,energy:2,valence:"bad"}
+};
+
+function analysisSamples(){
+ const a=s.entries.slice(-30).map(x=>({satisfaction:+x.satisfaction,stress:+x.stress,energy:+x.energy,ts:x.ts,type:"mood",note:x.note||"",mood:x.mood}));
+ const b=s.moments.slice(-40).map(x=>{
+   const q=situationMap[x.kind]||{sat:3,stress:3,energy:3};
+   return {satisfaction:q.sat,stress:q.stress,energy:q.energy,ts:x.ts,type:"moment",note:x.note||"",cat:x.cat||q.cat,kind:x.kind};
+ });
+ return [...a,...b].sort((x,y)=>x.ts-y.ts)
+}
+function metric(k){
+ const a=analysisSamples().slice(-20).map(x=>+x[k]).filter(Number.isFinite);
+ return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*20):60
+}
 function totalScore(){return Math.round((metric("satisfaction")+(100-metric("stress"))+metric("energy"))/3)}
 function smoothPath(points){
  if(points.length<2)return "";
  let d=`M ${points[0][0]} ${points[0][1]}`;
  for(let i=0;i<points.length-1;i++){
-   let p0=points[i-1]||points[i],p1=points[i],p2=points[i+1],p3=points[i+2]||p2;
-   let cp1x=p1[0]+(p2[0]-p0[0])/6,cp1y=p1[1]+(p2[1]-p0[1])/6;
-   let cp2x=p2[0]-(p3[0]-p1[0])/6,cp2y=p2[1]-(p3[1]-p1[1])/6;
-   d+=` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+   const p0=points[i-1]||points[i],p1=points[i],p2=points[i+1],p3=points[i+2]||p2;
+   const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6;
+   const c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;
+   d+=` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
  }
- return d;
+ return d
 }
 function chartSVG(){
- let a=s.entries.slice(-8);if(a.length<2)a=[{satisfaction:3,energy:3},{satisfaction:3,energy:3}];
- let w=320,h=100,p=8,pts=k=>a.map((x,i)=>[p+i*(w-p*2)/(a.length-1),h-p-((+x[k]-1)/4)*(h-p*2)]);
- return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none">
- <defs><linearGradient id="lc" x1="0" x2="1"><stop stop-color="#ff8a62"/><stop offset="1" stop-color="#f45f97"/></linearGradient><linearGradient id="le" x1="0" x2="1"><stop stop-color="#6488ff"/><stop offset="1" stop-color="#a16cff"/></linearGradient></defs>
- <path d="${smoothPath(pts("satisfaction"))}" fill="none" stroke="url(#lc)" stroke-width="3.2" stroke-linecap="round"/>
- <path d="${smoothPath(pts("energy"))}" fill="none" stroke="url(#le)" stroke-width="2.2" opacity=".78" stroke-linecap="round"/>
- </svg>`
+ let a=analysisSamples().slice(-10);
+ if(a.length<2)a=[{satisfaction:3,stress:3,energy:3},{satisfaction:3,stress:3,energy:3}];
+ const w=320,h=118,p=12,pts=k=>a.map((x,i)=>[p+i*(w-p*2)/Math.max(1,a.length-1),h-p-((+x[k]-1)/4)*(h-p*2)]);
+ return `<svg class="analysis-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+ <defs>
+  <linearGradient id="cSat" x1="0" x2="1"><stop stop-color="#ffb548"/><stop offset="1" stop-color="#ff755d"/></linearGradient>
+  <linearGradient id="cStress" x1="0" x2="1"><stop stop-color="#ff6b6b"/><stop offset="1" stop-color="#f45f97"/></linearGradient>
+  <linearGradient id="cEnergy" x1="0" x2="1"><stop stop-color="#6488ff"/><stop offset="1" stop-color="#a16cff"/></linearGradient>
+  <clipPath id="chartClip"><rect x="0" y="0" width="${w}" height="${h}" rx="12"/></clipPath>
+ </defs>
+ <g clip-path="url(#chartClip)">
+  <path d="M12 32 H308 M12 59 H308 M12 86 H308" stroke="rgba(255,255,255,.045)" stroke-width="1"/>
+  <path d="${smoothPath(pts("stress"))}" fill="none" stroke="url(#cStress)" stroke-width="2.1" opacity=".68" stroke-linecap="round"/>
+  <path d="${smoothPath(pts("energy"))}" fill="none" stroke="url(#cEnergy)" stroke-width="2.2" opacity=".82" stroke-linecap="round"/>
+  <path d="${smoothPath(pts("satisfaction"))}" fill="none" stroke="url(#cSat)" stroke-width="3.3" stroke-linecap="round"/>
+ </g></svg>`
 }
 function gaugeSVG(score){
- let pct=Math.max(0,Math.min(100,score)),dash=157.1,off=dash*(1-pct/100);
+ const p=Math.max(0,Math.min(100,score)),len=157.1,off=len*(1-p/100);
  return `<svg viewBox="0 0 120 70" width="100%" height="100%">
- <defs><linearGradient id="gg" x1="0" x2="1"><stop stop-color="#ffb548"/><stop offset=".55" stop-color="#ff755d"/><stop offset="1" stop-color="#f45f97"/></linearGradient></defs>
+ <defs><linearGradient id="g14" x1="0" x2="1"><stop stop-color="#ffb548"/><stop offset=".55" stop-color="#ff755d"/><stop offset="1" stop-color="#f45f97"/></linearGradient></defs>
  <path d="M15 60 A45 45 0 0 1 105 60" fill="none" stroke="#202733" stroke-width="10" stroke-linecap="round"/>
- <path d="M15 60 A45 45 0 0 1 105 60" fill="none" stroke="url(#gg)" stroke-width="10" stroke-linecap="round" pathLength="157.1" stroke-dasharray="157.1" stroke-dashoffset="${off.toFixed(1)}"/>
+ <path d="M15 60 A45 45 0 0 1 105 60" fill="none" stroke="url(#g14)" stroke-width="10" stroke-linecap="round" pathLength="157.1" stroke-dasharray="157.1" stroke-dashoffset="${off.toFixed(1)}"/>
  </svg>`
 }
-function changeSummary(){let x=totalScore();if(x>=72)return ["Im Moment kein großer Wechsel nötig.","Dein Gesamtbild wirkt stabil. Kleine Verbesserungen können reichen."];if(x>=52)return ["Veränderung könnte dir guttun.","Noch nicht automatisch kündigen – aber genauer hinschauen lohnt sich."];return ["Ein Wechsel ist ernsthaft einen Blick wert.","Deine Werte zeigen gerade deutlich mehr Belastung als Passung."]}
-const changeQs=[
- "Ich freue mich an den meisten Tagen auf meine Arbeit.",
- "Ich kann nach Feierabend wirklich abschalten.",
- "Meine Arbeit passt zu meinem Leben.",
- "Ich fühle mich fair und respektvoll behandelt.",
- "Ich sehe für mich Entwicklung.",
- "Ich würde unter ähnlichen Bedingungen noch ein Jahr bleiben."
-];
+function changeSummary(){
+ const x=totalScore();
+ if(x>=72)return ["Dein Gesamtbild wirkt gerade stabil.","Du musst nicht zwanghaft etwas verändern. Beobachte, was deine guten Tage ausmacht."];
+ if(x>=52)return ["Da ist spürbar Luft nach oben.","Eine Veränderung kann sinnvoll sein – vielleicht im aktuellen Job, vielleicht beim Arbeitgeber."];
+ return ["Deine Arbeit kostet dich gerade deutlich.","Ein Wechsel oder eine klare Veränderung deiner Bedingungen ist ernsthaft einen Blick wert."]
+}
+function patternData(){
+ const all=[
+  ...s.entries.map(x=>({text:(x.note||"").toLowerCase(),neg:+x.satisfaction<=2})),
+  ...s.moments.map(x=>({text:((x.note||"")+" "+(x.cat||"")).toLowerCase(),neg:(situationMap[x.kind]?.valence||"")==="bad"}))
+ ];
+ const defs=[
+  ["Führung",/chef|führung|leitung|vorgesetz|kontroll/],
+  ["Arbeitsmenge",/stress|zu viel|überforder|arbeitsmenge|priorität/],
+  ["Team",/team|kolleg|streit|konflikt/],
+  ["Arbeitszeit",/arbeitszeit|schicht|wochenend|zeit/],
+  ["Geld",/geld|gehalt|lohn|bezahlung/],
+  ["Aufgaben",/aufgabe|motivation|langweil|unterforder/]
+ ];
+ return defs.map(([name,re])=>{
+  const hits=all.filter(x=>re.test(x.text)),neg=hits.filter(x=>x.neg).length;
+  return {name,count:hits.length,neg}
+ }).filter(x=>x.count).sort((a,b)=>b.count-a.count)
+}
+function patternSentence(){
+ const p=patternData()[0];
+ if(!p)return "Noch zu wenig Notizen für ein klares Muster. Das ist völlig okay.";
+ if(p.neg>=2)return `${p.name} taucht bei dir bereits ${p.neg}× in belastenden Situationen auf. Das würde ich im Blick behalten.`;
+ return `${p.name} kommt in deinen Einträgen am häufigsten vor. Mit ein paar weiteren Tagen wird das Muster klarer.`
+}
+function verticalControl(key,label,icon){
+ const value=+s.draft[key];
+ return `<div class="vertical-rate"><div class="vr-title"><span>${icon}</span><b>${label}</b></div><small>hoch</small><div class="vr-scale">${[5,4,3,2,1].map(v=>`<button class="${value===v?"on":""}" data-vrate="${key}" data-v="${v}">${v}</button>`).join("")}</div><em>niedrig</em></div>`
+}
 function mood(m){
- let score=totalScore(),cs=changeSummary();
- m.innerHTML=`<section class="screen mood-screen"><div><div class="kicker">Stimmung</div><h1 class="title">Wie geht's dir<br>gerade im Job?</h1><p class="sub">Ein Gefühl, optional ein Satz – fertig.</p></div><div class="tabs"><button data-v="quick" class="${s.moodView==="quick"?"active":""}">Stimmung</button><button data-v="analysis" class="${s.moodView==="analysis"?"active":""}">Auswertung</button></div><div class="mood-body">${s.moodView==="quick"?`
- <div class="quick">
-   <div class="moodfaces">${Object.entries(moodMap).map(([k,v])=>`<button class="moodface ${s.mood===k?"on":""}" data-m="${k}" aria-label="${v.label}">${v.emoji}</button>`).join("")}</div>
-   <button class="detail-toggle" id="detailToggle">${s.detailOpen?"Weniger anzeigen":"Stress, Zufriedenheit & Energie fein einstellen"}</button>
-   ${s.detailOpen?`<div class="detailbox">${[["satisfaction","Zufriedenheit","☺"],["stress","Stress","⚡"],["energy","Energie","◒"]].map(([k,l,ic])=>`<div class="rate"><small>${l}</small><b id="${k}Val">${ic} ${s.draft[k]}/5</b><input data-rate="${k}" type="range" min="1" max="5" value="${s.draft[k]}"></div>`).join("")}</div>`:`<div class="quicknote"><label>Optional: Was steckt dahinter?</label><textarea id="note" placeholder="Heute war eigentlich okay – bis …">${esc(s.draft.note)}</textarea></div>`}
-   ${s.detailOpen?`<div class="quicknote"><label>Optional: Was steckt dahinter?</label><textarea id="note" placeholder="Heute war eigentlich okay – bis …">${esc(s.draft.note)}</textarea></div>`:""}
-   <button class="save-mood" id="saveMood">Speichern</button>
- </div>`:`
- <div class="analysis">
-   <div class="gauge-card"><div class="gauge">${gaugeSVG(score)}</div><div class="gauge-copy"><small>GESAMTBILD</small><strong>${score}%</strong><p>${esc(cs[0])}</p></div></div>
-   <div class="metrics"><div class="metric"><span>☺</span><strong>${metric("satisfaction")}%</strong><small>Zufriedenheit</small><i><b style="width:${metric("satisfaction")}%"></b></i></div><div class="metric"><span>⚡</span><strong>${metric("stress")}%</strong><small>Stress</small><i><b style="width:${metric("stress")}%"></b></i></div><div class="metric"><span>◒</span><strong>${metric("energy")}%</strong><small>Energie</small><i><b style="width:${metric("energy")}%"></b></i></div></div>
-   <div class="chart-card"><div class="chart-head"><b>Deine Entwicklung</b><small>${s.moments.length} festgehaltene Momente</small></div><div class="chart">${chartSVG()}</div></div>
-   <div class="change-card"><i>?</i><div><b>Brauchst du Veränderung?</b><small>6 Fragen – mit klarer Einordnung.</small></div><button id="changeTest">→</button></div>
- </div>`}</div></section>`;
+ const score=totalScore(),cs=changeSummary();
+ m.innerHTML=`<section class="screen mood-screen">
+  <div><div class="kicker">Stimmung</div><h1 class="title">Wie geht's dir<br>gerade im Job?</h1><p class="sub">Ein Gefühl reicht. Alles Weitere ist freiwillig.</p></div>
+  <div class="tabs"><button data-v="quick" class="${s.moodView==="quick"?"active":""}">Stimmung</button><button data-v="analysis" class="${s.moodView==="analysis"?"active":""}">Auswertung</button></div>
+  <div class="mood-body">${s.moodView==="quick"?`
+   <div class="quick quick-v14">
+    <div class="moodfaces moodfaces-v14">${Object.entries(moodMap).map(([k,v])=>`<button class="moodface ${s.mood===k?"on":""}" data-m="${k}"><span>${v.emoji}</span><small>${v.label}</small></button>`).join("")}</div>
+    <div class="quicknote"><label>Optional: Was war heute los?</label><textarea id="note" placeholder="Ein Satz reicht …">${esc(s.draft.note)}</textarea></div>
+    <button class="detail-toggle" id="detailToggle">${s.detailOpen?"Feineinstellung schließen":"Optional genauer einstellen"}</button>
+    ${s.detailOpen?`<div class="vertical-detail">${verticalControl("satisfaction","Zufriedenheit","☺")}${verticalControl("stress","Stress","⚡")}${verticalControl("energy","Energie","◒")}</div>`:""}
+    <button class="save-mood" id="saveMood">Speichern</button>
+   </div>`:`
+   <div class="analysis analysis-v14">
+    <div class="gauge-card"><div class="gauge">${gaugeSVG(score)}</div><div class="gauge-copy"><small>GESAMTBILD</small><strong>${score}%</strong><p>${esc(cs[0])}</p></div></div>
+    <div class="metrics"><div class="metric"><span>☺</span><strong>${metric("satisfaction")}%</strong><small>Zufriedenheit</small><i><b style="width:${metric("satisfaction")}%"></b></i></div><div class="metric"><span>⚡</span><strong>${metric("stress")}%</strong><small>Stress</small><i><b style="width:${metric("stress")}%"></b></i></div><div class="metric"><span>◒</span><strong>${metric("energy")}%</strong><small>Energie</small><i><b style="width:${metric("energy")}%"></b></i></div></div>
+    <div class="chart-card chart-card-v14"><div class="chart-head"><b>Dein Verlauf</b><small>Zufriedenheit · Stress · Energie</small></div><div class="chart">${chartSVG()}</div></div>
+    <div class="analysis-actions-v14">
+     <button id="diaryBtn"><span>▤</span><div><b>Tagebuch & Muster</b><small>${esc(patternSentence())}</small></div><em>→</em></button>
+     <button id="changeTest"><span>?</span><div><b>Brauchst du Veränderung?</b><small>Stress, Energie, Zufriedenheit & mehr</small></div><em>→</em></button>
+    </div>
+   </div>`}
+  </div>
+ </section>`;
  $$("[data-v]").forEach(b=>b.onclick=()=>{s.moodView=b.dataset.v;save();render()});
- $$("[data-m]").forEach(b=>b.onclick=()=>{s.mood=b.dataset.m;let x=moodMap[s.mood];s.draft.satisfaction=x.sat;s.draft.stress=x.stress;s.draft.energy=x.energy;save();render()});
+ $$("[data-m]").forEach(b=>b.onclick=()=>{s.mood=b.dataset.m;const x=moodMap[s.mood];s.draft.satisfaction=x.sat;s.draft.stress=x.stress;s.draft.energy=x.energy;save();render()});
  $("#detailToggle")?.addEventListener("click",()=>{s.detailOpen=!s.detailOpen;save();render()});
- $$("[data-rate]").forEach(i=>i.oninput=()=>{s.draft[i.dataset.rate]=+i.value;$("#"+i.dataset.rate+"Val").textContent=(i.dataset.rate==="stress"?"⚡":i.dataset.rate==="energy"?"◒":"☺")+" "+i.value+"/5";save()});
+ $$("[data-vrate]").forEach(b=>b.onclick=()=>{s.draft[b.dataset.vrate]=+b.dataset.v;save();render()});
  $("#note")?.addEventListener("input",e=>{s.draft.note=e.target.value;save()});
- $("#saveMood")?.addEventListener("click",()=>{if(!s.mood)return toast("Kurz ein Gefühl auswählen");s.entries.push({ts:Date.now(),mood:s.mood,...s.draft});s.entries=s.entries.slice(-40);s.mood=null;s.draft={satisfaction:3,stress:3,energy:3,note:""};s.detailOpen=false;save();toast("Gespeichert");render()});
- $("#changeTest")?.addEventListener("click",openChangeTest)
+ $("#saveMood")?.addEventListener("click",()=>{
+  if(!s.mood)return toast("Kurz eine Stimmung auswählen");
+  s.entries.push({ts:Date.now(),mood:s.mood,...s.draft});s.entries=s.entries.slice(-60);
+  s.mood=null;s.draft={satisfaction:3,stress:3,energy:3,note:""};s.detailOpen=false;save();toast("Stimmung gespeichert");render()
+ });
+ $("#changeTest")?.addEventListener("click",openChangeTest);
+ $("#diaryBtn")?.addEventListener("click",openDiary)
+}
+function openDiary(){
+ const items=[
+  ...s.entries.map(x=>({ts:x.ts,title:moodMap[x.mood]?.label||"Stimmung",emoji:moodMap[x.mood]?.emoji||"●",note:x.note||"",sub:`Zufriedenheit ${x.satisfaction}/5 · Stress ${x.stress}/5 · Energie ${x.energy}/5`})),
+  ...s.moments.map(x=>({ts:x.ts,title:x.cat||situationMap[x.kind]?.cat||"Situation",emoji:situationMap[x.kind]?.icon||"⚡",note:x.note||"",sub:"Automatisch dem Stimmungsbild zugeordnet"}))
+ ].sort((a,b)=>b.ts-a.ts);
+ const patterns=patternData();
+ $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Dein automatisches Tagebuch</h2><p>Entsteht aus deinen Stimmungen, Situationen und freiwilligen Notizen. Du musst nichts extra führen.</p>
+ <div class="pattern-card-v14"><small>YVIA ERKENNT</small><b>${esc(patternSentence())}</b>${patterns.length?`<div class="pattern-chips">${patterns.slice(0,3).map(x=>`<span>${esc(x.name)} · ${x.count}×</span>`).join("")}</div>`:""}</div>
+ <div class="timeline-v14">${items.length?items.slice(0,20).map(x=>`<article><div class="tl-icon">${x.emoji}</div><div><small>${new Date(x.ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</small><b>${esc(x.title)}</b><p>${esc(x.sub)}</p>${x.note?`<blockquote>${esc(x.note)}</blockquote>`:""}</div></article>`).join(""):`<div class="empty-v14">Noch keine Einträge. Deine nächsten Stimmungen und Situationen erscheinen automatisch hier.</div>`}</div>
+ <button class="primary close-wide-v14" id="closeDiary">Schließen</button>`;
+ openModal();$("#closeDiary").onclick=closeModal
 }
 
-/* Veränderungstest */
-function openChangeTest(){s.changeTest={active:true,index:0,answers:[],result:null};save();renderChangeTest()}
+/* VERÄNDERUNGS-CHECK */
+const changeQs=[
+ {f:"satisfaction",text:"Ich bin mit meiner Arbeit insgesamt zufrieden.",positive:true},
+ {f:"satisfaction",text:"Meine Aufgaben fühlen sich sinnvoll und passend an.",positive:true},
+ {f:"stress",text:"Ich fühle mich bei der Arbeit häufig angespannt oder überfordert.",positive:false},
+ {f:"stress",text:"Nach Feierabend kann ich schlecht abschalten.",positive:false},
+ {f:"energy",text:"Meine Arbeit lässt mir noch Energie für mein Leben.",positive:true},
+ {f:"energy",text:"Ich starte meistens mit ausreichend Energie in den Arbeitstag.",positive:true},
+ {f:"other",text:"Ich fühle mich fair und respektvoll behandelt.",positive:true},
+ {f:"other",text:"Meine Arbeitszeiten passen zu meinem Leben.",positive:true},
+ {f:"other",text:"Ich sehe für mich echte Entwicklungsmöglichkeiten.",positive:true},
+ {f:"other",text:"Ich würde unter diesen Bedingungen gern noch ein Jahr bleiben.",positive:true}
+];
+function calcTestDetails(answers){
+ const g={satisfaction:[],stress:[],energy:[],other:[]};
+ answers.forEach((v,i)=>{const q=changeQs[i],pct=(v-1)/4*100;g[q.f].push(q.positive?pct:100-pct)});
+ const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):50;
+ const satisfaction=avg(g.satisfaction),stressWell=avg(g.stress),energy=avg(g.energy),other=avg(g.other),stress=100-stressWell;
+ return {satisfaction,stress,energy,other,score:Math.round((satisfaction+stressWell+energy+other)/4)}
+}
+function testAssessment(d){
+ if(d.score>=72&&d.stress<55)return ["Aktuell spricht wenig für einen großen Wechsel.","Es gibt wahrscheinlich Dinge, die du verbessern kannst, ohne dein ganzes Arbeitsleben umzubauen."];
+ if(d.score>=52)return ["Du brauchst wahrscheinlich Veränderung – aber nicht zwingend einen neuen Beruf.","Schau zuerst, welcher Faktor am schwächsten ist. Arbeitgeber, Bedingungen oder Aufgaben können schon den Unterschied machen."];
+ return ["Dein Ergebnis spricht dafür, etwas ernsthaft zu verändern.","Das muss nicht morgen die Kündigung sein. Aber nur durchhalten wäre bei diesem Gesamtbild keine gute Strategie."]
+}
+function openChangeTest(){s.changeTest={active:true,index:0,answers:[],result:null,details:null};save();renderChangeTest()}
 function renderChangeTest(){
- let t=s.changeTest;
- if(t.result!==null){
-   let title=t.result>=72?"Gerade eher keine große Veränderung nötig.":t.result>=52?"Etwas sollte sich verändern.":"Ein Wechsel ist ernsthaft prüfenswert.";
-   $("#genericSheet").innerHTML=`<div class="grab"></div><div class="test-result"><small style="color:var(--orange);font-size:7px">VERÄNDERUNGS-CHECK</small><strong>${t.result}%</strong><h3>${title}</h3><p>Der Wert ist kein Urteil. Er zeigt nur, wie stark deine Antworten gerade für Stabilität oder Veränderungsbedarf sprechen.</p><div class="sheet-actions"><button class="secondary" id="closeTest">Schließen</button><button class="primary" id="againTest">Nochmal</button></div></div>`;
-   openModal();$("#closeTest").onclick=closeModal;$("#againTest").onclick=openChangeTest;return;
+ const t=s.changeTest;
+ if(t.details){
+  const d=t.details,a=testAssessment(d);
+  const bar=(label,val,bad=false)=>`<div class="test-factor-v14"><div><span>${label}</span><b>${val}%</b></div><i><em style="width:${val}%;${bad?"background:linear-gradient(90deg,#ffb548,#f45f97)":""}"></em></i></div>`;
+  $("#genericSheet").innerHTML=`<div class="grab"></div><div class="test-result-v14"><small>VERÄNDERUNGS-CHECK</small><div class="test-score-v14"><strong>${d.score}%</strong><span>Gesamtscore</span></div>
+  <div class="test-factors-v14">${bar("Zufriedenheit",d.satisfaction)}${bar("Stressfaktor",d.stress,true)}${bar("Energie-Level",d.energy)}${bar("Weitere Faktoren",d.other)}</div>
+  <h3>${esc(a[0])}</h3><p>${esc(a[1])}</p><div class="sheet-actions"><button class="secondary" id="closeTest">Schließen</button><button class="primary" id="againTest">Nochmal testen</button></div></div>`;
+  openModal();$("#closeTest").onclick=closeModal;$("#againTest").onclick=openChangeTest;return
  }
- let i=t.index;
- $("#genericSheet").innerHTML=`<div class="grab"></div><div class="test-q"><div class="test-progress">Frage ${i+1} von ${changeQs.length}</div><h3>${esc(changeQs[i])}</h3><div class="scale">${[1,2,3,4,5].map((v,n)=>`<button data-tv="${v}">${["😣","😕","😐","🙂","😊"][n]}</button>`).join("")}</div></div>`;
- openModal();$$("[data-tv]").forEach(b=>b.onclick=()=>{let v=+b.dataset.tv;t.answers.push(v);if(t.index<changeQs.length-1)t.index++;else{t.result=Math.round(t.answers.reduce((a,b)=>a+b,0)/(changeQs.length*5)*100);t.active=false}s.changeTest=t;save();renderChangeTest()})
+ const i=t.index,q=changeQs[i];
+ $("#genericSheet").innerHTML=`<div class="grab"></div><div class="test-q"><div class="test-progress">Frage ${i+1} von ${changeQs.length}</div><h3>${esc(q.text)}</h3><div class="scale">${[1,2,3,4,5].map((v,n)=>`<button data-tv="${v}">${["😣","😕","😐","🙂","😊"][n]}</button>`).join("")}</div><div class="test-scale-labels-v14"><span>gar nicht</span><span>voll</span></div></div>`;
+ openModal();
+ $$("[data-tv]").forEach(b=>b.onclick=()=>{
+  t.answers.push(+b.dataset.tv);
+  if(t.index<changeQs.length-1)t.index++;
+  else{t.active=false;t.details=calcTestDetails(t.answers);t.result=t.details.score}
+  s.changeTest=t;save();renderChangeTest()
+ })
 }
 
-/* FESTHALTEN */
-function openCapture(){s.capture={cat:"",feel:"",note:""};renderCapture();openModal()}
+/* SITUATION — schnelle Alltagserfassung */
+function openCapture(){s.capture={cat:"",note:""};renderCapture();openModal()}
 function renderCapture(){
- $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Festhalten</h2><p>Etwas passiert? 5 Sekunden reichen. YVIA nimmt es später in deine Auswertung auf.</p><div class="capturecats">${[["Chef","👤"],["Team","👥"],["Stress","⚡"],["Aufgabe","▣"],["Erfolg","★"],["Sonstiges","…"]].map(([x,i])=>`<button class="${s.capture.cat===x?"on":""}" data-cc="${x}">${i}<br>${x}</button>`).join("")}</div><div class="capturefeel">${[["good","😊"],["neutral","😐"],["bad","😣"]].map(([x,i])=>`<button class="${s.capture.feel===x?"on":""}" data-cf="${x}">${i}</button>`).join("")}</div><textarea class="capturenote" id="captureNote" placeholder="Optional: Was war gerade los?">${esc(s.capture.note)}</textarea><button class="primary" id="saveCapture" style="width:100%;height:43px;border-radius:14px;margin-top:8px">Speichern</button>`;
- $$("[data-cc]").forEach(b=>b.onclick=()=>{s.capture.cat=b.dataset.cc;renderCapture()});$$("[data-cf]").forEach(b=>b.onclick=()=>{s.capture.feel=b.dataset.cf;renderCapture()});$("#captureNote").oninput=e=>s.capture.note=e.target.value;$("#saveCapture").onclick=()=>{if(!s.capture.cat||!s.capture.feel)return toast("Kategorie + Gefühl auswählen");s.moments.push({ts:Date.now(),...s.capture});s.moments=s.moments.slice(-60);save();closeModal();toast("Festgehalten")}
+ $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Was ist gerade passiert?</h2><p>Tippe nur die Situation an. YVIA ordnet sie automatisch deinem Stimmungsbild zu. Eine Notiz ist freiwillig.</p>
+ <textarea class="capturenote situation-note-v14" id="captureNote" placeholder="Optional: ein Satz dazu …">${esc(s.capture.note||"")}</textarea>
+ <div class="situation-grid-v14">${Object.entries(situationMap).map(([key,x])=>`<button data-situation="${key}"><span>${x.icon}</span><b>${esc(x.label)}</b></button>`).join("")}</div>
+ <button class="secondary close-wide-v14" id="captureCancel">Abbrechen</button>`;
+ $("#captureNote").oninput=e=>s.capture.note=e.target.value;
+ $$("[data-situation]").forEach(b=>b.onclick=()=>saveSituation(b.dataset.situation));
+ $("#captureCancel").onclick=closeModal
+}
+function saveSituation(kind){
+ const x=situationMap[kind];if(!x)return;
+ s.moments.push({ts:Date.now(),kind,cat:x.cat,note:s.capture.note||"",valence:x.valence});
+ s.moments=s.moments.slice(-80);save();closeModal();toast("Situation gespeichert")
 }
 
 /* MATCHES */
-function filteredJobs(){return jobs.filter(j=>!s.passed.includes(j.id)&&!s.liked.includes(j.id)&&(!s.filters.salary||j.salary>=s.filters.salary)&&j.distance<=s.filters.distance&&(!s.filters.models.length||s.filters.models.includes(j.model))&&(!s.filters.hours.length||s.filters.hours.includes(j.hours)))}
+function filteredJobs(){
+ return jobs.filter(j=>
+  !s.passed.includes(j.id)&&!s.liked.includes(j.id)&&
+  (!s.filters.salary||j.salary>=s.filters.salary)&&
+  j.distance<=s.filters.distance&&
+  (!s.filters.models.length||s.filters.models.includes(j.model))&&
+  (!s.filters.hours.length||s.filters.hours.includes(j.hours))&&
+  (!s.filters.contracts.length||s.filters.contracts.includes(j.contract))&&
+  (!s.filters.shifts.length||s.filters.shifts.includes(j.shift||"Tagschicht"))&&
+  (s.filters.weekend==="egal"||(s.filters.weekend==="nein"&&!j.weekend)||(s.filters.weekend==="ja"&&!!j.weekend))&&
+  j.score>=s.filters.minScore
+ )
+}
 function liked(){return s.liked.map(id=>jobs.find(j=>j.id===id)).filter(Boolean)}
-function matches(m){let a=filteredJobs(),j=a[0],n=a[1];m.innerHTML=`<section class="screen matches"><div class="match-head"><div><div class="kicker">Matches</div><h1 class="title" style="font-size:31px">Jobs, die wirklich<br>zu dir passen.</h1><p class="sub">Links weiter. Rechts merken.</p></div><div class="head-actions"><button id="filterBtn">Filter</button><button id="savedBtn">${s.liked.length} gemerkt</button></div></div>${j?`<div class="deck">${n?jobCard(n,true):""}${jobCard(j,false)}</div><div class="swipebar"><button class="pass" id="pass">✕</button><span>swipen oder tippen</span><button class="like" id="like">♥</button></div>`:`<div style="display:grid;place-items:center;text-align:center;color:#7f8998"><div>Keine weiteren Treffer.<br><button class="head-actions" id="resetJobs" style="margin-top:10px">Filter/Swipes zurücksetzen</button></div></div>`}</section>`;
+function matches(m){
+ const a=filteredJobs(),j=a[0],n=a[1];
+ m.innerHTML=`<section class="screen matches"><div class="match-head"><div><div class="kicker">Matches</div><h1 class="title" style="font-size:31px">Jobs, die wirklich<br>zu dir passen.</h1><p class="sub">Links weiter. Rechts merken.</p></div><div class="head-actions"><button id="filterBtn">Filter</button><button id="savedBtn">${s.liked.length} gemerkt</button></div></div>
+ ${j?`<div class="deck">${n?jobCard(n,true):""}${jobCard(j,false)}</div><div class="swipebar"><button class="pass" id="pass">✕</button><span>swipen oder tippen</span><button class="like" id="like">♥</button></div>`:`<div class="empty-match-v14"><div>Keine weiteren Treffer.<br><button class="secondary" id="resetJobs">Filter & Swipes zurücksetzen</button></div></div>`}</section>`;
  $("#filterBtn").onclick=openFilters;$("#savedBtn").onclick=()=>{s.profileTab="saved";route("profile")};
- $("#pass")?.addEventListener("click",()=>{s.passed.push(j.id);save();render()});$("#like")?.addEventListener("click",()=>{s.liked.push(j.id);save();toast("Job gemerkt");render()});$("#resetJobs")?.addEventListener("click",()=>{s.passed=[];s.liked=[];s.filters={salary:0,distance:100,models:[],hours:[]};save();render()});$$("[data-info]").forEach(b=>b.onclick=()=>openJob(b.dataset.info));if(j)swipe($("#front"),j.id)
+ $("#pass")?.addEventListener("click",()=>{if(!s.passed.includes(j.id))s.passed.push(j.id);save();render()});
+ $("#like")?.addEventListener("click",()=>{if(!s.liked.includes(j.id))s.liked.push(j.id);save();toast("Job gemerkt");render()});
+ $("#resetJobs")?.addEventListener("click",()=>{s.passed=[];s.liked=[];s.filters=structuredClone(S0.filters);save();render()});
+ $$("[data-info]").forEach(b=>b.onclick=e=>{e.stopPropagation();openJob(b.dataset.info)});
+ if(j)swipe($("#front"),j.id)
 }
-function jobCard(j,back){return `<article class="card ${back?"back":""}" ${back?"":"id='front'"}><div class="jobpic" style="background-image:url('${j.image}')"><span class="score">✦ ${j.score}% Match</span><div class="jobtitle"><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p></div></div><div class="jobbody"><div class="facts"><span>${j.model}</span><span>${j.hours}</span><span>ab ${euro(j.salary)}</span></div><div class="why">${j.reasons.map(x=>`<div><b>✓</b>${esc(x)}</div>`).join("")}</div><button class="more" data-info="${j.id}">Mehr Infos</button></div></article>`}
-function swipe(c,id){let sx=0,sy=0,cx=0,cy=0,drag=false,pid;c.onpointerdown=e=>{pid=e.pointerId;c.setPointerCapture?.(pid);sx=e.clientX;sy=e.clientY;drag=true;c.style.transition="none"};c.onpointermove=e=>{if(!drag||e.pointerId!==pid)return;cx=e.clientX-sx;cy=e.clientY-sy;c.style.transform=`translate3d(${cx}px,${cy*.1}px,0) rotate(${Math.max(-7,Math.min(7,cx/30))}deg)`};c.onpointerup=()=>{if(!drag)return;drag=false;if(Math.abs(cx)>90){let d=cx>0?1:-1;c.style.transition=".3s";c.style.transform=`translate3d(${d*window.innerWidth*1.3}px,0,0) rotate(${d*10}deg)`;setTimeout(()=>{if(d>0)s.liked.push(id);else s.passed.push(id);save();render()},260)}else{c.style.transition=".42s cubic-bezier(.2,.85,.2,1)";c.style.transform="translate3d(0,0,0)"}}}
+function jobCard(j,back){
+ return `<article class="card ${back?"back":""}" ${back?"":"id='front'"}><div class="jobpic" style="background-image:url('${j.image}')"><span class="score">✦ ${j.score}% Match</span><div class="jobtitle"><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p></div></div><div class="jobbody"><div class="facts"><span>${j.model}</span><span>${j.hours}</span><span>ab ${euro(j.salary)}</span></div><div class="why">${j.reasons.map(x=>`<div><b>✓</b>${esc(x)}</div>`).join("")}</div><button class="more" data-info="${j.id}">Mehr Infos</button></div></article>`
+}
+function swipe(c,id){
+ if(!c)return;
+ let pid=null,sx=0,sy=0,cx=0,cy=0,lastX=0,lastT=0,vx=0,drag=false,raf=0;
+ const back=c.parentElement?.querySelector(".card.back");
+ const yes=document.createElement("div"),no=document.createElement("div");
+ yes.className="swipe-stamp-v14 like-stamp-v14";yes.textContent="MERKEN";
+ no.className="swipe-stamp-v14 pass-stamp-v14";no.textContent="WEITER";
+ c.append(yes,no);
+ function paint(){
+  raf=0;const p=Math.min(1,Math.abs(cx)/130),rot=Math.max(-7,Math.min(7,cx/32));
+  c.style.transform=`translate3d(${cx}px,${cy*.10}px,0) rotate(${rot}deg)`;
+  yes.style.opacity=cx>0?String(p):"0";no.style.opacity=cx<0?String(p):"0";
+  if(back){back.style.transform=`translateY(${8-6*p}px) scale(${.965+.03*p})`;back.style.opacity=String(.72+.24*p)}
+ }
+ c.onpointerdown=e=>{
+  if(e.target.closest("button"))return;
+  pid=e.pointerId;c.setPointerCapture?.(pid);sx=e.clientX;sy=e.clientY;lastX=e.clientX;lastT=performance.now();cx=cy=vx=0;drag=true;c.style.transition="none"
+ };
+ c.onpointermove=e=>{
+  if(!drag||e.pointerId!==pid)return;
+  const now=performance.now();cx=e.clientX-sx;cy=e.clientY-sy;vx=(e.clientX-lastX)/Math.max(8,now-lastT);lastX=e.clientX;lastT=now;
+  if(!raf)raf=requestAnimationFrame(paint)
+ };
+ function finish(){
+  if(!drag)return;drag=false;
+  const go=Math.abs(cx)>92||(Math.abs(vx)>.55&&Math.abs(cx)>32);
+  if(!go){
+   c.style.transition="transform .46s cubic-bezier(.2,.86,.2,1)";c.style.transform="translate3d(0,0,0) rotate(0deg)";yes.style.opacity=no.style.opacity="0";
+   if(back){back.style.transition="transform .46s cubic-bezier(.2,.86,.2,1),opacity .3s";back.style.transform="translateY(8px) scale(.965)";back.style.opacity=".72"}return
+  }
+  const d=cx>0?1:-1,target=d*Math.max(window.innerWidth,440)*1.25;
+  c.style.transition="transform .30s cubic-bezier(.18,.78,.23,1),opacity .24s";c.style.transform=`translate3d(${target}px,${cy*.16}px,0) rotate(${d*10}deg)`;c.style.opacity="0";
+  if(back){back.style.transition="transform .3s cubic-bezier(.18,.78,.23,1),opacity .3s";back.style.transform="translateY(0) scale(1)";back.style.opacity="1"}
+  setTimeout(()=>{if(d>0){if(!s.liked.includes(id))s.liked.push(id)}else{if(!s.passed.includes(id))s.passed.push(id)}save();render()},265)
+ }
+ c.onpointerup=finish;c.onpointercancel=finish
+}
+function filterGroup(label,prefix,values,selected){return `<div><label>${label}</label><div class="toggle-row">${values.map(x=>`<button class="${selected.includes(x)?"on":""}" data-${prefix}="${x}">${x}</button>`).join("")}</div></div>`}
+function bindFilterButtons(prefix,key){$$(`[data-${prefix}]`).forEach(b=>b.onclick=()=>{const x=b.dataset[prefix];s.filters[key]=s.filters[key].includes(x)?s.filters[key].filter(v=>v!==x):[...s.filters[key],x];save();openFilters()})}
 function openFilters(){
- $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Match-Filter</h2><p>Nur das, was für dich wirklich infrage kommt.</p><div class="filter-grid"><div><div class="filter-row"><label>Mindestens Gehalt</label><strong id="fsal">${s.filters.salary?euro(s.filters.salary):"egal"}</strong></div><input id="fSalary" type="range" min="0" max="6000" step="250" value="${s.filters.salary}"></div><div><div class="filter-row"><label>Maximale Entfernung</label><strong id="fdist">${s.filters.distance} km</strong></div><input id="fDistance" type="range" min="5" max="100" step="5" value="${s.filters.distance}"></div><div><label>Arbeitsmodell</label><div class="toggle-row">${["Vor Ort","Hybrid","Homeoffice"].map(x=>`<button class="${s.filters.models.includes(x)?"on":""}" data-fm="${x}">${x}</button>`).join("")}</div></div><div><label>Arbeitszeit</label><div class="toggle-row">${["Vollzeit","Teilzeit"].map(x=>`<button class="${s.filters.hours.includes(x)?"on":""}" data-fh="${x}">${x}</button>`).join("")}</div></div></div><div class="sheet-actions"><button class="secondary" id="resetFilter">Zurücksetzen</button><button class="primary" id="applyFilter">Anwenden</button></div>`;
- openModal();$("#fSalary").oninput=e=>{s.filters.salary=+e.target.value;$("#fsal").textContent=s.filters.salary?euro(s.filters.salary):"egal"};$("#fDistance").oninput=e=>{s.filters.distance=+e.target.value;$("#fdist").textContent=s.filters.distance+" km"};$$("[data-fm]").forEach(b=>b.onclick=()=>{let x=b.dataset.fm;s.filters.models=s.filters.models.includes(x)?s.filters.models.filter(v=>v!==x):[...s.filters.models,x];renderFilterOnly()});$$("[data-fh]").forEach(b=>b.onclick=()=>{let x=b.dataset.fh;s.filters.hours=s.filters.hours.includes(x)?s.filters.hours.filter(v=>v!==x):[...s.filters.hours,x];renderFilterOnly()});$("#resetFilter").onclick=()=>{s.filters={salary:0,distance:100,models:[],hours:[]};save();openFilters()};$("#applyFilter").onclick=()=>{save();closeModal();render()}
+ $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Match-Filter</h2><p>Leg nur fest, was wirklich wichtig ist. Alles andere darf YVIA entdecken.</p><div class="filter-grid filter-grid-v14">
+ <div><div class="filter-row"><label>Mindest-Match</label><strong id="fscore">${s.filters.minScore}%</strong></div><input id="fScore" type="range" min="0" max="95" step="5" value="${s.filters.minScore}"></div>
+ <div><div class="filter-row"><label>Mindestens Gehalt</label><strong id="fsal">${s.filters.salary?euro(s.filters.salary):"egal"}</strong></div><input id="fSalary" type="range" min="0" max="6000" step="250" value="${s.filters.salary}"></div>
+ <div><div class="filter-row"><label>Maximale Entfernung</label><strong id="fdist">${s.filters.distance} km</strong></div><input id="fDistance" type="range" min="5" max="100" step="5" value="${s.filters.distance}"></div>
+ ${filterGroup("Arbeitsmodell","fm",["Vor Ort","Hybrid","Homeoffice"],s.filters.models)}
+ ${filterGroup("Arbeitszeit","fh",["Vollzeit","Teilzeit"],s.filters.hours)}
+ ${filterGroup("Vertrag","fc",["Unbefristet","Befristet"],s.filters.contracts)}
+ ${filterGroup("Schicht","fsh",["Tagschicht","Frühschicht","Spätschicht","Nachtschicht"],s.filters.shifts)}
+ <div><label>Wochenende</label><div class="toggle-row">${[["egal","Egal"],["nein","Kein Wochenende"],["ja","Wochenende okay"]].map(([v,l])=>`<button class="${s.filters.weekend===v?"on":""}" data-fw="${v}">${l}</button>`).join("")}</div></div>
+ </div><div class="sheet-actions"><button class="secondary" id="resetFilter">Zurücksetzen</button><button class="primary" id="applyFilter">Anwenden</button></div>`;
+ openModal();
+ $("#fScore").oninput=e=>{s.filters.minScore=+e.target.value;$("#fscore").textContent=s.filters.minScore+"%"};
+ $("#fSalary").oninput=e=>{s.filters.salary=+e.target.value;$("#fsal").textContent=s.filters.salary?euro(s.filters.salary):"egal"};
+ $("#fDistance").oninput=e=>{s.filters.distance=+e.target.value;$("#fdist").textContent=s.filters.distance+" km"};
+ bindFilterButtons("fm","models");bindFilterButtons("fh","hours");bindFilterButtons("fc","contracts");bindFilterButtons("fsh","shifts");
+ $$("[data-fw]").forEach(b=>b.onclick=()=>{s.filters.weekend=b.dataset.fw;save();openFilters()});
+ $("#resetFilter").onclick=()=>{s.filters=structuredClone(S0.filters);save();openFilters()};
+ $("#applyFilter").onclick=()=>{save();closeModal();render()}
 }
-function renderFilterOnly(){save();openFilters()}
-function openJob(id){let j=jobs.find(x=>x.id===id);if(!j)return;$("#genericSheet").innerHTML=`<div class="grab"></div><div class="kicker">${j.score}% Match</div><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p><div class="detail-img" style="background-image:url('${j.image}')"></div><div class="detail-grid"><div><small>GEHALT</small><b>ab ${euro(j.salary)}</b></div><div><small>MODELL</small><b>${j.model}</b></div><div><small>ARBEITSZEIT</small><b>${j.hours}</b></div><div><small>VERTRAG</small><b>${j.contract}</b></div></div><div class="detail-block"><b>Warum es zu dir passen könnte</b><p>${j.reasons.map(x=>"• "+x).join("<br>")}</p></div><div class="detail-block"><b>Worum es geht</b><p>${esc(j.about)}</p></div><div class="sheet-actions"><button class="secondary" id="detailBack">Zurück</button><button class="primary" id="detailLike">${s.liked.includes(j.id)?"Gespeichert ✓":"♥ Merken"}</button></div>`;openModal();$("#detailBack").onclick=closeModal;$("#detailLike").onclick=()=>{if(!s.liked.includes(j.id))s.liked.push(j.id);save();closeModal();toast("Job gemerkt");render()}}
+function openJob(id){
+ const j=jobs.find(x=>x.id===id);if(!j)return;
+ $("#genericSheet").innerHTML=`<div class="grab"></div><div class="kicker">${j.score}% Match</div><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p><div class="detail-img" style="background-image:url('${j.image}')"></div>
+ <div class="detail-grid"><div><small>GEHALT</small><b>ab ${euro(j.salary)}</b></div><div><small>MODELL</small><b>${j.model}</b></div><div><small>ARBEITSZEIT</small><b>${j.hours}</b></div><div><small>VERTRAG</small><b>${j.contract}</b></div></div>
+ <div class="detail-block"><b>Warum es zu dir passen könnte</b><p>${j.reasons.map(x=>"• "+x).join("<br>")}</p></div><div class="detail-block"><b>Worum es geht</b><p>${esc(j.about)}</p></div>
+ <div class="sheet-actions"><button class="secondary" id="detailBack">Zurück</button><button class="primary" id="detailLike">${s.liked.includes(j.id)?"Gespeichert ✓":"♥ Merken"}</button></div>`;
+ openModal();$("#detailBack").onclick=closeModal;$("#detailLike").onclick=()=>{if(!s.liked.includes(j.id))s.liked.push(j.id);save();closeModal();toast("Job gemerkt");render()}
+}
 
 /* CHAT */
 function friendReply(t){
@@ -233,39 +491,76 @@ function chat(m){m.innerHTML=`<section class="screen chat-screen"><div><div clas
 
 /* PROFIL */
 const baseSkills=["Organisation","Überblick","Kommunikation","Verlässlich","Problemlösung","Kreativ","Empathisch","Strukturiert","Praktisch","Eigenständig"];
-function profile(m){
- let p=s.profileTab,panel=p==="strengths"?`<div class="pcard"><h3>Was kannst du wirklich gut?</h3><p>Wähle aus oder ergänze eigene Stärken. Eigene Einträge bleiben dauerhaft im Profil.</p><div class="chips">${[...new Set([...baseSkills,...s.skills])].map(x=>`<button class="chip ${s.skills.includes(x)?"on":""}" data-skill="${esc(x)}">${esc(x)}</button>`).join("")}</div><div class="addrow"><input id="newSkill" placeholder="Eigene Stärke, z. B. ruhig unter Druck"><button id="addSkill">+</button></div></div>`:
- p==="frame"?frameHTML():
- p==="saved"?`<div class="pcard"><h3>Gemerkt</h3><p>${liked().length} gespeicherte Matches.</p><div class="savedgrid">${liked().length?liked().map(j=>`<button class="sj" data-openjob="${j.id}"><div class="pic" style="background-image:url('${j.image}')"></div><div class="txt"><b>${esc(j.title)}</b><small>${j.company} · ${j.score}%</small></div></button>`).join(""):`<p>Noch nichts gespeichert.</p>`}</div></div>`:
- `<div class="pcard"><h3>Dein YVIA-Profil</h3><p>${s.skills.slice(0,4).join(" · ")}</p><div class="prow"><span>Zufriedenheit</span><b>${metric("satisfaction")}%</b></div><div class="prow"><span>Stress</span><b>${metric("stress")}%</b></div><div class="prow"><span>Energie</span><b>${metric("energy")}%</b></div></div>`;
- m.innerHTML=`<section class="screen profile"><div class="profhero"><button class="profphoto" id="photoBtn">${s.photo?`<img src="${s.photo}">`:"👤"}</button><div><small>DEIN YVIA PROFIL</small><h1>${esc(s.name)}</h1><p>Stärken, Rahmen und gemerkte Jobs.</p></div><input type="file" id="photoInput" accept="image/*"></div><div class="ptabs">${[["me","Ich"],["strengths","Stärken"],["frame","Mein Rahmen"],["saved","Gemerkt"]].map(([k,l])=>`<button class="${p===k?"active":""}" data-pt="${k}">${l}</button>`).join("")}</div><div class="ppanel">${panel}</div></section>`;
- $$("[data-pt]").forEach(b=>b.onclick=()=>{s.profileTab=b.dataset.pt;save();render()});
- $("#photoBtn").onclick=()=>$("#photoInput").click();$("#photoInput").onchange=e=>{let f=e.target.files?.[0];if(f)openPhotoEditor(f)};
- $$("[data-skill]").forEach(b=>b.onclick=()=>{let x=b.dataset.skill;s.skills=s.skills.includes(x)?s.skills.filter(v=>v!==x):[...s.skills,x];save();render()});
- $("#addSkill")?.addEventListener("click",()=>{let v=$("#newSkill").value.trim();if(v&&!s.skills.includes(v)){s.skills.push(v);save();toast("Stärke hinzugefügt");render()}});
- bindFrame();$$("[data-openjob]").forEach(b=>b.onclick=()=>openJob(b.dataset.openjob))
+function profileCompleteness(){
+ let n=35;if(s.photo)n+=15;if(s.skills.length>=4)n+=15;if(s.values.length>=3)n+=10;if(s.salary&&s.distance)n+=15;if(s.documents.length)n+=10;return Math.min(100,n)
 }
-function frameHTML(){return `<div class="pcard"><h3>Dein Rahmen</h3><p>Je klarer deine Grenzen, desto weniger unpassende Matches.</p>
- <div class="prow"><span>Mindestgehalt</span><b id="salOut">${euro(s.salary)}</b></div><input class="range" id="salRange" type="range" min="1800" max="7000" step="100" value="${s.salary}">
- <div class="prow"><span>Max. Entfernung</span><b id="distOut">${s.distance} km</b></div><input class="range" id="distRange" type="range" min="5" max="100" step="5" value="${s.distance}">
- <div class="prow"><span>Wochenstunden</span><b id="hoursOut">${s.weeklyHours} Std.</b></div><input class="range" id="hoursRange" type="range" min="15" max="45" step="1" value="${s.weeklyHours}">
- <div class="prow"><span>Arbeitsmodell</span><b></b></div><div class="toggle-row">${["Vor Ort","Hybrid","Homeoffice"].map(x=>`<button class="${s.workModels.includes(x)?"on":""}" data-wm="${x}">${x}</button>`).join("")}</div>
- <div class="prow"><span>Arbeitszeit</span><b></b></div><div class="toggle-row">${["Vollzeit","Teilzeit"].map(x=>`<button class="${s.workTimes.includes(x)?"on":""}" data-wt="${x}">${x}</button>`).join("")}</div>
- <div class="prow"><span>Schichten</span><b></b></div><div class="toggle-row">${["Tagschicht","Frühschicht","Spätschicht","Nachtschicht"].map(x=>`<button class="${s.shifts.includes(x)?"on":""}" data-sh="${x}">${x}</button>`).join("")}</div>
- <div class="prow"><span>Vertrag</span><b></b></div><div class="toggle-row">${["Unbefristet","Befristet okay"].map(x=>`<button class="${s.contract.includes(x)?"on":""}" data-co="${x}">${x}</button>`).join("")}</div>
- <div class="prow"><span>Wochenende</span><b>${s.weekend?"okay":"nein"}</b></div><div class="toggle-row"><button class="${s.weekend?"on":""}" id="weekBtn">${s.weekend?"Wochenende möglich":"Keine Wochenendarbeit"}</button></div>
- <div class="prow"><span>Start</span><b>${s.start}</b></div><div class="select-grid">${["Sofort","1 Monat","3 Monate","Flexibel"].map(x=>`<button class="${s.start===x?"on":""}" data-start="${x}">${x}</button>`).join("")}</div>
- </div>`}
+function profile(m){
+ const p=s.profileTab;
+ let panel=p==="strengths"?strengthProfileHTML():p==="frame"?frameHTML():p==="docs"?documentsHTML():p==="saved"?savedProfileHTML():profileOverviewHTML();
+ m.innerHTML=`<section class="screen profile"><div class="profhero profhero-v14"><button class="profphoto profphoto-v14" id="photoBtn">${s.photo?`<img src="${s.photo}">`:"👤"}</button><div><small>DEIN YVIA PROFIL</small><h1>${esc(s.name)}</h1><p>${esc(s.careerGoal)}</p></div><input type="file" id="photoInput" accept="image/*"></div>
+ <div class="ptabs">${[["me","Profil"],["strengths","Stärken"],["frame","Rahmen"],["docs","Unterlagen"],["saved","Gemerkt"]].map(([k,l])=>`<button class="${p===k?"active":""}" data-pt="${k}">${l}</button>`).join("")}</div><div class="ppanel">${panel}</div></section>`;
+ $$("[data-pt]").forEach(b=>b.onclick=()=>{s.profileTab=b.dataset.pt;save();render()});
+ $("#photoBtn").onclick=()=>$("#photoInput").click();$("#photoInput").onchange=e=>{const f=e.target.files?.[0];if(f)openPhotoEditor(f)};
+ bindStrengths();bindFrame();bindDocuments();
+ $$("[data-openjob]").forEach(b=>b.onclick=()=>openJob(b.dataset.openjob));
+ $$("[data-profile-go]").forEach(b=>b.onclick=()=>{s.profileTab=b.dataset.profileGo;save();render()})
+}
+function profileSectionCard(icon,title,text,to){return `<button class="profile-section-card-v14" data-profile-go="${to}"><span>${icon}</span><div><b>${title}</b><p>${esc(text)}</p></div><em>›</em></button>`}
+function profileOverviewHTML(){
+ const pc=profileCompleteness();
+ return `<div class="profile-overview-v14"><div class="profile-strength-v14"><div class="profile-ring-v14" style="--p:${pc}"><span>${pc}%</span></div><div><small>PROFILSTÄRKE</small><b>${pc>=80?"Sehr gut aufgestellt":pc>=60?"Schon ziemlich gut":"Da geht noch mehr"}</b><p>Je klarer dein Profil, desto besser werden deine Matches.</p></div></div>
+ ${profileSectionCard("★","Stärken",s.skills.slice(0,4).join(", ")||"Noch nicht festgelegt","strengths")}
+ ${profileSectionCard("♥","Werte & Ziel",`${s.values.slice(0,3).join(", ")} · ${s.careerGoal}`,"strengths")}
+ ${profileSectionCard("⌖","Mein Rahmen",`${euro(s.salary)} · ${s.distance} km · ${s.workModels.join("/")}`,"frame")}
+ ${profileSectionCard("▤","Unterlagen",s.documents.length?`${s.documents.length} Datei${s.documents.length===1?"":"en"} hinterlegt`:"Lebenslauf und Zeugnisse ergänzen","docs")}
+ ${profileSectionCard("♡","Gemerkt",`${liked().length} gespeicherte Matches`,"saved")}</div>`
+}
+function strengthProfileHTML(){
+ return `<div class="profile-page-v14"><div class="profile-page-head-v14"><span>★</span><div><small>DEINE STÄRKEN</small><h3>Was dich ausmacht.</h3><p>Nicht nur Lebenslaufbegriffe – sondern Dinge, auf die man sich bei dir verlassen kann.</p></div></div>
+ <div class="strength-cards-v14">${[...new Set([...baseSkills,...s.skills])].map((x,i)=>`<button class="strength-card-item-v14 ${s.skills.includes(x)?"on":""}" data-skill="${esc(x)}"><span>${["✦","◆","●","▲"][i%4]}</span><b>${esc(x)}</b><em>${s.skills.includes(x)?"✓":"+"}</em></button>`).join("")}</div>
+ <div class="add-strength-v14"><input id="newSkill" placeholder="Eigene Stärke hinzufügen …"><button id="addSkill">Hinzufügen</button></div>
+ <div class="value-card-v14"><small>WAS DIR WICHTIG IST</small><div class="chips">${["Gutes Team","Faire Bezahlung","Flexibilität","Entwicklung","Sinn","Sicherheit","Eigenständigkeit"].map(x=>`<button class="chip ${s.values.includes(x)?"on":""}" data-value="${x}">${x}</button>`).join("")}</div><input id="goalInput" value="${esc(s.careerGoal)}" placeholder="Dein Ziel"></div></div>`
+}
+function bindStrengths(){
+ $$("[data-skill]").forEach(b=>b.onclick=()=>{const x=b.dataset.skill;s.skills=s.skills.includes(x)?s.skills.filter(v=>v!==x):[...s.skills,x];save();render()});
+ $("#addSkill")?.addEventListener("click",()=>{const v=$("#newSkill").value.trim();if(v&&!s.skills.includes(v)){s.skills.push(v);save();toast("Stärke hinzugefügt");render()}});
+ $$("[data-value]").forEach(b=>b.onclick=()=>{const x=b.dataset.value;s.values=s.values.includes(x)?s.values.filter(v=>v!==x):[...s.values,x];save();render()});
+ $("#goalInput")?.addEventListener("change",e=>{s.careerGoal=e.target.value.trim()||S0.careerGoal;save()})
+}
+function frameHTML(){
+ return `<div class="profile-page-v14"><div class="profile-page-head-v14"><span>⌖</span><div><small>DEIN RAHMEN</small><h3>Was muss wirklich passen?</h3><p>YVIA nutzt diese Grenzen auch für deine Matches.</p></div></div>
+ <div class="frame-card-v14"><div class="frame-big-v14"><div><small>MINDESTGEHALT</small><b id="salOut">${euro(s.salary)}</b></div><div><small>MAX. WEG</small><b id="distOut">${s.distance} km</b></div><div><small>WOCHENSTUNDEN</small><b id="hoursOut">${s.weeklyHours} Std.</b></div></div>
+ <input class="range" id="salRange" type="range" min="1800" max="7000" step="100" value="${s.salary}"><input class="range" id="distRange" type="range" min="5" max="100" step="5" value="${s.distance}"><input class="range" id="hoursRange" type="range" min="15" max="45" step="1" value="${s.weeklyHours}"></div>
+ ${segCard("Arbeitsmodell","wm",["Vor Ort","Hybrid","Homeoffice"],s.workModels)}${segCard("Arbeitszeit","wt",["Vollzeit","Teilzeit"],s.workTimes)}${segCard("Schichten","sh",["Tagschicht","Frühschicht","Spätschicht","Nachtschicht"],s.shifts)}${segCard("Vertrag","co",["Unbefristet","Befristet okay"],s.contract)}
+ <div class="frame-choice-v14"><small>WOCHENENDE</small><div><button class="${s.weekend?"on":""}" id="weekBtn">${s.weekend?"Wochenende möglich":"Keine Wochenendarbeit"}</button></div></div>
+ <div class="frame-choice-v14"><small>START</small><div>${["Sofort","1 Monat","3 Monate","Flexibel"].map(x=>`<button class="${s.start===x?"on":""}" data-start="${x}">${x}</button>`).join("")}</div></div></div>`
+}
+function segCard(label,prefix,values,selected){return `<div class="frame-choice-v14"><small>${label.toUpperCase()}</small><div>${values.map(x=>`<button class="${selected.includes(x)?"on":""}" data-${prefix}="${x}">${x}</button>`).join("")}</div></div>`}
 function bindFrame(){
  $("#salRange")?.addEventListener("input",e=>{s.salary=+e.target.value;$("#salOut").textContent=euro(s.salary);save()});
  $("#distRange")?.addEventListener("input",e=>{s.distance=+e.target.value;$("#distOut").textContent=s.distance+" km";save()});
  $("#hoursRange")?.addEventListener("input",e=>{s.weeklyHours=+e.target.value;$("#hoursOut").textContent=s.weeklyHours+" Std.";save()});
- $$("[data-wm]").forEach(b=>b.onclick=()=>{let x=b.dataset.wm;s.workModels=s.workModels.includes(x)?s.workModels.filter(v=>v!==x):[...s.workModels,x];save();render()});
- $$("[data-wt]").forEach(b=>b.onclick=()=>{let x=b.dataset.wt;s.workTimes=s.workTimes.includes(x)?s.workTimes.filter(v=>v!==x):[...s.workTimes,x];save();render()});
- $$("[data-sh]").forEach(b=>b.onclick=()=>{let x=b.dataset.sh;s.shifts=s.shifts.includes(x)?s.shifts.filter(v=>v!==x):[...s.shifts,x];save();render()});
- $$("[data-co]").forEach(b=>b.onclick=()=>{let x=b.dataset.co;s.contract=s.contract.includes(x)?s.contract.filter(v=>v!==x):[...s.contract,x];save();render()});
- $("#weekBtn")?.addEventListener("click",()=>{s.weekend=!s.weekend;save();render()});
- $$("[data-start]").forEach(b=>b.onclick=()=>{s.start=b.dataset.start;save();render()})
+ for(const [attr,key] of [["wm","workModels"],["wt","workTimes"],["sh","shifts"],["co","contract"]])$$(`[data-${attr}]`).forEach(b=>b.onclick=()=>{const x=b.dataset[attr];s[key]=s[key].includes(x)?s[key].filter(v=>v!==x):[...s[key],x];save();render()});
+ $("#weekBtn")?.addEventListener("click",()=>{s.weekend=!s.weekend;save();render()});$$("[data-start]").forEach(b=>b.onclick=()=>{s.start=b.dataset.start;save();render()})
+}
+function documentsHTML(){
+ return `<div class="profile-page-v14"><div class="profile-page-head-v14"><span>▤</span><div><small>UNTERLAGEN</small><h3>Alles an einem Ort.</h3><p>Lebenslauf, Zeugnisse und Bilder. In dieser Demo werden Vorschau und Dateiname lokal gespeichert.</p></div></div>
+ <div class="upload-card-v14"><button id="cvBtn"><span>↥</span><div><b>Lebenslauf</b><small>PDF, DOC, DOCX</small></div></button><button id="docBtn"><span>＋</span><div><b>Zeugnisse & Bilder</b><small>PDF oder Bilddateien</small></div></button></div>
+ <input type="file" id="cvInput" accept=".pdf,.doc,.docx,application/pdf"><input type="file" id="docInput" multiple accept="image/*,.pdf,.doc,.docx,application/pdf">
+ <div class="document-list-v14">${s.documents.map((d,i)=>`<article><div class="doc-thumb-v14" ${d.thumb?`style="background-image:url('${d.thumb}')"`:""}>${d.thumb?"":"▤"}</div><div><b>${esc(d.name)}</b><small>${esc(d.kind)}</small></div><button data-del-doc="${i}">×</button></article>`).join("")||`<div class="empty-v14">Noch keine Unterlagen hinterlegt.</div>`}</div></div>`
+}
+async function makeDocThumb(file){
+ if(!file.type.startsWith("image/"))return "";
+ try{const url=URL.createObjectURL(file),img=new Image();await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url});const c=document.createElement("canvas"),side=Math.min(img.naturalWidth,img.naturalHeight);c.width=c.height=120;c.getContext("2d").drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,120,120);URL.revokeObjectURL(url);return c.toDataURL("image/jpeg",.72)}catch(e){return ""}
+}
+function bindDocuments(){
+ $("#cvBtn")?.addEventListener("click",()=>$("#cvInput").click());$("#docBtn")?.addEventListener("click",()=>$("#docInput").click());
+ $("#cvInput")?.addEventListener("change",async e=>addDocs([...e.target.files],"Lebenslauf"));$("#docInput")?.addEventListener("change",async e=>addDocs([...e.target.files],"Dokument"));
+ $$("[data-del-doc]").forEach(b=>b.onclick=()=>{s.documents.splice(+b.dataset.delDoc,1);save();render()})
+}
+async function addDocs(files,kind){for(const f of files)s.documents.push({name:f.name,kind,thumb:await makeDocThumb(f)});s.documents=s.documents.slice(-25);save();toast("Unterlage hinzugefügt");render()}
+function savedProfileHTML(){
+ return `<div class="profile-page-v14"><div class="profile-page-head-v14"><span>♡</span><div><small>GEMERKTE JOBS</small><h3>Deine Favoriten.</h3><p>Hier landet alles, was du nach rechts gewischt oder gespeichert hast.</p></div></div><div class="savedgrid">${liked().length?liked().map(j=>`<button class="sj" data-openjob="${j.id}"><div class="pic" style="background-image:url('${j.image}')"></div><div class="txt"><b>${esc(j.title)}</b><small>${j.company} · ${j.score}%</small></div></button>`).join(""):`<div class="empty-v14">Noch keine Jobs gemerkt.</div>`}</div></div>`
 }
 
 /* FOTO EDITOR */
