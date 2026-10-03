@@ -1475,8 +1475,444 @@ main{padding:14px 20px 118px}
 }
 .v8-nav button.active span,.v6-nav button.active span{transform:translateY(-1px)}
 
+
+/* =========================================================
+   YVIA V1.0 — dark focus / one task per screen
+   ========================================================= */
+:root{
+  --v10-bg:#070A10;
+  --v10-surface:#0F141E;
+  --v10-surface2:#141B27;
+  --v10-card:rgba(20,27,39,.88);
+  --v10-line:rgba(255,255,255,.075);
+  --v10-text:#F7F8FA;
+  --v10-muted:#919AA8;
+  --v10-coral:#FF755F;
+  --v10-pink:#F45F98;
+  --v10-mango:#F4B33F;
+  --v10-blue:#5982FF;
+  --v10-purple:#A066FF;
+}
+
+html,body{
+  background:var(--v10-bg)!important;
+  color:var(--v10-text)!important;
+}
+body{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(244,95,152,.12),transparent 27%),
+    radial-gradient(circle at 0% 45%,rgba(89,130,255,.07),transparent 24%),
+    var(--v10-bg)!important;
+}
+#app{background:transparent!important}
+main{background:transparent!important}
+p,.small{color:var(--v10-muted)!important}
+h1,h2,h3,strong,b{color:var(--v10-text)}
+.eyebrow,.screen-kicker{color:#7F8998!important}
+
+.v6-header{
+  background:rgba(7,10,16,.78)!important;
+  border:0!important;
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%)
+}
+.yvia-header-brand span,.welcome-wordmark{color:#fff!important}
+.header-avatar{background:#171D28!important;color:white!important}
+.icon-button{color:white!important}
+
+body.no-scroll-app{
+  height:100dvh;
+  overflow:hidden;
+}
+body.no-scroll-app #app{
+  height:100dvh;
+  overflow:hidden;
+}
+body.no-scroll-app main{
+  height:calc(100dvh - 72px);
+  overflow:hidden;
+  padding-bottom:105px!important;
+}
+body.no-scroll-app main>.screen{
+  height:100%;
+  overflow:hidden;
+}
+
+/* Bottom navigation */
+.v6-nav{
+  background:rgba(14,19,28,.90)!important;
+  border:1px solid var(--v10-line)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.35)!important;
+  backdrop-filter:blur(26px) saturate(145%);
+  -webkit-backdrop-filter:blur(26px) saturate(145%)
+}
+.v6-nav button{color:#778192!important}
+.v6-nav button.active{
+  color:#fff!important;
+  background:rgba(255,255,255,.07)!important
+}
+
+/* Persistent YVIA chat */
+.global-chat-fab{
+  position:fixed;
+  right:max(20px,calc((100vw - 460px)/2 + 20px));
+  bottom:88px;
+  z-index:65;
+  height:48px;
+  padding:0 15px 0 12px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:linear-gradient(135deg,rgba(255,117,95,.96),rgba(244,95,152,.96));
+  color:white;
+  box-shadow:0 14px 34px rgba(244,95,152,.28);
+  font-size:12px;
+  font-weight:800
+}
+.global-chat-fab span{font-size:16px}
+.global-chat-fab.hidden{display:none}
+
+.global-chat-sheet{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end
+}
+.global-chat-sheet.hidden{display:none}
+.chat-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.52);backdrop-filter:blur(3px)}
+.chat-panel-v10{
+  position:relative;
+  width:min(100%,460px);
+  height:min(78dvh,690px);
+  border-radius:30px 30px 0 0;
+  border:1px solid rgba(255,255,255,.10);
+  background:#0D121B;
+  box-shadow:0 -30px 80px rgba(0,0,0,.42);
+  padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+  display:grid;
+  grid-template-rows:auto auto auto 1fr auto auto;
+  animation:chatUp .28s cubic-bezier(.2,.8,.2,1)
+}
+@keyframes chatUp{from{transform:translateY(100%)}to{transform:none}}
+.chat-grabber{width:38px;height:4px;border-radius:99px;background:#303746;margin:0 auto 8px}
+.chat-panel-v10>header{display:flex;align-items:center;justify-content:space-between;padding:3px 1px 12px}
+.chat-brand-v10{display:flex;gap:10px;align-items:center}
+.chat-brand-v10>span{
+  width:38px;height:38px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--v10-mango),var(--v10-coral),var(--v10-pink))
+}
+.chat-brand-v10 b{display:block;font-size:14px}
+.chat-brand-v10 small{font-size:10px;color:#8E98A7}
+.chat-panel-v10 header>button{
+  width:36px;height:36px;border:0;border-radius:13px;background:#171D28;color:white;font-size:22px
+}
+.chat-context-v10{
+  padding:10px 12px;border-radius:15px;background:#111823;color:#7F8A99;font-size:10px;line-height:1.4
+}
+.chat-messages-v10{
+  overflow:auto;
+  padding:14px 2px 8px;
+  display:flex;
+  flex-direction:column;
+  gap:9px
+}
+.gmsg{
+  max-width:88%;
+  border-radius:18px;
+  padding:11px 13px;
+  font-size:12px;
+  line-height:1.48
+}
+.gmsg.assistant{align-self:flex-start;background:#151D29;color:#EDEFF3;border:1px solid var(--v10-line)}
+.gmsg.user{align-self:flex-end;background:linear-gradient(135deg,#FF765F,#EF5A95);color:white}
+.chat-quick-v10{display:flex;gap:6px;overflow:auto;padding:3px 0 8px}
+.chat-quick-v10 button{
+  flex:none;border:1px solid var(--v10-line);background:#131A25;color:#AAB1BD;
+  border-radius:999px;padding:8px 10px;font-size:9px;font-weight:700
+}
+.chat-compose-v10{
+  display:grid;grid-template-columns:1fr 44px;gap:8px;
+  border:1px solid var(--v10-line);background:#111823;border-radius:19px;padding:7px 7px 7px 12px
+}
+.chat-compose-v10 textarea{background:transparent!important;color:white!important;border:0!important;resize:none;font-size:12px;outline:none;padding:8px 0}
+.chat-compose-v10 button{
+  border:0;border-radius:14px;background:linear-gradient(135deg,var(--v10-coral),var(--v10-pink));color:white;font-size:19px
+}
+
+/* Welcome / onboarding dark */
+.yvia-welcome,.screen{
+  color:var(--v10-text)
+}
+.welcome-logo-orb{
+  background:#121924!important;
+  box-shadow:0 14px 45px rgba(244,95,152,.13)!important
+}
+.welcome-copy h1{color:white!important}
+.welcome-copy p{color:#929CAB!important}
+.welcome-art{opacity:.9}
+.auth-primary{box-shadow:0 16px 38px rgba(244,95,152,.22)!important}
+.auth-apple{
+  background:#111823!important;
+  border:1px solid var(--v10-line)!important;
+  color:white!important
+}
+.auth-login,.auth-back{color:#9AA3B0!important}
+.auth-panel input{
+  background:#111823!important;border:1px solid var(--v10-line)!important;color:white!important
+}
+.progress-wrap,.note,.textbox,.mic-card,.voice-status,
+.choice,.tile,.field,.profile-health,.profile-block,.card,.soft{
+  background:#101722!important;
+  border-color:var(--v10-line)!important;
+  color:white!important;
+  box-shadow:none!important
+}
+.choice,.tile{color:#EDEFF3!important}
+.choice.selected,.tile.selected{
+  background:linear-gradient(135deg,rgba(255,117,95,.22),rgba(244,95,152,.14))!important;
+  border-color:rgba(255,117,95,.45)!important
+}
+.btn-secondary{
+  background:#121924!important;
+  color:#D7DBE1!important;
+  border:1px solid var(--v10-line)!important
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--v10-coral),var(--v10-pink))!important;
+  color:white!important
+}
+.segmented,.seg{background:#111823!important;color:#9DA6B3!important;border-color:var(--v10-line)!important}
+.seg.selected{background:#252D3A!important;color:white!important}
+
+/* Strength reveal */
+.strength-reveal-v10 h1{
+  font-size:46px;line-height:.96;letter-spacing:-.065em;margin-bottom:12px
+}
+.strength-reveal-v10>p{font-size:14px;line-height:1.5}
+.strength-stack-v10{display:grid;gap:9px;margin-top:22px}
+.strength-card-v10{
+  width:100%;
+  min-height:76px;
+  border:1px solid var(--v10-line);
+  border-radius:21px;
+  padding:13px 14px;
+  display:grid;
+  grid-template-columns:30px 1fr 32px;
+  gap:10px;
+  align-items:center;
+  text-align:left;
+  background:#111823;
+  color:white
+}
+.strength-card-v10.off{opacity:.42}
+.strength-index{font-size:9px;color:#687384;font-weight:800}
+.strength-card-v10 b{display:block;font-size:14px;margin-bottom:2px}
+.strength-card-v10 p{font-size:10px;line-height:1.35;color:#7F8998!important;margin:0}
+.strength-card-v10 em{
+  width:29px;height:29px;border-radius:11px;display:grid;place-items:center;
+  background:rgba(255,117,95,.13);color:#FF8B78;font-style:normal
+}
+.strength-note-v10{
+  margin-top:13px;display:flex;gap:9px;padding:13px;border-radius:17px;background:#0D131D
+}
+.strength-note-v10 span{color:#FF8E72}
+.strength-note-v10 p{font-size:10px;line-height:1.4;margin:0}
+
+/* Stimmung compact / no scroll */
+.mood-v8{
+  display:flex;
+  flex-direction:column;
+  padding-top:6px!important
+}
+.screen-title-row h1{font-size:45px!important;line-height:.94!important;color:white!important}
+.screen-title-row p{font-size:12px!important;line-height:1.4!important}
+.mood-grid{
+  flex:1;
+  min-height:0;
+  display:grid!important;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(3,1fr);
+  gap:8px!important;
+  margin-top:16px!important
+}
+.mood-tile{
+  min-height:0!important;
+  height:auto!important;
+  padding:12px!important;
+  border-radius:19px!important;
+  background:#101722!important;
+  border:1px solid var(--v10-line)!important;
+  box-shadow:none!important
+}
+.mood-tile.featured{
+  background:linear-gradient(145deg,#FF745F,#E95796)!important;
+  border-color:transparent!important
+}
+.mood-tile b{font-size:12px!important}
+.mood-icon{font-size:19px!important}
+.free-talk-v8{
+  margin-top:9px!important;
+  min-height:48px!important;
+  background:#111823!important;
+  border:1px solid var(--v10-line)!important
+}
+.free-talk-v8 textarea{color:white!important;background:transparent!important;font-size:11px!important}
+.micro-note{display:none!important}
+
+/* Better advice */
+.friend-focus,.friend-advice-v10{
+  height:100%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column
+}
+.friend-advice-v10 h2{font-size:29px!important;line-height:1.07!important;margin-bottom:7px}
+.friend-reality{font-size:12px!important;line-height:1.45!important}
+.advice-do-v10,.advice-avoid-v10{
+  margin-top:10px;padding:13px 14px;border-radius:18px
+}
+.advice-do-v10{background:linear-gradient(135deg,rgba(255,117,95,.14),rgba(244,95,152,.10));border:1px solid rgba(255,117,95,.18)}
+.advice-avoid-v10{background:#101722;border:1px solid var(--v10-line)}
+.advice-do-v10 small,.advice-avoid-v10 small{
+  display:block;font-size:8px;letter-spacing:.1em;color:#7F8998;font-weight:800;margin-bottom:5px
+}
+.advice-do-v10 strong{font-size:13px;line-height:1.4}
+.advice-avoid-v10 p{font-size:11px;line-height:1.4;margin:0}
+.friend-script{
+  margin-top:10px!important;
+  padding:13px!important;
+  border-radius:18px!important;
+  background:#161E2A!important
+}
+.friend-script p{font-size:12px!important;line-height:1.4!important}
+.continue-chat-v10{
+  width:100%;margin-top:10px;padding:11px 12px;border:1px solid var(--v10-line);
+  border-radius:18px;background:#0F151F;color:white;
+  display:grid;grid-template-columns:32px 1fr 20px;gap:9px;align-items:center;text-align:left
+}
+.continue-chat-v10>span{
+  width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--v10-coral),var(--v10-pink))
+}
+.continue-chat-v10 b{display:block;font-size:11px}
+.continue-chat-v10 small{display:block;font-size:9px;color:#7F8998;margin-top:2px}
+.continue-chat-v10 em{font-style:normal;color:#7F8998}
+.friend-helped{margin-top:auto!important;padding-top:9px}
+.friend-helped button{background:#111823!important;color:#AAB2BE!important;border-color:var(--v10-line)!important}
+
+/* Mein Job: compact one-screen */
+.job-v9{
+  display:flex;
+  flex-direction:column;
+  padding-top:5px!important
+}
+.job-hero-v9{grid-template-columns:1fr 74px!important}
+.job-hero-v9 h1{font-size:38px!important;line-height:.96!important;margin-bottom:7px!important}
+.job-hero-v9 p{font-size:11px!important}
+.score-orb-v9{width:72px!important;height:72px!important;background:linear-gradient(145deg,#1C2430,#131A25)!important;border:1px solid var(--v10-line)!important;box-shadow:none!important}
+.score-orb-v9 span{font-size:20px!important}
+.metric-grid-v9{gap:7px!important;margin-top:13px!important}
+.metric-grid-v9 article{
+  padding:10px 9px!important;border-radius:17px!important;background:#101722!important;border:1px solid var(--v10-line)!important;box-shadow:none!important
+}
+.metric-grid-v9 .metric-symbol{font-size:15px!important;margin-bottom:5px!important}
+.metric-grid-v9 strong{font-size:20px!important}
+.metric-grid-v9 i{margin-top:7px!important}
+.check-launcher-v9{
+  margin-top:8px!important;padding:10px 12px!important;border-radius:17px!important;background:#111823!important;border-color:var(--v10-line)!important;box-shadow:none!important;color:white!important
+}
+.check-launcher-v9 small{font-size:7px!important}.check-launcher-v9 b{font-size:12px!important}.check-launcher-v9 span{font-size:8px!important}
+.quick-check-v9{position:absolute;left:20px;right:20px;top:165px;z-index:20;background:#0D131D!important;border-color:var(--v10-line)!important;box-shadow:0 25px 60px rgba(0,0,0,.45)!important}
+.insight-v9{
+  margin-top:8px!important;padding:13px 14px!important;border-radius:18px!important;background:#101722!important;border:1px solid var(--v10-line)!important;box-shadow:none!important
+}
+.insight-v9 h2{font-size:18px!important;margin:7px 0 4px!important}
+.insight-v9 p{font-size:10px!important;line-height:1.35!important}
+.trend-v9{
+  flex:1;min-height:0;margin-top:8px!important;padding:11px!important;border-radius:18px!important;background:#101722!important;border-color:var(--v10-line)!important
+}
+.trend-head-v9 h3{font-size:13px!important}
+.trend-v9 .trend-svg{height:100%!important;max-height:120px!important}
+.tomorrow-v9{
+  margin-top:8px!important;padding:10px 11px!important;border-radius:17px!important;background:linear-gradient(135deg,rgba(255,117,95,.12),rgba(244,95,152,.08))!important;border-color:rgba(255,117,95,.12)!important
+}
+.tomorrow-v9 p{font-size:9px!important;color:#B5BBC5!important}
+
+/* Matches full screen */
+.matches-v5{display:flex;flex-direction:column;padding-top:5px!important}
+.matches-v5>h1{font-size:37px!important;line-height:.96!important}
+.matches-v5>p{font-size:10px!important}
+.match-toolbar{margin-top:8px!important}
+.deck-wrap{flex:1;min-height:0!important;margin-top:8px!important}
+.deck-shadow{height:100%!important;max-height:none!important}
+.swipe-card{min-height:0!important;height:100%!important}
+.job-photo{height:54%!important;min-height:200px!important}
+.match-body{padding:12px 14px!important}
+.match-body h2,.photo-title h2{font-size:24px!important}
+.swipe-actions{margin-top:8px!important}
+
+/* Profile: no-scroll tabs */
+.profile-v10{
+  display:flex;
+  flex-direction:column;
+  padding-top:6px!important
+}
+.profile-top-v10{
+  display:grid;grid-template-columns:58px 1fr 34px;gap:11px;align-items:center
+}
+.profile-photo-v10{
+  width:58px;height:58px;border:0;border-radius:20px;background:#141B27;color:white;overflow:hidden;font-size:23px
+}
+.profile-photo-v10 img{width:100%;height:100%;object-fit:cover}
+.profile-name-v10 small{font-size:7px;letter-spacing:.1em;color:#788292;font-weight:800}
+.profile-name-v10 h1{font-size:23px;line-height:1;margin:4px 0}
+.profile-name-v10 p{font-size:9px!important;margin:0}
+.profile-edit-name-v10{width:34px;height:34px;border:1px solid var(--v10-line);border-radius:12px;background:#111823;color:white}
+.profile-tabs-v10{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:15px;padding:4px;border-radius:15px;background:#0E141E
+}
+.profile-tabs-v10 button{
+  border:0;border-radius:11px;background:transparent;color:#778292;padding:9px 4px;font-size:9px;font-weight:800
+}
+.profile-tabs-v10 button.active{background:#1A2230;color:white}
+.profile-panel-v10{
+  flex:1;min-height:0;margin-top:10px;padding:15px;border:1px solid var(--v10-line);border-radius:22px;background:#101722
+}
+.profile-feature-v10 small{font-size:8px;letter-spacing:.1em;color:#758091;font-weight:800}
+.profile-feature-v10 h3{font-size:22px;line-height:1.05;margin:7px 0}
+.profile-feature-v10 p{font-size:10px!important;line-height:1.4!important}
+.profile-mini-grid-v10{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+.profile-mini-grid-v10 div{display:flex;gap:7px;align-items:center;padding:10px;border-radius:14px;background:#141C28}
+.profile-mini-grid-v10 span{color:#FF8A71}.profile-mini-grid-v10 b{font-size:10px}
+.profile-values-v10{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
+.profile-values-v10 span{padding:9px 11px;border-radius:999px;background:#141C28;color:#D8DCE2;font-size:10px;font-weight:700}
+.profile-rows-v10{margin-top:14px;border-top:1px solid var(--v10-line)}
+.profile-rows-v10 div{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--v10-line)}
+.profile-rows-v10 span{font-size:10px;color:#7F8998}.profile-rows-v10 b{font-size:11px}
+.profile-action-v10{
+  width:100%;margin-top:14px;border:0;border-radius:15px;padding:11px 12px;background:#171F2B;color:#DDE1E7;display:flex;justify-content:space-between;font-size:10px;font-weight:800
+}
+.profile-footer-v10{display:flex;gap:7px;margin-top:8px}
+.profile-footer-v10 button{flex:1;border:1px solid var(--v10-line);border-radius:14px;background:#111823;color:#8F99A7;padding:9px;font-size:8px;font-weight:700}
+.name-sheet-v10{
+  position:absolute;inset:auto 0 0;padding:18px;background:#0D131D;border-radius:24px 24px 0 0;border:1px solid var(--v10-line);box-shadow:0 -25px 60px rgba(0,0,0,.42)
+}
+.name-sheet-v10>div{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.name-sheet-v10 small{grid-column:1/-1;font-size:8px;color:#788292;font-weight:800}
+.name-sheet-v10 input{background:#151D29;border:1px solid var(--v10-line);color:white;border-radius:13px;padding:11px;outline:none}
+.name-sheet-v10 button{border:0;border-radius:13px;background:linear-gradient(135deg,var(--v10-coral),var(--v10-pink));color:white;padding:11px 13px;font-weight:800}
+
+/* Hide decorative/light-era items */
+.mood-glow{opacity:.25!important}
+.version-pill,.badge{background:#121924!important;color:#929CAA!important;border-color:var(--v10-line)!important}
+.toast{background:#1A2230!important;color:white!important}
+
 </style>
-  <title>YVIA V0.9</title>
+  <title>YVIA V1.0</title>
 </head>
 <body>
   <div id="app">
@@ -1504,6 +1940,28 @@ main{padding:14px 20px 118px}
       <button data-tab="analysis"><span>▣</span><small>Mein Job</small></button>
       <button data-tab="matches"><span>♡</span><small>Matches</small></button>
     </nav>
+
+    <button class="global-chat-fab hidden" id="globalChatFab" aria-label="Mit YVIA sprechen">
+      <span>✦</span><b>YVIA</b>
+    </button>
+
+    <div class="global-chat-sheet hidden" id="globalChatSheet" aria-hidden="true">
+      <div class="chat-backdrop" id="globalChatBackdrop"></div>
+      <section class="chat-panel-v10">
+        <div class="chat-grabber"></div>
+        <header>
+          <div class="chat-brand-v10"><span>✦</span><div><b>YVIA</b><small>Ich bin da.</small></div></div>
+          <button id="closeGlobalChat">×</button>
+        </header>
+        <div class="chat-context-v10" id="globalChatContext"></div>
+        <div class="chat-messages-v10" id="globalChatMessages"></div>
+        <div class="chat-quick-v10" id="globalChatQuick"></div>
+        <div class="chat-compose-v10">
+          <textarea id="globalChatInput" rows="1" placeholder="Sag einfach, was los ist …"></textarea>
+          <button id="globalChatSend">↑</button>
+        </div>
+      </section>
+    </div>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -1512,7 +1970,7 @@ main{padding:14px 20px 118px}
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
-const APP_VERSION = "0.9";
+const APP_VERSION = "1.0";
 
 const demoJobs = [
   {id:1,image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=82",title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
@@ -1559,6 +2017,9 @@ const initialState = {
   friendFlow:null,
   dailyDraft:{},
   quickCheckOpen:false,
+  profileTab:"about",
+  globalChatOpen:false,
+  globalChatHistory:[],
   profileReady:false,
   activeJobId:null,
   chat:[
@@ -1593,6 +2054,9 @@ function loadState(){
     merged.friendFlow = merged.friendFlow || null;
     merged.dailyDraft = merged.dailyDraft || {};
     merged.quickCheckOpen = !!merged.quickCheckOpen;
+    merged.profileTab = merged.profileTab || "about";
+    merged.globalChatOpen = false;
+    merged.globalChatHistory = Array.isArray(merged.globalChatHistory)?merged.globalChatHistory:[];
     if(["coach","chances"].includes(merged.route)) merged.route="home";
     merged.chat = Array.isArray(merged.chat)&&merged.chat.length?merged.chat:clone(initialState.chat);
     merged.rejectionFeedback = merged.rejectionFeedback || {};
@@ -1629,8 +2093,11 @@ function avg(arr){return arr.length?arr.reduce((s,x)=>s+x.value,0)/arr.length:0}
 function money(v){return Number(v).toLocaleString("de-DE")+" €"}
 
 function headerControls(){
-  const nav=$("#bottomNav"), back=$("#backBtn"), profileBtn=$("#profileHeaderBtn");
+  const nav=$("#bottomNav"), back=$("#backBtn"), profileBtn=$("#profileHeaderBtn"), chatFab=$("#globalChatFab");
   const coreRoutes=["home","analysis","matches"];
+  const mainApp=state.profileReady && !["welcome","onboarding"].includes(state.route);
+
+  document.body.classList.toggle("no-scroll-app",mainApp);
 
   nav.classList.toggle("hidden",!coreRoutes.includes(state.route));
   back.classList.toggle("hidden",state.route==="welcome"||state.route==="onboarding"||coreRoutes.includes(state.route));
@@ -1645,8 +2112,13 @@ function headerControls(){
   if(profileBtn){
     const hideProfile=state.route==="welcome"||state.route==="onboarding";
     profileBtn.classList.toggle("hidden",hideProfile);
-    profileBtn.innerHTML=state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:`<span class="avatar-initial">${escapeHTML((state.profileName||"Y").slice(0,1).toUpperCase())}</span>`;
+    profileBtn.innerHTML=state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:"👤";
     profileBtn.onclick=()=>route("profile");
+  }
+
+  if(chatFab){
+    chatFab.classList.toggle("hidden",!mainApp);
+    chatFab.onclick=()=>openGlobalChat();
   }
 
   $$("#bottomNav button").forEach(b=>{
@@ -1669,7 +2141,123 @@ function render(){
     profile:renderProfile
   };
   (map[state.route]||renderWelcome)();
+  renderGlobalChat();
 }
+
+function chatContextText(){
+  if(state.route==="matches"){
+    const top=rankJobs()[0];
+    return top?`Du schaust gerade Matches an. Dein stärkstes Demo-Match: ${top.title} (${top.score} %).`:"Du schaust gerade deine Matches an.";
+  }
+  if(state.route==="analysis"){
+    const latest=wellbeingLatest();
+    return latest?`Dein letzter Check: Zufriedenheit ${latest.satisfaction}/5, Stress ${latest.stress}/5, Energie ${latest.energy}/5.`:"Du bist gerade bei „Mein Job“. Noch kein aktueller Check gespeichert.";
+  }
+  if(state.route==="profile")return "Du bist gerade in deinem Profil. Wir können Stärken, Wünsche oder Rahmenbedingungen besprechen.";
+  return "Du bist bei Stimmung. Sag mir einfach, was bei der Arbeit gerade los ist.";
+}
+
+function globalChatReply(msg){
+  const m=msg.toLowerCase();
+  const latest=wellbeingLatest();
+  const repeats=(state.friendHistory||[]);
+
+  if(/chef|leitung|vorgesetz|kontroll|mikromanag/.test(m)){
+    const a=adviceFor("boss",/kontroll|mikro/.test(m)?"control":/lob|anerkenn|wertschätz/.test(m)?"recognition":/unfair|respekt/.test(m)?"unfair":"unclear");
+    return `${a.opening} ${a.action} ${a.script}`;
+  }
+  if(/überforder|ueberforder|zu viel|stress|schaff/.test(m)){
+    const a=adviceFor("overload",/priori|alles wichtig/.test(m)?"priority":/unterbrech/.test(m)?"interruptions":"toomuch");
+    return `${a.opening} ${a.action} ${a.script}`;
+  }
+  if(/künd|kuend|wechsel|weg hier|raus/.test(m)){
+    const longTerm=repeats.filter(x=>x.topic==="leave").length>=2 || (latest && latest.satisfaction<=2);
+    const a=adviceFor("leave",longTerm?"weeks":"today");
+    return `${a.opening} ${a.reality} ${a.action}`;
+  }
+  if(/gehalt|geld|verdien|lohn/.test(m)){
+    const a=adviceFor("money",/mehr.*aufgab|verantwort/.test(m)?"morework":"unsure");
+    return `${a.opening} ${a.action} ${a.script}`;
+  }
+  if(/kolleg|team|streit|konflikt/.test(m)){
+    const a=adviceFor("team",/arbeit.*mir|alles.*ich|hängen/.test(m)?"dumping":/respekt/.test(m)?"respect":"conflict");
+    return `${a.opening} ${a.action} ${a.script}`;
+  }
+  if(/keine motivation|kein bock|keine lust|lustlos/.test(m)){
+    const a=adviceFor("motivation",/wochen|monaten|lange/.test(m)?"weeks":"days");
+    return `${a.opening} ${a.reality} ${a.action}`;
+  }
+  if(/match|job|stelle|beruf/.test(m))return localCoachReply(msg);
+
+  return "Okay. Erzähl mir den konkreten Moment, der dich gerade beschäftigt. Nicht die ganze Geschichte – nur: Was ist passiert, wer war beteiligt und was hat dich daran am meisten genervt? Dann sage ich dir nicht irgendeinen Standardsatz, sondern was ich an deiner Stelle als Nächstes tun würde.";
+}
+
+function renderGlobalChat(){
+  const sheet=$("#globalChatSheet");
+  if(!sheet)return;
+
+  sheet.classList.toggle("hidden",!state.globalChatOpen);
+  sheet.setAttribute("aria-hidden",state.globalChatOpen?"false":"true");
+  if(!state.globalChatOpen)return;
+
+  $("#globalChatContext").textContent=chatContextText();
+
+  const history=(state.globalChatHistory||[]).slice(-8);
+  $("#globalChatMessages").innerHTML=history.length
+    ? history.map(x=>`<div class="gmsg ${x.role}">${escapeHTML(x.text)}</div>`).join("")
+    : `<div class="gmsg assistant">Was ist los? Sag's genauso, wie du es einem guten Freund erzählen würdest.</div>`;
+
+  const quick=state.route==="matches"
+    ? ["Warum passt das zu mir?","Ist der Wechsel sinnvoll?","Was übersehe ich?"]
+    : state.route==="analysis"
+      ? ["Was bedeutet mein Stress?","Was soll ich morgen anders machen?","Ist das nur eine Phase?"]
+      : ["Mein Chef nervt","Ich bin überfordert","Ich will eigentlich weg"];
+
+  $("#globalChatQuick").innerHTML=quick.map(q=>`<button data-global-quick="${escapeHTML(q)}">${escapeHTML(q)}</button>`).join("");
+
+  $("#closeGlobalChat").onclick=closeGlobalChat;
+  $("#globalChatBackdrop").onclick=closeGlobalChat;
+  $("#globalChatSend").onclick=sendGlobalChat;
+  $("#globalChatInput").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendGlobalChat()}};
+  $$("[data-global-quick]").forEach(b=>b.onclick=()=>{
+    $("#globalChatInput").value=b.dataset.globalQuick;
+    sendGlobalChat();
+  });
+
+  requestAnimationFrame(()=>{
+    const box=$("#globalChatMessages");
+    if(box)box.scrollTop=box.scrollHeight;
+    $("#globalChatInput")?.focus();
+  });
+}
+
+function openGlobalChat(prefill=""){
+  state.globalChatOpen=true;
+  saveState();
+  renderGlobalChat();
+  if(prefill){
+    setTimeout(()=>{const i=$("#globalChatInput");if(i){i.value=prefill;i.focus()}},50);
+  }
+}
+function closeGlobalChat(){
+  state.globalChatOpen=false;
+  saveState();
+  renderGlobalChat();
+}
+function sendGlobalChat(){
+  const input=$("#globalChatInput");
+  const msg=input?.value.trim();
+  if(!msg)return;
+  state.globalChatHistory=state.globalChatHistory||[];
+  state.globalChatHistory.push({role:"user",text:msg});
+  const reply=globalChatReply(msg);
+  state.globalChatHistory.push({role:"assistant",text:reply});
+  state.globalChatHistory=state.globalChatHistory.slice(-16);
+  input.value="";
+  saveState();
+  renderGlobalChat();
+}
+
 function progressHTML(step){
   const pct=Math.round(step/7*100);
   return `<div class="progress-wrap"><div class="progress-top"><span>YVIA lernt dich kennen</span><span>${step} / 7</span></div><div class="progress"><div style="width:${pct}%"></div></div></div>`;
@@ -1766,9 +2354,35 @@ function renderOnboarding(){
   }
   if(step===5){
     if(!state.skills.length)inferSkills();
-    v.innerHTML=`<section class="screen">${progressHTML(5)}<div class="eyebrow">Das steckt in dir</div><h1>Du kannst mehr, als dein Jobtitel sagt.</h1><p>Tippe eine Stärke an, wenn sie nicht zu dir passt. YVIA lernt daraus.</p><div class="chips">${state.skills.map((s,i)=>`<button class="chip selectable ${s.active===false?"off":""}" data-skill="${i}">${escapeHTML(s.text)}</button>`).join("")}</div><div class="card soft"><h3>${activeSkills().length} Stärken aktiv</h3><p>Sie fließen später in deine Job-Matches ein – aber sie sind keine starren Ausschlusskriterien.</p></div><div class="actions"><button class="btn btn-secondary" id="back">Ändern</button><button class="btn btn-primary" id="next">Passt zu mir</button></div></section>`;
-    $$("[data-skill]").forEach(b=>b.onclick=()=>{const s=state.skills[+b.dataset.skill];s.active=s.active===false?true:false;saveState();render()});
-    $("#back").onclick=()=>setOnboarding(4); $("#next").onclick=()=>setOnboarding(6);
+    const shown=state.skills.slice(0,4);
+    v.innerHTML=`<section class="screen strength-reveal-v10">
+      ${progressHTML(5)}
+      <div class="eyebrow">YVIA SIEHT MEHR</div>
+      <h1>Das ist mehr als<br>ein Jobtitel.</h1>
+      <p>Aus dem, was du erzählt hast, erkennt YVIA gerade diese Stärken. Du entscheidest, ob sie wirklich zu dir passen.</p>
+
+      <div class="strength-stack-v10">
+        ${shown.map((s,i)=>`<button class="strength-card-v10 ${s.active===false?"off":""}" data-skill="${i}">
+          <span class="strength-index">0${i+1}</span>
+          <div><b>${escapeHTML(s.short)}</b><p>${escapeHTML(s.text)}</p></div>
+          <em>${s.active===false?"＋":"✓"}</em>
+        </button>`).join("")}
+      </div>
+
+      <div class="strength-note-v10">
+        <span>✦</span>
+        <p>Kein Test und kein Lebenslauf-Filter. YVIA nutzt das später, um auch Jobs zu finden, auf die du selbst vielleicht nicht gekommen wärst.</p>
+      </div>
+
+      <div class="actions"><button class="btn btn-secondary" id="back">Zurück</button><button class="btn btn-primary" id="next">Das bin ich →</button></div>
+    </section>`;
+    $$("[data-skill]").forEach(b=>b.onclick=()=>{
+      const s=state.skills[+b.dataset.skill];
+      s.active=s.active===false?true:false;
+      saveState();render();
+    });
+    $("#back").onclick=()=>setOnboarding(4);
+    $("#next").onclick=()=>setOnboarding(6);
     return;
   }
   if(step===6){
@@ -2206,34 +2820,188 @@ function friendTopicName(topic){return FRIEND_TOPICS[topic]?.label || "Arbeit";}
 
 function adviceFor(topic,detail){
   const repeat=(state.friendHistory||[]).filter(x=>x.topic===topic).length;
-  const again=repeat>=2?" Und weil das bei dir nicht zum ersten Mal auftaucht, würde ich es diesmal auch nicht einfach als schlechten Tag abhaken.":"";
+  const latest=wellbeingLatest();
+  const repeated=repeat>=2;
+  const stressed=latest && Number(latest.stress)>=4;
+
   const A={
-    "boss_control":{opening:"Ja – wenn du deinen Job kannst und trotzdem jeder Schritt kommentiert wird, fühlt sich das schnell wie Misstrauen an.",reality:"Mach daraus morgen aber keinen Grundsatzkampf über „Kontrolle“. Damit landet ihr sofort bei Rechtfertigungen."+again,action:"Bitte stattdessen um einen klaren Ergebnisrahmen: Was soll bis wann rauskommen – und was darfst du selbst entscheiden?",script:"„Lass uns Ergebnis und Termin festlegen. Den Weg dahin würde ich gern selbst organisieren – dann musst du auch nicht jeden Zwischenschritt prüfen.“"},
-    "boss_recognition":{opening:"Wenn du dauerhaft lieferst und es nur auffällt, wenn etwas nicht klappt, zieht das irgendwann richtig Motivation.",reality:"Warte nicht darauf, dass Anerkennung zufällig kommt. Aber geh auch nicht mit „Du lobst mich nie“ rein."+again,action:"Nimm ein konkretes Ergebnis der letzten Wochen und verbinde es mit deiner Entwicklung oder Verantwortung.",script:"„Ich würde gern kurz wissen, wie du meine Arbeit aktuell einschätzt. Ich habe zuletzt X übernommen – was davon siehst du als meine stärkste Leistung?“"},
-    "boss_unclear":{opening:"Unklare Ansagen sind besonders nervig, weil du am Ende trotzdem für das Ergebnis geradestehen sollst.",reality:"Du musst nicht versuchen, Gedanken zu lesen.",action:"Spiegle den Auftrag in einem Satz zurück und lass Priorität und Ergebnis bestätigen.",script:"„Nur damit ich dich richtig verstehe: Priorität hat heute X, Y wartet bis morgen und am Ende brauchst du Z – korrekt?“"},
-    "boss_unfair":{opening:"Wenn sich der Umgang unfair anfühlt, bringt es wenig, im Kopf zehnmal dieselbe Szene durchzugehen.",reality:"Trenn morgen die Person von dem konkreten Verhalten. Das macht dich im Gespräch deutlich stärker."+again,action:"Sprich genau einen beobachtbaren Moment an – ohne „immer“, „nie“ oder Motive zu unterstellen.",script:"„Vorhin bei X ist der Satz Y gefallen. So möchte ich nicht angesprochen werden. Wenn etwas an meiner Arbeit nicht passt, sag mir bitte konkret was.“"},
-    "overload_toomuch":{opening:"Wenn wirklich zu viel auf dem Tisch liegt, ist „organisier dich besser“ kein hilfreicher Tipp.",reality:"Die wichtigste Entscheidung ist gerade nicht, wie du alles schaffst – sondern was bewusst liegen bleibt.",action:"Lass die Priorität von der Person setzen, die die Aufgaben verteilt.",script:"„Ich habe heute A, B und C. Realistisch schaffe ich zwei davon sauber. Was hat Priorität – und was verschieben wir?“"},
-    "overload_priority":{opening:"Wenn alles Priorität 1 ist, hat in Wahrheit nichts eine Priorität.",reality:"Du solltest diese Entscheidung nicht still selbst tragen und später erklären müssen, warum etwas nicht fertig wurde.",action:"Hol dir eine klare Reihenfolge – am besten direkt bestätigt.",script:"„Wenn X zuerst fertig werden soll, verschiebt sich Y. Ist das so gewollt?“"},
-    "overload_interruptions":{opening:"Dann ist wahrscheinlich nicht die Menge allein das Problem, sondern dass du nie lange genug an einer Sache bleiben kannst.",reality:"Mehr Tempo löst ständige Unterbrechungen meistens nicht.",action:"Block dir morgen einen einzigen geschützten Zeitraum für die wichtigste Aufgabe und kündige ihn vorher an.",script:"„Von 10 bis 11 mache ich X fertig. Danach bin ich wieder für alles andere erreichbar.“"},
-    "overload_mistakes":{opening:"Wenn du nur noch versuchst, bloß keinen Fehler zu machen, wird selbst normale Arbeit irgendwann anstrengend.",reality:"Du brauchst gerade mehr Klarheit, nicht noch mehr Druck auf dich selbst.",action:"Frag bei der wichtigsten Aufgabe explizit nach dem Qualitätsmaßstab.",script:"„Woran erkennst du bei X, dass es gut genug erledigt ist? Dann kann ich mich genau daran orientieren.“"},
-    "motivation_today":{opening:"Dann würde ich heute daraus noch keine große Wahrheit über deinen Job machen.",reality:"Ein mieser Tag ist ein mieser Tag. Nicht jeder davon braucht eine Karriereentscheidung.",action:"Mach heute Feierabend, ohne dir im Kopf noch eine Kündigung zusammenzubauen. Schau morgen, ob das Gefühl noch da ist.",script:"Morgen reicht eine Frage an dich selbst: „Nervt mich die Arbeit – oder war gestern einfach ein schlechter Tag?“"},
-    "motivation_days":{opening:"Ein paar schlechte Tage sind noch kein Beweis, dass alles falsch ist – aber sie sind auch nicht nichts.",reality:"Beobachte nicht einfach „Motivation“, sondern was genau sie dir nimmt.",action:"Achte morgen nur auf einen Moment: Bei welcher Aufgabe kippt deine Stimmung – und bei welcher nicht?",script:"Kein Tagebuch. Merk dir nur: „Das hat gezogen“ oder „Das ging überraschend gut.“"},
-    "motivation_weeks":{opening:"Wenn das seit Wochen so läuft, würde ich es nicht mehr mit „ich muss mich einfach zusammenreißen“ erklären.",reality:"Jetzt lohnt sich die Frage, ob dir Energie wegen der Tätigkeit, dem Umfeld oder den Bedingungen fehlt."+again,action:"Nutze morgen die Analyse und markiere nur deinen Tag. YVIA schaut dann, ob sich ein Muster zeigt.",script:"Danach reden wir nicht über „Motivation“, sondern über den Punkt, der sie dir tatsächlich nimmt."},
-    "motivation_tasks":{opening:"Das ist interessant: Dann ist vielleicht nicht dein ganzer Job das Problem, sondern ein Teil davon.",reality:"Das ist eine deutlich bessere Ausgangslage als „alles ist scheiße“.",action:"Frag dich morgen: Welche Aufgabe würdest du gern häufiger machen – und welche am liebsten halbieren?",script:"Genau daraus kann später entweder ein Gespräch über Aufgaben oder ein besseres Job-Matching entstehen."},
-    "money_morework":{opening:"Wenn Verantwortung wächst und das Gehalt stehen bleibt, ist das ein ziemlich konkretes Thema – kein Gefühl.",reality:"Geh nicht mit privaten Kosten oder „alles ist teurer“ ins Gespräch. Dein stärkstes Argument ist dein gewachsener Wert.",action:"Schreib dir drei Aufgaben auf, die du heute machst und früher nicht gemacht hast.",script:"„Mein Aufgabenbereich hat sich deutlich erweitert. Ich möchte deshalb darüber sprechen, dass sich diese Verantwortung auch in meinem Gehalt widerspiegelt.“"},
-    "money_comparison":{opening:"Dass andere mehr verdienen, kann ein Hinweis sein – aber als einziges Argument ist es im Gespräch schnell eine Sackgasse.",reality:"Mach aus dem Vergleich einen Marktcheck, nicht einen Vorwurf.",action:"Vergleiche Rolle, Erfahrung, Region und Verantwortung. Dann gehst du mit einer Zielspanne ins Gespräch.",script:"„Für vergleichbare Aufgaben sehe ich aktuell eine andere Spanne. Ich möchte besprechen, wie wir mein Gehalt dorthin entwickeln.“"},
-    "money_stagnant":{opening:"Wenn lange nichts passiert ist, wird „irgendwann bestimmt“ selten von allein konkret.",reality:"Du brauchst einen Termin und ein Kriterium – nicht noch ein loses Versprechen.",action:"Bitte um ein Gehaltsgespräch mit klarer Perspektive.",script:"„Ich möchte mein Gehalt neu bewerten. Wenn eine Anpassung jetzt nicht möglich ist: Was muss konkret passieren und bis wann sprechen wir wieder darüber?“"},
-    "money_unsure":{opening:"Dann würde ich noch gar nicht verhandeln. Erst musst du wissen, was du überhaupt vertreten willst.",reality:"Eine Zahl aus dem Bauch macht dich im Gespräch unnötig unsicher.",action:"YVIA sollte dafür später Rolle, Region, Erfahrung und Verantwortung mit Marktdaten abgleichen. Für die Demo merk dir erstmal deine Untergrenze.",script:"Deine aktuelle YVIA-Untergrenze liegt bei "+money(state.salary)+"."},
-    "team_conflict":{opening:"Bei einem konkreten Konflikt bringt es meistens nichts, innerlich noch zehn Argumente zu sammeln.",reality:"Je länger du wartest, desto mehr redet ihr irgendwann über Ton und Vergangenheit statt über das eigentliche Problem.",action:"Sprich die konkrete Situation früh und kurz an.",script:"„Bei X sind wir gerade aneinandergeraten. Ich will das nicht mitschleppen – können wir kurz klären, was wir beim nächsten Mal anders machen?“"},
-    "team_dumping":{opening:"Wenn du zuverlässig bist, passiert leider schnell genau das: Du bekommst noch mehr, weil man weiß, dass du es irgendwie auffängst.",reality:"Verlässlich sein heißt nicht, automatisch der Puffer für alle anderen zu sein."+again,action:"Mach zusätzliche Arbeit sichtbar, bevor du sie übernimmst.",script:"„Kann ich übernehmen. Dann bleibt meine Aufgabe X liegen – ist das so priorisiert?“"},
-    "team_respect":{opening:"Respektlosigkeit wird selten besser, wenn man sie jedes Mal still schluckt.",reality:"Du musst dafür aber keine große Szene machen.",action:"Stoppe den konkreten Moment kurz und ruhig.",script:"„So möchte ich nicht angesprochen werden. Sag mir bitte normal, was du brauchst.“"},
-    "team_excluded":{opening:"Sich im eigenen Team außen vor zu fühlen, kann einen Arbeitstag stärker ziehen als die eigentliche Aufgabe.",reality:"Bevor du daraus ableitest, dass dich alle ablehnen, prüf einen konkreten Punkt: Informationen, Pausen, Entscheidungen oder Umgang?",action:"Such dir eine Person, bei der du dich am ehesten wohlfühlst, und sprich genau diesen Punkt an.",script:"„Mir fällt auf, dass ich bei X oft erst spät mitbekomme, was entschieden wurde. Kannst du mich da künftig kurz mit reinnehmen?“"},
-    "leave_today":{opening:"Heute würde ich noch keine Kündigung schreiben.",reality:"Nicht weil dein Ärger unwichtig ist – sondern weil eine eskalierte Situation ein schlechter Zeitpunkt für eine endgültige Entscheidung ist.",action:"Schlaf eine Nacht drüber. Wenn du morgen noch genauso denkst, schauen wir nicht auf den Streit, sondern auf die letzten Wochen.",script:"Heute musst du nichts lösen. Nur keine endgültige Entscheidung wegen eines einzelnen Moments treffen."},
-    "leave_weeks":{opening:"Wenn der Gedanke seit Wochen wiederkommt, ist das mehr als ein schlechter Tag.",reality:"Trotzdem heißt das nicht automatisch: anderer Beruf. Vielleicht ist es Arbeitgeber, Führung, Arbeitszeit oder fehlende Entwicklung."+again,action:"Schau in deine Analyse: Was ist wiederholt schlecht – und was magst du eigentlich noch?",script:"Erst wenn wir das trennen, weißt du, ob du weg vom Beruf willst oder nur weg von dieser Situation."},
-    "leave_months":{opening:"Wenn du seit Monaten immer wieder raus willst, würde ich nicht mehr nur versuchen, dich im bestehenden Zustand irgendwie besser zu fühlen.",reality:"Dann darf die Frage nach Alternativen ernsthaft auf den Tisch – ohne dass du morgen kündigen musst.",action:"Nutze deine Matches als Marktcheck. Nicht als Verpflichtung, sondern um zu sehen, welche besseren Optionen real existieren.",script:"Du musst nicht erst kündigen, um herauszufinden, ob es woanders besser passen könnte."},
-    "leave_unsure":{opening:"Dann ist „kündigen oder bleiben?“ gerade wahrscheinlich schon einen Schritt zu weit.",reality:"Erst müssen wir herausfinden, was du eigentlich loswerden willst.",action:"Mach den 10‑Sekunden‑Check ein paar Mal und nutze „Was ist los?“, wenn etwas konkret nervt. YVIA trennt daraus einzelne schlechte Tage von einem Muster.",script:"Du musst heute noch keine Antwort auf deine ganze Karriere haben."}
+    "boss_control":{
+      opening:"Das klingt weniger nach „du kannst deinen Job nicht“ und mehr nach zu wenig Vertrauen.",
+      reality:repeated?"Und weil genau das bei dir schon öfter auftaucht, würde ich es nicht mehr nur runterschlucken.":"Ich würde daraus aber noch keinen großen Konflikt machen.",
+      action:"Ich würde beim nächsten konkreten Auftrag nicht über seinen Führungsstil diskutieren, sondern mir einen klaren Spielraum holen: Ergebnis, Termin, dann Ruhe.",
+      avoid:"Nicht mit „Du kontrollierst mich ständig“ starten. Dann redet ihr über Vorwürfe statt über deine Freiheit.",
+      script:"„Sag mir bitte, was am Ende stehen soll und bis wann. Den Weg dahin würde ich gern selbst organisieren.“"
+    },
+    "boss_recognition":{
+      opening:"Wenn du nur Feedback bekommst, wenn etwas schiefläuft, fühlt sich Arbeit irgendwann unsichtbar an.",
+      reality:"Anerkennung einzufordern klingt komisch – deshalb würde ich es über deine Entwicklung lösen.",
+      action:"Nimm ein konkretes Ergebnis, auf das du stolz bist, und frag nach einer ehrlichen Einschätzung statt nach Lob.",
+      avoid:"Nicht aufzählen, wie viel du alles machst. Ein starkes Beispiel wirkt besser als zehn kleine.",
+      script:"„Ich habe zuletzt X übernommen. Mich interessiert ehrlich: Was davon siehst du als meine stärkste Leistung – und wo würdest du mich als Nächstes einsetzen?“"
+    },
+    "boss_unclear":{
+      opening:"Das Nervige ist nicht nur die unklare Ansage – sondern dass du hinterher trotzdem fürs Ergebnis geradestehst.",
+      reality:"Du musst nicht lernen, Gedanken zu lesen.",
+      action:"Spiegle den Auftrag sofort in einem Satz zurück. Damit zwingst du Klarheit rein, ohne jemanden bloßzustellen.",
+      avoid:"Nicht still anfangen und später hoffen, dass ihr dasselbe gemeint habt.",
+      script:"„Nur damit ich richtig starte: Heute zuerst X, Y kann warten und am Ende brauchst du Z – richtig?“"
+    },
+    "boss_unfair":{
+      opening:"Wenn dich der Ton oder Umgang trifft, ist das nicht automatisch „zu empfindlich“.",
+      reality:repeated?"Wenn das wiederholt passiert, ist es ein Muster – nicht nur ein schlechter Moment.":"Ein einzelner Moment lässt sich aber oft klarer lösen als ein Grundsatzstreit.",
+      action:"Sprich genau die konkrete Situation an und zieh eine ruhige Grenze.",
+      avoid:"Keine Generalisierung wie „immer“ oder „nie“. Bleib bei dem Moment, den niemand wegdiskutieren kann.",
+      script:"„Vorhin bei X war der Ton für mich nicht okay. Wenn etwas an meiner Arbeit nicht passt, sag es mir bitte direkt – aber normal.“"
+    },
+    "overload_toomuch":{
+      opening:"Wenn objektiv zu viel auf dem Tisch liegt, ist „besser organisieren“ einfach Quatsch.",
+      reality:stressed?"Und dein letzter Check zeigt ohnehin schon hohen Stress. Noch schneller werden ist gerade nicht die Lösung.":"Die eigentliche Frage ist, was bewusst warten darf.",
+      action:"Gib die Prioritätsentscheidung zurück an die Stelle, die die Arbeit verteilt.",
+      avoid:"Nicht heimlich länger machen und hoffen, dass es niemand merkt. Dann sieht nur keiner, dass die Menge nicht passt.",
+      script:"„Ich schaffe heute A und B sauber. Wenn C auch heute fertig sein muss: Was davon soll dafür warten?“"
+    },
+    "overload_priority":{
+      opening:"Wenn alles dringend ist, wirst am Ende du zum Puffer für schlechte Priorisierung.",
+      reality:"Das ist keine Aufgabe, die du allein im Kopf lösen solltest.",
+      action:"Lass dir eine Reihenfolge bestätigen – kurz, sachlich und sichtbar.",
+      avoid:"Nicht selbst drei Prioritäten gleichzeitig versprechen.",
+      script:"„Wenn X jetzt vorgeht, verschiebt sich Y auf morgen. Ist das so gewollt?“"
+    },
+    "overload_interruptions":{
+      opening:"Du klingst nicht unbedingt überfordert von der Arbeit – eher davon, nie eine Sache zu Ende bringen zu können.",
+      reality:"Mehr Tempo hilft bei Unterbrechungen kaum.",
+      action:"Reservier morgen genau einen geschützten Block für die wichtigste Aufgabe und kündige ihn vorher an.",
+      avoid:"Nicht versuchen, jede Unterbrechung sofort freundlich zu bedienen.",
+      script:"„Ich mache X jetzt bis 11 Uhr fertig. Danach bin ich wieder für alles andere da.“"
+    },
+    "overload_mistakes":{
+      opening:"Wenn du permanent Angst vor Fehlern hast, kostet selbst eine normale Aufgabe doppelt Energie.",
+      reality:"Du brauchst gerade einen klaren Maßstab, nicht mehr Selbstkontrolle.",
+      action:"Frag bei der wichtigsten Aufgabe, was wirklich „gut genug“ bedeutet.",
+      avoid:"Nicht jede Kleinigkeit dreimal prüfen, wenn niemand gesagt hat, dass sie perfekt sein muss.",
+      script:"„Was muss bei X unbedingt stimmen – und was ist nice to have?“"
+    },
+    "motivation_today":{
+      opening:"Ich würde heute noch gar nichts Grundsätzliches über deinen Job entscheiden.",
+      reality:"Manchmal ist ein mieser Arbeitstag einfach ein mieser Arbeitstag.",
+      action:"Feierabend machen. Morgen nur prüfen, ob das Gefühl wieder da ist.",
+      avoid:"Heute keine Kündigungsmail schreiben und auch nicht zwei Stunden Stellenanzeigen scrollen.",
+      script:"Frag dich morgen nur: „Nervt mich die Arbeit – oder war gestern einfach ein schlechter Tag?“"
+    },
+    "motivation_days":{
+      opening:"Ein paar Tage ohne Motivation sind noch keine Krise. Aber sie sind ein Hinweis.",
+      reality:"Mich würde weniger interessieren, ob du „motiviert“ bist – sondern wann genau deine Energie kippt.",
+      action:"Merk dir morgen nur einen Moment, der dich runterzieht, und einen, der okay war.",
+      avoid:"Kein Tagebuch anfangen. Zwei echte Momente reichen.",
+      script:"Sag YVIA danach einfach: „Bei X war ich raus, bei Y ging es.“"
+    },
+    "motivation_weeks":{
+      opening:"Wenn das seit Wochen so ist, würde ich nicht mehr auf Disziplin setzen.",
+      reality:"Dann stimmt wahrscheinlich irgendwo die Passung nicht: Aufgabe, Umfeld oder Bedingungen.",
+      action:"Mach den nächsten Check ehrlich und sag YVIA danach, was dir am meisten Energie zieht. Dann trennen wir Beruf von Arbeitgeber.",
+      avoid:"Nicht sofort alles hinschmeißen, bevor klar ist, was genau du eigentlich loswerden willst.",
+      script:"„Was würde ich behalten, wenn ich meinen Job morgen neu zusammenbauen dürfte?“"
+    },
+    "motivation_tasks":{
+      opening:"Das ist eigentlich eine gute Nachricht: Vielleicht nervt dich nicht dein Job – sondern nur ein Teil davon.",
+      reality:"Das lässt sich oft leichter verändern als ein kompletter Berufswechsel.",
+      action:"Such eine Aufgabe, von der du mehr willst, und eine, von der du weniger willst. Genau damit würde ich ins Gespräch gehen.",
+      avoid:"Nicht „ich bin unmotiviert“ sagen. Das ist zu unscharf.",
+      script:"„Ich merke, dass ich bei X richtig drin bin und Y mich jedes Mal rauszieht. Können wir die Verteilung etwas verändern?“"
+    },
+    "money_morework":{
+      opening:"Mehr Verantwortung bei gleichem Gehalt ist ein ziemlich sauberes Argument.",
+      reality:"Dein Privatleben oder steigende Preise sind verständlich, aber nicht dein stärkster Hebel.",
+      action:"Nimm drei Dinge, die heute zu deiner Rolle gehören und früher nicht dazugehört haben.",
+      avoid:"Nicht mit einer langen Rechtfertigung starten. Erst Wert, dann Zahl.",
+      script:"„Meine Rolle ist deutlich größer geworden. Deshalb möchte ich über eine Anpassung sprechen, die diese Verantwortung abbildet.“"
+    },
+    "money_comparison":{
+      opening:"Dass andere mehr bekommen, kann dich zu Recht nerven – aber als Verhandlungsargument allein ist es dünn.",
+      reality:"Mach daraus lieber einen Marktcheck.",
+      action:"Vergleiche ähnliche Rolle, Erfahrung und Verantwortung und geh mit einer konkreten Spanne rein.",
+      avoid:"Nicht „Kollege X verdient aber…“ sagen.",
+      script:"„Für vergleichbare Verantwortung sehe ich aktuell eine höhere Spanne. Ich möchte besprechen, wie wir mein Gehalt dorthin entwickeln.“"
+    },
+    "money_stagnant":{
+      opening:"Wenn lange nichts passiert ist, brauchst du keinen weiteren vagen Satz wie „schauen wir später“.",
+      reality:"Du brauchst ein Datum und Bedingungen.",
+      action:"Bitte um ein konkretes Gespräch und – falls es noch nicht geht – um einen klaren nächsten Termin.",
+      avoid:"Nicht ohne Ergebnis aus dem Gespräch gehen.",
+      script:"„Wenn es jetzt noch nicht möglich ist: Was muss konkret passieren und wann sprechen wir verbindlich wieder darüber?“"
+    },
+    "money_unsure":{
+      opening:"Dann würde ich noch gar nicht verhandeln. Erst brauchst du eine Zahl, hinter der du stehen kannst.",
+      reality:"Unsicherheit wird im Gespräch sofort spürbar.",
+      action:`Nimm ${money(state.salary)} als deine aktuelle Untergrenze und prüfe später mit echten Marktdaten, ob sie realistisch ist.`,
+      avoid:"Nicht mit „Was könnt ihr mir denn anbieten?“ starten.",
+      script:"„Ich möchte zuerst klären, welche Spanne für diese Verantwortung vorgesehen ist.“"
+    },
+    "team_conflict":{
+      opening:"Je länger ein echter Konflikt liegen bleibt, desto größer wird er im Kopf.",
+      reality:"Du musst daraus kein großes Teamgespräch machen.",
+      action:"Klär genau den einen Moment kurz und möglichst früh.",
+      avoid:"Nicht alte Situationen mit reinziehen, wenn du eigentlich nur die letzte klären willst.",
+      script:"„Bei X sind wir gerade aneinandergeraten. Ich will das nicht mitschleppen – können wir kurz klären, was wir nächstes Mal anders machen?“"
+    },
+    "team_dumping":{
+      opening:"Zuverlässige Leute werden leider schnell zum Auffangbecken für alles.",
+      reality:repeated?"Wenn das ständig passiert, musst du nicht lernen, noch schneller zu werden.":"Einmal helfen ist Teamarbeit. Dauerhaft alles auffangen ist etwas anderes.",
+      action:"Mach jede Zusatzaufgabe sichtbar, bevor du sie übernimmst.",
+      avoid:"Nicht automatisch „ja“ sagen und später still länger bleiben.",
+      script:"„Kann ich übernehmen. Dann bleibt X liegen – ist das so priorisiert?“"
+    },
+    "team_respect":{
+      opening:"Wenn jemand respektlos wird, musst du nicht erst beweisen, dass du verletzt sein darfst.",
+      reality:"Eine ruhige Grenze wirkt meistens stärker als Gegenangriff.",
+      action:"Stoppe den konkreten Ton direkt.",
+      avoid:"Nicht zurückschießen. Dann redet ihr nur noch darüber, wer schlimmer war.",
+      script:"„So möchte ich nicht angesprochen werden. Sag mir bitte normal, was du von mir brauchst.“"
+    },
+    "team_excluded":{
+      opening:"Außen vor zu sein kann einen ganzen Arbeitstag vergiften, selbst wenn die Aufgaben okay sind.",
+      reality:"Bevor du daraus „die wollen mich nicht“ machst, würde ich prüfen, wo genau du draußen bist.",
+      action:"Nimm eine konkrete Sache – Infos, Pausen, Entscheidungen – und sprich sie bei einer Person an, der du vertraust.",
+      avoid:"Nicht versuchen, Gedanken der anderen zu erraten.",
+      script:"„Mir fällt auf, dass ich bei X oft erst spät mitbekomme, was entschieden wurde. Kannst du mich da künftig kurz mit reinnehmen?“"
+    },
+    "leave_today":{
+      opening:"Heute würde ich nicht kündigen.",
+      reality:"Nicht weil dein Ärger unwichtig ist – sondern weil ein eskalierter Tag ein schlechter Moment für endgültige Entscheidungen ist.",
+      action:"Eine Nacht Abstand. Morgen schauen wir auf die letzten Wochen statt nur auf heute.",
+      avoid:"Keine Kündigung aus Wut abschicken.",
+      script:"Heute musst du nichts lösen. Nur verhindern, dass ein schlechter Moment deine ganze Entscheidung trifft."
+    },
+    "leave_weeks":{
+      opening:"Wenn der Gedanke seit Wochen wiederkommt, würde ich ihn ernst nehmen.",
+      reality:"Aber „ich will weg“ sagt noch nicht, wovon: Beruf, Arbeitgeber, Führung oder Bedingungen.",
+      action:"Schau auf das, was du trotz allem noch magst. Das ist genauso wichtig wie das, was dich rausdrückt.",
+      avoid:"Nicht automatisch einen komplett neuen Beruf suchen.",
+      script:"„Was würde ich sofort mitnehmen – und was auf keinen Fall?“"
+    },
+    "leave_months":{
+      opening:"Wenn du seit Monaten immer wieder raus willst, reicht es irgendwann nicht mehr, nur besser mit der Situation umzugehen.",
+      reality:"Du musst trotzdem nicht morgen kündigen.",
+      action:"Nutze deine Matches als Realitätscheck: Gibt es tatsächlich bessere Optionen für genau die Punkte, die dich stören?",
+      avoid:"Nicht erst kündigen und dann anfangen zu überlegen.",
+      script:"„Ich schaue mir Alternativen an, bevor ich eine Entscheidung treffe.“"
+    },
+    "leave_unsure":{
+      opening:"Dann ist „bleiben oder kündigen?“ gerade noch die falsche Frage.",
+      reality:"Erst müssen wir verstehen, was du eigentlich loswerden willst.",
+      action:"Nutze Stimmung und Mein Job ein paar Mal. Sobald derselbe Auslöser wiederkommt, wird die Entscheidung klarer.",
+      avoid:"Nicht versuchen, heute schon eine Antwort auf deine ganze Karriere zu erzwingen.",
+      script:"Ein klarer nächster Schritt reicht. Die große Entscheidung kann später kommen."
+    }
   };
-  return A[`${topic}_${detail}`] || {opening:"Okay. Das ist konkret genug, dass wir damit arbeiten können.",reality:"Ich würde daraus noch keine riesige Entscheidung machen – aber auch nicht so tun, als wäre es egal.",action:"Nimm morgen genau einen kleinen Punkt davon und mach ihn sichtbar oder sprich ihn an.",script:"Ein kleiner klarer Schritt ist gerade mehr wert als zehn allgemeine Tipps."};
+
+  return A[`${topic}_${detail}`] || {
+    opening:"Ich würde das nicht mit einer Standardfloskel beantworten.",
+    reality:"Der konkrete Moment ist wichtiger als die Überschrift.",
+    action:"Sag mir, was genau passiert ist. Dann schauen wir auf das, was du tatsächlich beeinflussen kannst.",
+    avoid:"Nicht alles gleichzeitig lösen wollen.",
+    script:"Erzähl mir den Moment so, wie du ihn einem guten Freund erzählen würdest."
+  };
 }
 
 function friendInsightLine(){
@@ -2286,11 +3054,42 @@ function renderFriendFlow(){
   const f=state.friendFlow;if(!f)return "";
   if(f.stage==="detail"){
     const t=FRIEND_TOPICS[f.topic];
-    return `<section class="friend-focus"><button class="friend-back-inline" id="friendFlowBack">← zurück</button><div class="friend-big-icon">${t.icon}</div><div class="friend-kicker">${escapeHTML(t.label)}</div><h1>${escapeHTML(t.question)}</h1><div class="friend-detail-list">${t.options.map(([key,label])=>`<button data-friend-detail="${key}">${escapeHTML(label)}<span>→</span></button>`).join("")}</div></section>`;
+    return `<section class="friend-focus v10-detail">
+      <button class="friend-back-inline" id="friendFlowBack">← zurück</button>
+      <div class="friend-big-icon">${t.icon}</div>
+      <div class="friend-kicker">${escapeHTML(t.label)}</div>
+      <h1>${escapeHTML(t.question)}</h1>
+      <div class="friend-detail-list">${t.options.map(([key,label])=>`<button data-friend-detail="${key}">${escapeHTML(label)}<span>→</span></button>`).join("")}</div>
+    </section>`;
   }
   if(f.stage==="advice"){
     const a=f.advice;
-    return `<section class="friend-focus friend-advice"><button class="friend-back-inline" id="friendFlowBack">← anderes Thema</button>${f.userText?`<div class="friend-user-quote">„${escapeHTML(f.userText)}“</div>`:""}<div class="friend-orb">✦</div><div class="friend-kicker">YVIA SAGT</div><h2>${escapeHTML(a.opening)}</h2><p class="friend-reality">${escapeHTML(a.reality)}</p><div class="friend-next"><small>DEIN NÄCHSTER SCHRITT</small><strong>${escapeHTML(a.action)}</strong></div><div class="friend-script"><small>${a.script.startsWith("„")?"WENN DU ES ANSPRECHEN WILLST":"FÜR MORGEN"}</small><p>${escapeHTML(a.script)}</p></div><div class="friend-helped"><span>Hilft dir das?</span><div><button data-helped="yes">Ja</button><button data-helped="later">Probier ich</button><button data-helped="no">Nein</button></div></div></section>`;
+    return `<section class="friend-focus friend-advice-v10">
+      <button class="friend-back-inline" id="friendFlowBack">← anderes Thema</button>
+      ${f.userText?`<div class="friend-user-quote">„${escapeHTML(f.userText)}“</div>`:""}
+      <div class="friend-kicker">WAS ICH DIR SAGEN WÜRDE</div>
+      <h2>${escapeHTML(a.opening)}</h2>
+      <p class="friend-reality">${escapeHTML(a.reality)}</p>
+
+      <div class="advice-do-v10">
+        <small>AN DEINER STELLE WÜRDE ICH</small>
+        <strong>${escapeHTML(a.action)}</strong>
+      </div>
+
+      <div class="advice-avoid-v10">
+        <small>LASS DAS LIEBER</small>
+        <p>${escapeHTML(a.avoid||"Nicht alles gleichzeitig lösen wollen.")}</p>
+      </div>
+
+      <div class="friend-script">
+        <small>${a.script.startsWith("„")?"SO KÖNNTEST DU ES SAGEN":"MERK DIR DAS"}</small>
+        <p>${escapeHTML(a.script)}</p>
+      </div>
+
+      <button class="continue-chat-v10" id="continueInChat"><span>✦</span><div><b>Passt noch nicht ganz?</b><small>Erzähl YVIA, was genau passiert ist.</small></div><em>→</em></button>
+
+      <div class="friend-helped"><span>War das hilfreicher?</span><div><button data-helped="yes">Ja</button><button data-helped="later">Probier ich</button><button data-helped="no">Nein</button></div></div>
+    </section>`;
   }
   return "";
 }
@@ -2303,6 +3102,7 @@ function renderHome(){
     $("#friendFlowBack")?.addEventListener("click",closeFriendFlow);
     $$("[data-friend-detail]").forEach(b=>b.onclick=()=>selectFriendDetail(flow.topic,b.dataset.friendDetail));
     $$("[data-helped]").forEach(b=>b.onclick=()=>friendFeedback(flow.momentId,b.dataset.helped));
+    $("#continueInChat")?.addEventListener("click",()=>openGlobalChat(flow.userText||friendTopicName(flow.topic)));
     return;
   }
   const unresolved=latestUnresolvedMoment();
@@ -2472,71 +3272,94 @@ function renderProfile(){
   const pc=profileCompleteness();
   const latest=wellbeingLatest(), ws=latest?(latest.score??wellbeingScore(latest)):null;
   const topValues=(state.wishes.length?state.wishes.map(x=>({
-    geld:"Faire Bezahlung",zeiten:"Flexibilität",stress:"Weniger Stress",nahe:"Kurzer Arbeitsweg",
-    entwicklung:"Entwicklung",leben:"Work-Life-Fit",neu:"Neues entdecken",homeoffice:"Flexibilität"
+    geld:"Faire Bezahlung",zeiten:"Planbare Zeit",stress:"Weniger Stress",nahe:"Kurzer Weg",
+    entwicklung:"Entwicklung",leben:"Zeit fürs Leben",neu:"Neues entdecken",homeoffice:"Flexibilität"
   }[x])).filter(Boolean):["Passung","Entwicklung","Gutes Team"]).slice(0,5);
 
-  $("#view").innerHTML=`<section class="screen profile-v5">
-    <article class="profile-hero-v5">
-      <div class="profile-photo">${state.profilePhoto?`<img src="${state.profilePhoto}" alt="Profilbild">`:"👤"}</div>
-      <h1>${escapeHTML(profileDisplayName())}</h1>
-      <p>${state.profileReady?"Auf der Suche nach Arbeit, die wirklich passt.":"Dein Profil entsteht Schritt für Schritt."}</p>
-      <button class="profile-photo-btn" id="profilePhotoBtn">Profilbild ${state.profilePhoto?"ändern":"hinzufügen"}</button><div class="profile-name-edit"><input id="profileNameInput" maxlength="24" placeholder="Wie soll YVIA dich nennen?" value="${escapeHTML(state.profileName)}"><button id="saveProfileName">Speichern</button></div>
-      <input id="profilePhotoInput" type="file" accept="image/*">
-    </article>
+  const aboutPanel=`<div class="profile-panel-v10">
+    <div class="profile-feature-v10"><small>MEIN ZIEL</small><h3>Arbeit, die besser zu mir passt.</h3><p>${escapeHTML(wishText(state.wishes)||"Bessere Bedingungen und mehr Passung im Alltag.")}</p></div>
+    <div class="profile-mini-grid-v10">
+      ${activeSkills().slice(0,4).map(s=>`<div><span>✦</span><b>${escapeHTML(s.short)}</b></div>`).join("")||"<div><span>✦</span><b>Praxiserfahrung</b></div><div><span>✦</span><b>Verlässlichkeit</b></div>"}
+    </div>
+    <button class="profile-action-v10" data-profile-edit="skills">Stärken neu abstimmen <span>→</span></button>
+  </div>`;
 
-    <div class="profile-overview">
-      <article class="profile-score-card">
-        <div class="ring" style="--pct:${pc}%"><span>${pc}%</span></div>
-        <b>Profilstärke</b>
-        <div class="small" style="margin-top:4px">${ws!=null?`Work Score ${ws}`:"Analyse noch offen"}</div>
-      </article>
-      <article class="profile-list-card">
-        <h3>Dein Profil</h3>
-        <ul>
-          <li>${state.wishes.length?"Interessen definiert":"Interessen ergänzen"}</li>
-          <li>${activeSkills().length?`${activeSkills().length} Stärken hinterlegt`:"Stärken ergänzen"}</li>
-          <li>Rahmenbedingungen gespeichert</li>
-          <li>${state.wellbeing.length?"Arbeitsgefühl im Blick":"Ersten Check-in machen"}</li>
-        </ul>
-      </article>
+  const valuesPanel=`<div class="profile-panel-v10">
+    <div class="profile-feature-v10"><small>WAS MIR WICHTIG IST</small><h3>Das soll Arbeit für mich besser machen.</h3></div>
+    <div class="profile-values-v10">${topValues.map(x=>`<span>${escapeHTML(x)}</span>`).join("")}</div>
+    <button class="profile-action-v10" data-profile-edit="values">Wünsche bearbeiten <span>→</span></button>
+  </div>`;
+
+  const framePanel=`<div class="profile-panel-v10">
+    <div class="profile-feature-v10"><small>MEIN RAHMEN</small><h3>Damit ein Match wirklich Sinn macht.</h3></div>
+    <div class="profile-rows-v10">
+      <div><span>Gehalt</span><b>ab ${money(state.salary)}</b></div>
+      <div><span>Entfernung</span><b>max. ${state.distance} km</b></div>
+      <div><span>Arbeitszeit</span><b>${escapeHTML(state.employment)}</b></div>
+      <div><span>Nachtschicht</span><b>${escapeHTML(state.night)}</b></div>
+    </div>
+    <button class="profile-action-v10" data-profile-edit="frame">Rahmen bearbeiten <span>→</span></button>
+  </div>`;
+
+  const panel=state.profileTab==="values"?valuesPanel:state.profileTab==="frame"?framePanel:aboutPanel;
+
+  $("#view").innerHTML=`<section class="screen profile-v10">
+    <div class="profile-top-v10">
+      <button class="profile-photo-v10" id="profilePhotoBtn">${state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:"👤"}</button>
+      <div class="profile-name-v10">
+        <small>DEIN YVIA PROFIL</small>
+        <h1>${escapeHTML(profileDisplayName())}</h1>
+        <p>${pc}% Profil · ${ws!=null?`Work Score ${ws}`:"Work Score offen"}</p>
+      </div>
+      <button class="profile-edit-name-v10" id="editNameV10">···</button>
+      <input id="profilePhotoInput" type="file" accept="image/*">
     </div>
 
-    <article class="profile-section">
-      <div class="profile-section-head"><h3>Meine Top-Werte</h3><button id="editProfileValues">Bearbeiten</button></div>
-      <div class="value-tags">${topValues.map(x=>`<span>${escapeHTML(x)}</span>`).join("")}</div>
-    </article>
+    <div class="profile-tabs-v10">
+      <button class="${state.profileTab==="about"?"active":""}" data-profile-tab="about">Über mich</button>
+      <button class="${state.profileTab==="values"?"active":""}" data-profile-tab="values">Was zählt</button>
+      <button class="${state.profileTab==="frame"?"active":""}" data-profile-tab="frame">Rahmen</button>
+    </div>
 
-    <article class="profile-section">
-      <div class="profile-section-head"><h3>Meine Stärken</h3><button id="editStrengths">Bearbeiten</button></div>
-      <div class="value-tags">${activeSkills().slice(0,6).map(s=>`<span>${escapeHTML(s.short)}</span>`).join("")||"<span>Praxiserfahrung</span><span>Verlässlichkeit</span>"}</div>
-    </article>
+    ${panel}
 
-    <article class="profile-section">
-      <div class="profile-section-head"><h3>Mein Ziel</h3><button id="editGoal">Bearbeiten</button></div>
-      <div class="goal-row"><div class="goal-icon">🎯</div><div><b>Arbeit finden, die wirklich zu mir passt.</b><p>${escapeHTML(wishText(state.wishes)||"Bessere Bedingungen und mehr Passung im Alltag.")}</p></div></div>
-    </article>
+    <div class="profile-footer-v10">
+      <button id="profileAnalysisBtn">Mein Job ansehen</button>
+      <button id="profileResetBtn">Testdaten zurücksetzen</button>
+    </div>
 
-    <article class="profile-section">
-      <div class="profile-section-head"><h3>Meine Bedingungen</h3><button id="editConditions">Bearbeiten</button></div>
-      <p style="font-size:11px;color:#5F5651">ab ${money(state.salary)} · max. ${state.distance} km · ${state.employment} · Nachtschicht: ${state.night}</p>
-    </article>
-
-    <button class="btn btn-secondary" id="profileAnalysisBtn" style="margin-top:12px">Analyse & Verlauf ansehen</button>
-    <div class="privacy-note"><span>🔒</span><span>Profilbild, Check-ins und Profilangaben bleiben in dieser Version lokal in deinem Browser gespeichert.</span></div><button class="profile-reset" id="profileResetBtn">Lokale Testdaten zurücksetzen</button>
+    <div class="name-sheet-v10 hidden" id="nameSheetV10">
+      <div>
+        <small>WIE SOLL YVIA DICH NENNEN?</small>
+        <input id="profileNameInput" maxlength="24" value="${escapeHTML(state.profileName)}" placeholder="Dein Name">
+        <button id="saveProfileName">Speichern</button>
+      </div>
+    </div>
   </section>`;
 
+  $$("[data-profile-tab]").forEach(b=>b.onclick=()=>{state.profileTab=b.dataset.profileTab;saveState();render()});
   $("#profilePhotoBtn").onclick=()=>$("#profilePhotoInput").click();
-  $("#saveProfileName").onclick=()=>{state.profileName=$("#profileNameInput").value.trim();saveState();toast("Name gespeichert");render()};
-  $("#profileResetBtn").onclick=resetState;
   $("#profilePhotoInput").onchange=async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try{state.profilePhoto=await resizeProfileImage(file);saveState();toast("Profilbild gespeichert");render()}
     catch(err){toast("Profilbild konnte nicht geladen werden")}
   };
-  ["#editProfileValues","#editGoal","#editConditions"].forEach(sel=>$(sel).onclick=()=>setOnboarding(3));
-  $("#editStrengths").onclick=()=>setOnboarding(5);
+
+  $("#editNameV10").onclick=()=>$("#nameSheetV10").classList.remove("hidden");
+  $("#saveProfileName").onclick=()=>{
+    state.profileName=$("#profileNameInput").value.trim();
+    saveState();toast("Name gespeichert");render();
+  };
+
+  $$("[data-profile-edit]").forEach(b=>b.onclick=()=>{
+    const what=b.dataset.profileEdit;
+    if(what==="skills")setOnboarding(5);
+    else if(what==="values")setOnboarding(3);
+    else setOnboarding(6);
+  });
+
   $("#profileAnalysisBtn").onclick=()=>route("analysis");
+  $("#profileResetBtn").onclick=resetState;
 }
 
 function bestMimeType(){
