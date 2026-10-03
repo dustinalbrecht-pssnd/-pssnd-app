@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.1</title>
+<title>YVIA V1.1.1</title>
 <style>
 :root{
   --bg:#07090d;
@@ -332,6 +332,52 @@ input[type=file]{display:none}
 @media(max-width:365px){
   .title{font-size:34px}.login-copy h1{font-size:45px}.mood-card{padding:10px}.job-image{min-height:185px}
 }
+
+/* ===== YVIA V1.1.1 Startscreen fix ===== */
+.login-screen{
+  min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 30px);
+  height:auto!important;
+  overflow:visible!important;
+}
+.login-screen>div:first-child{flex:0 0 auto}
+.login-screen>div:last-child{flex:0 0 auto;padding-bottom:4px}
+#main{
+  scrollbar-width:none;
+}
+#main::-webkit-scrollbar{display:none}
+
+/* Short iPhones / browser chrome visible */
+@media (max-height:780px){
+  .login-screen{padding-top:1vh}
+  .login-copy{margin-top:3vh}
+  .login-copy h1{font-size:43px;margin-bottom:12px}
+  .login-copy p{font-size:13px;line-height:1.4}
+  .login-orb{
+    width:155px;
+    height:155px;
+    margin:10px auto 8px;
+  }
+  .auth-stack{gap:8px}
+  .auth-btn{min-height:50px;border-radius:17px}
+}
+
+/* Very short viewport, e.g. Safari with bars open */
+@media (max-height:680px){
+  .login-brand .brand-mark{width:36px;height:36px}
+  .login-brand .brand-mark:before,.login-brand .brand-mark:after{width:22px;height:32px}
+  .login-brand .brand-name{font-size:24px}
+  .login-copy{margin-top:14px}
+  .login-copy h1{font-size:36px;line-height:.96;margin-bottom:9px}
+  .login-copy p{font-size:12px}
+  .login-orb{
+    width:112px;
+    height:112px;
+    margin:6px auto;
+  }
+  .auth-btn{min-height:46px}
+  .auth-mini{padding-bottom:6px}
+}
+
 </style>
 </head>
 <body>
@@ -361,7 +407,7 @@ input[type=file]{display:none}
 </div>
 
 <script>
-const APP_VERSION="1.1";
+const APP_VERSION="1.1.1";
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -455,10 +501,15 @@ function route(r){
 
 function render(){
   const logged=state.onboarded;
+  const main=$("#main");
   $("#topbar").classList.toggle("hidden",!logged);
   $("#nav").classList.toggle("hidden",!logged);
 
   if(logged){
+    main.style.height="calc(100dvh - 70px)";
+    main.style.padding="6px 16px calc(88px + var(--safe-bottom))";
+    main.style.overflowY="hidden";
+    main.style.webkitOverflowScrolling="auto";
     $("#avatarBtn").innerHTML=state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:"👤";
     $("#avatarBtn").onclick=()=>route("profile");
     $$("#nav button").forEach(b=>{
@@ -479,7 +530,9 @@ function render(){
 /* LOGIN */
 function renderLogin(m){
   m.style.height="100dvh";
-  m.style.padding="calc(16px + env(safe-area-inset-top,0px)) 18px calc(16px + env(safe-area-inset-bottom,0px))";
+  m.style.padding="calc(12px + env(safe-area-inset-top,0px)) 18px calc(18px + env(safe-area-inset-bottom,0px))";
+  m.style.overflowY="auto";
+  m.style.webkitOverflowScrolling="touch";
   m.innerHTML=`<section class="login-screen screen">
     <div>
       <div class="login-brand"><div class="brand-mark"></div><div class="brand-name">YVIA</div></div>
