@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.6</title>
+<title>YVIA V1.6.1</title>
 <style>
 :root{
   --bg:#07090d;--surface:#10151e;--surface2:#151c27;--line:rgba(255,255,255,.075);
@@ -200,7 +200,7 @@ main{scroll-behavior:auto}
 </div>
 
 <script>
-const VERSION="1.6", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const VERSION="1.6.1", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
 const jobs=[
@@ -210,6 +210,11 @@ const jobs=[
 {id:"j4",title:"Customer Success Manager",company:"NOVA Digital",city:"Dortmund",salary:4100,distance:24,model:"Hybrid",hours:"Vollzeit",contract:"Unbefristet",score:84,tags:["Menschen","Lösungen","Entwicklung"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23151821%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23ff755d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238f6cff%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3EKunden%20%26%20Beratung%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Kommunikation passt","Abwechslung","Entwicklung"],about:"Du begleitest Kunden, löst Probleme und baust Beziehungen auf. Erfahrung mit Menschen ist wichtiger als ein klassischer Werdegang."},
 {id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,distance:21,model:"Hybrid",hours:"Teilzeit",contract:"Unbefristet",score:82,tags:["Abläufe","Organisation","Eigenständig"],image:"data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22800%22%20viewBox%3D%220%200%201200%20800%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%2310151e%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23f7b457%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235f83ff%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3ClinearGradient%20id%3D%22glass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.04%22%2F%3E%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2222%22%2F%3E%3C%2Ffilter%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22url%28%23bg%29%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221020%22%20cy%3D%2290%22%20r%3D%22220%22%20fill%3D%22%23ffd8a0%22%20opacity%3D%22.25%22%20filter%3D%22url%28%23blur%29%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%2290%22%20width%3D%221040%22%20height%3D%22520%22%20rx%3D%2242%22%20fill%3D%22%230c1118%22%20opacity%3D%22.52%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22120%22%20y%3D%22125%22%20width%3D%22960%22%20height%3D%22280%22%20rx%3D%2224%22%20fill%3D%22url%28%23glass%29%22%2F%3E%0A%20%20%20%20%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22360%22%20y1%3D%22130%22%20x2%3D%22360%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22600%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22405%22%2F%3E%3Cline%20x1%3D%22840%22%20y1%3D%22130%22%20x2%3D%22840%22%20y2%3D%22405%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%22500%22%20width%3D%22500%22%20height%3D%2252%22%20rx%3D%2218%22%20fill%3D%22%2310151d%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22220%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22590%22%20y%3D%22552%22%20width%3D%2226%22%20height%3D%22110%22%20rx%3D%2212%22%20fill%3D%22%23111722%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22880%22%20cy%3D%22515%22%20r%3D%2254%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22861%22%20y%3D%22550%22%20width%3D%2238%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22%2317351f%22%2F%3E%0A%20%20%20%20%3Ctext%20x%3D%22100%22%20y%3D%22735%22%20fill%3D%22white%22%20fill-opacity%3D%22.8%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%3EOperations%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E",reasons:["Abläufe passen","Eigenständig","Wenig Hierarchie"],about:"Du hältst operative Abläufe zusammen und sorgst dafür, dass Teams arbeitsfähig bleiben."}
 ];
+
+jobs.forEach((j,i)=>{
+  j.shift=j.shift||(["Tagschicht","Tagschicht","Frühschicht","Tagschicht","Spätschicht"][i]||"Tagschicht");
+  j.weekend=typeof j.weekend==="boolean"?j.weekend:([false,false,true,false,false][i]||false);
+});
 const S0={
  on:false,privacyAccepted:false,route:"login",moodView:"quick",mood:null,detailOpen:false,
  draft:{satisfaction:3,stress:3,energy:3,note:""},entries:[],moments:[],
@@ -226,7 +231,7 @@ const S0={
 };
 function load(){
  try{
-   const raw=JSON.parse(localStorage.getItem("yvia_v16")||"{}");
+   const raw=JSON.parse(localStorage.getItem("yvia_v161")||"{}");
    const x=Object.assign(structuredClone(S0),raw);
    x.filters=Object.assign(structuredClone(S0.filters),raw.filters||{});
    x.changeTest=Object.assign(structuredClone(S0.changeTest),raw.changeTest||{});
@@ -238,7 +243,7 @@ function load(){
    return x;
  }catch(e){return structuredClone(S0)}
 }let s=load();
-function save(){localStorage.setItem("yvia_v16",JSON.stringify(s))}
+function save(){localStorage.setItem("yvia_v161",JSON.stringify(s))}
 function toast(t){let e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1500)}
 function route(r){
  const main=$("#main");
@@ -269,6 +274,48 @@ function render(){
    }
  })
 }
+
+function login(m){
+ m.style.height="100dvh";
+ m.style.padding="0 17px";
+ m.style.overflowY="auto";
+ m.innerHTML=`<section class="login screen">
+  <div>
+   <div class="login-brand"><div class="mark"></div><b>YVIA</b></div>
+   <div class="login-copy"><h1>Du bist mehr als dein Jobtitel.</h1><p>YVIA versteht, wie Arbeit sich für dich anfühlt, hilft dir im Alltag und zeigt dir Möglichkeiten, die wirklich zu dir passen.</p></div>
+   <div class="orb"></div>
+  </div>
+  <div class="auth">
+   <input id="nm" placeholder="Wie dürfen wir dich nennen?" value="${esc(s.name)}">
+   <label class="privacy-consent-v15">
+    <input type="checkbox" id="privacyCheck" ${s.privacyAccepted?"checked":""}>
+    <span>Ich habe die <button type="button" id="privacyLink">Datenschutzhinweise</button> gelesen und verstanden. Meine Demo-Daten werden lokal in diesem Browser gespeichert.</span>
+   </label>
+   <button class="primary" id="go" ${s.privacyAccepted?"":"disabled"}>Mit E-Mail starten →</button>
+   <button id="apple" ${s.privacyAccepted?"":"disabled"}> &nbsp; Mit Apple fortfahren</button>
+   <small style="text-align:center;color:#6f7988;font-size:7px">V${VERSION} · Demo</small>
+  </div>
+ </section>`;
+ const check=$("#privacyCheck"),go=$("#go"),apple=$("#apple");
+ const sync=()=>{
+   s.privacyAccepted=!!check.checked;
+   go.disabled=!s.privacyAccepted;
+   apple.disabled=!s.privacyAccepted;
+   save()
+ };
+ check.onchange=sync;
+ $("#privacyLink").onclick=e=>{e.preventDefault();openPrivacy()};
+ go.onclick=()=>{
+   if(!s.privacyAccepted)return toast("Bitte zuerst Datenschutz bestätigen");
+   s.name=$("#nm").value.trim()||"Alex";
+   s.on=true;s.route="mood";save();render()
+ };
+ apple.onclick=()=>{
+   if(!s.privacyAccepted)return toast("Bitte zuerst Datenschutz bestätigen");
+   s.on=true;s.route="mood";save();render()
+ }
+}
+
 function openPrivacy(){
  $("#genericSheet").innerHTML=`<div class="grab"></div><h2>Datenschutzhinweise · Demo</h2>
  <div class="privacy-copy-v15">
@@ -882,7 +929,21 @@ function openModal(){$("#genericModal").classList.remove("hidden")}
 function closeModal(){$("#genericModal").classList.add("hidden")}
 $("#genericBackdrop").onclick=closeModal;
 
-render();
+try{
+  render();
+}catch(err){
+  console.error("YVIA startup error:",err);
+  const main=document.querySelector("#main");
+  if(main){
+    main.style.height="100dvh";
+    main.style.padding="40px 20px";
+    main.style.overflow="auto";
+    main.innerHTML=`<div style="max-width:360px;margin:80px auto;color:white;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+      <div style="font-size:28px;font-weight:800;margin-bottom:10px">YVIA konnte nicht starten.</div>
+      <div style="color:#9099a7;font-size:13px;line-height:1.5">Bitte lade die Seite einmal neu. Falls das bleibt, ist ein technischer Fehler aufgetreten.</div>
+    </div>`;
+  }
+}
 </script>
 </body>
 </html>
