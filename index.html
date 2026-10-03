@@ -908,8 +908,202 @@ main{padding:10px 20px 110px}
 .profile-reset{width:100%;margin-top:18px;border:0;background:transparent;color:#B77B6B;font-size:10px;font-weight:800;padding:10px}
 @media(max-width:370px){.friend-home h1{font-size:46px}.analysis-v6 h1{font-size:40px}.welcome-v6 h1{font-size:44px}}
 
+
+/* ===== PSSND V0.7 — Apple-inspired minimal system ===== */
+:root{
+  --apple-bg:#FAF9F7;
+  --apple-card:#FFFFFF;
+  --apple-ink:#111214;
+  --apple-muted:#7C7C81;
+  --apple-line:rgba(17,18,20,.075);
+}
+html,body{
+  background:var(--apple-bg);
+  color:var(--apple-ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+body{
+  background:radial-gradient(circle at 86% -8%,rgba(255,125,92,.07),transparent 28%),var(--apple-bg);
+}
+#app{background:transparent;box-shadow:none}
+main{padding:14px 22px 118px}
+.v6-header{
+  height:72px;background:rgba(250,249,247,.86);
+  backdrop-filter:blur(28px) saturate(170%);
+  -webkit-backdrop-filter:blur(28px) saturate(170%);
+}
+.v6-header .brand-logo{height:24px}
+.header-avatar{width:36px;height:36px;background:#EFEEEB;border-radius:50%}
+.icon-button{width:36px;height:36px;border:0;background:transparent;box-shadow:none}
+
+h1{font-weight:760;letter-spacing:-.066em}
+h2,h3{font-weight:730}
+p{color:#747479}
+.eyebrow{color:#9A9895;font-size:10px;font-weight:720;letter-spacing:.13em}
+
+.v6-nav{
+  width:min(calc(100% - 34px),426px);
+  bottom:14px;border:1px solid rgba(255,255,255,.88);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(28px) saturate(175%);
+  -webkit-backdrop-filter:blur(28px) saturate(175%);
+  box-shadow:0 12px 38px rgba(30,24,18,.09);
+  border-radius:25px;padding:7px;
+}
+.v6-nav button{
+  min-height:50px;border-radius:18px;color:#929196;
+  transition:background .2s ease,color .2s ease,transform .15s ease;
+}
+.v6-nav button span{font-size:15px;margin-bottom:1px}
+.v6-nav button small{font-size:10px;font-weight:650}
+.v6-nav button.active{background:#111214;color:#fff}
+.v6-nav button:active{transform:scale(.97)}
+
+.friend-home{padding-top:18px}
+.friend-home h1{font-size:56px;line-height:.92;margin-bottom:18px}
+.friend-home>p{font-size:16px;line-height:1.5}
+.friend-topics{margin-top:38px;border-top:1px solid var(--apple-line)}
+.friend-topic{
+  height:70px;border-bottom:1px solid var(--apple-line);
+  grid-template-columns:38px 1fr 20px
+}
+.friend-topic>span{font-size:20px}
+.friend-topic b{font-size:16px;font-weight:660;letter-spacing:-.025em}
+.friend-topic i{color:#C3C0BC;font-size:17px}
+.friend-topic:active{opacity:.55}
+.friend-write{
+  margin-top:26px;background:#fff;border:1px solid var(--apple-line);
+  border-radius:24px;box-shadow:0 8px 28px rgba(29,24,20,.04)
+}
+.friend-write textarea{font-size:15px}
+.friend-write button{background:#111214;border-radius:15px}
+.friend-memory p{font-size:11px;color:#9B9996}
+
+.friend-focus{padding-top:24px}
+.friend-focus h1{font-size:47px;line-height:.96}
+.friend-detail-list{margin-top:36px;border-color:var(--apple-line)}
+.friend-detail-list button{
+  min-height:70px;border-color:var(--apple-line);
+  font-size:16px;font-weight:650
+}
+.friend-advice h2{font-size:34px;line-height:1.06;letter-spacing:-.06em}
+.friend-orb{
+  width:50px;height:50px;border-radius:16px;
+  background:linear-gradient(145deg,#F4B52B,#FF866A);
+  box-shadow:0 10px 25px rgba(255,125,92,.14)
+}
+.friend-next{border-color:var(--apple-line)}
+.friend-script{
+  background:#111214;border-radius:26px;
+  box-shadow:0 18px 42px rgba(17,18,20,.12)
+}
+
+.analysis-v6{padding-top:18px}
+.analysis-v6 h1{font-size:49px;line-height:.94}
+.analysis-v6>p{font-size:15px;line-height:1.5}
+.pulse-card,.v6-trend{
+  border:1px solid var(--apple-line);background:#fff;
+  box-shadow:0 10px 32px rgba(29,24,20,.035);border-radius:28px
+}
+.pulse-card{margin-top:32px}
+.pulse-q{border-color:var(--apple-line);padding:17px 0}
+.pulse-buttons button{
+  min-height:44px;background:#F6F5F3;border:0;border-radius:15px;
+  font-weight:650;color:#6D6D70;
+  transition:transform .15s ease,background .15s ease,color .15s ease
+}
+.pulse-buttons button.selected{background:#111214;color:#fff}
+.pulse-buttons button:active{transform:scale(.97)}
+.pulse-save{background:#111214;color:#fff;box-shadow:none}
+.v6-insight{
+  background:#111214;border-radius:28px;
+  box-shadow:0 18px 44px rgba(17,18,20,.11)
+}
+.v6-insight h2{font-size:29px;letter-spacing:-.045em}
+.tomorrow-card{
+  background:linear-gradient(145deg,#FFF1E9,#FFF8F4);
+  border:1px solid rgba(255,122,91,.09);border-radius:28px
+}
+
+/* Match deck */
+.matches-v5{padding-top:18px}
+.matches-v5 h1{
+  font-size:49px!important;line-height:.94!important;
+  letter-spacing:-.067em!important
+}
+.matches-v5>p{font-size:15px!important;line-height:1.45}
+.matches-v5 .version-pill{
+  background:transparent;border:0;padding:0;color:#9B9996;font-weight:620
+}
+.deck-wrap{
+  min-height:590px!important;margin-top:22px!important;
+  perspective:1200px
+}
+.deck-shadow{
+  top:14px!important;left:9px!important;right:9px!important;
+  height:530px!important;border-radius:32px!important;
+  background:#fff!important;border:1px solid var(--apple-line)!important;
+  box-shadow:0 14px 34px rgba(30,24,18,.04)!important;
+  transform:translate3d(0,18px,0) scale(.965);
+  will-change:transform,opacity
+}
+.swipe-card{
+  min-height:530px!important;border-radius:32px!important;
+  background:#fff!important;border:1px solid var(--apple-line)!important;
+  box-shadow:0 22px 58px rgba(30,24,18,.07)!important;
+  will-change:transform,opacity;
+  transform:translate3d(0,0,0);
+  -webkit-user-select:none;user-select:none;touch-action:pan-y
+}
+.job-photo{height:280px!important;position:relative}
+.job-photo::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(17,18,20,.18),transparent 48%);
+  pointer-events:none
+}
+.match-body{padding:20px 20px 22px!important}
+.match-score-big{color:#C76047;font-weight:760!important}
+.match-body h2{font-size:31px!important;letter-spacing:-.05em!important}
+.match-facts-v4 span{
+  border:0!important;background:#F6F5F3!important;
+  color:#656568!important;font-weight:620!important
+}
+.match-why{border-color:var(--apple-line)!important}
+.swipe-actions{
+  margin-top:14px!important;
+  grid-template-columns:58px 1fr 58px!important
+}
+.round-action{
+  height:58px!important;border-radius:18px!important;
+  background:#fff!important;border:1px solid var(--apple-line)!important;
+  box-shadow:0 7px 20px rgba(27,22,18,.035)!important;
+  transition:transform .15s ease
+}
+.round-action:active{transform:scale(.94)}
+#detailsBtn,.round-action.like{
+  background:#111214!important;color:#fff!important;border:0!important
+}
+.swipe-stamp{
+  z-index:6;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-width:2px!important
+}
+
+/* Profile */
+.profile-hero-v5{background:transparent!important;border:0!important;box-shadow:none!important}
+.profile-photo{box-shadow:0 14px 36px rgba(30,24,18,.08)}
+.profile-block,.card{
+  border:1px solid var(--apple-line)!important;
+  box-shadow:none!important;background:#fff!important
+}
+
+@media(max-width:370px){
+  .friend-home h1{font-size:49px}
+  .analysis-v6 h1,.matches-v5 h1{font-size:44px!important}
+}
+
 </style>
-  <title>PSSND V0.6</title>
+  <title>PSSND V0.7</title>
 </head>
 <body>
   <div id="app">
@@ -922,9 +1116,9 @@ main{padding:10px 20px 110px}
     <main id="view"></main>
 
     <nav class="bottom-nav v6-nav hidden" id="bottomNav">
-      <button data-tab="home"><span>✦</span><small>PSSND</small></button>
-      <button data-tab="analysis"><span>◒</span><small>Analyse</small></button>
-      <button data-tab="matches"><span>♥</span><small>Matches</small></button>
+      <button data-tab="home"><span>●</span><small>Heute</small></button>
+      <button data-tab="analysis"><span>◐</span><small>Einblicke</small></button>
+      <button data-tab="matches"><span>♡</span><small>Matches</small></button>
     </nav>
   </div>
 
@@ -934,7 +1128,7 @@ main{padding:10px 20px 110px}
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ICON_SRC = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
-const APP_VERSION = "0.6";
+const APP_VERSION = "0.7";
 
 const demoJobs = [
   {id:1,image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=82",title:"Logistikmitarbeiter",company:"NordWerk Logistik",city:"Dortmund",salaryMin:3050,salaryMax:3250,distance:14,night:false,weekend:true,field:"logistik",tags:["lager","waren","stapler","team"],growth:true,stress:"mittel",shift:"früh/spät",summary:"Du sorgst dafür, dass Waren zur richtigen Zeit am richtigen Ort sind."},
@@ -1350,24 +1544,106 @@ function swipeCard(job,count){
 }
 function setupSwipe(card,id){
   if(!card)return;
-  let startX=0,currentX=0,dragging=false;
+  let pointerId=null,startX=0,startY=0,lastX=0,lastT=0;
+  let currentX=0,currentY=0,velocityX=0,dragging=false,raf=0;
+
   const nope=$("#nopeStamp"),like=$("#likeStamp");
-  const down=e=>{dragging=true;startX=e.clientX??e.touches?.[0]?.clientX??0;currentX=0;card.classList.add("dragging")};
+  const deck=card.closest(".deck-wrap");
+  const shadow=deck?.querySelector(".deck-shadow");
+
+  const paint=()=>{
+    raf=0;
+    const rot=Math.max(-7,Math.min(7,currentX/30));
+    const progress=Math.min(1,Math.abs(currentX)/150);
+    card.style.transform=`translate3d(${currentX}px,${currentY*.12}px,0) rotate(${rot}deg)`;
+    card.style.boxShadow=`0 ${22+progress*10}px ${54+progress*16}px rgba(32,25,20,${0.07+progress*.025})`;
+
+    const opacity=Math.min(1,Math.abs(currentX)/110);
+    if(currentX<0){
+      if(nope)nope.style.opacity=opacity;
+      if(like)like.style.opacity=0;
+    }else{
+      if(like)like.style.opacity=opacity;
+      if(nope)nope.style.opacity=0;
+    }
+
+    if(shadow){
+      const scale=.965+Math.min(.028,Math.abs(currentX)/6500);
+      const y=18-Math.min(8,Math.abs(currentX)/24);
+      shadow.style.transform=`translate3d(0,${y}px,0) scale(${scale})`;
+      shadow.style.opacity=String(.7+Math.min(.18,Math.abs(currentX)/650));
+    }
+  };
+
+  const schedule=()=>{if(!raf)raf=requestAnimationFrame(paint)};
+
+  const down=e=>{
+    if(e.pointerType==="mouse"&&e.button!==0)return;
+    pointerId=e.pointerId;
+    card.setPointerCapture?.(pointerId);
+    dragging=true;
+    startX=e.clientX;startY=e.clientY;
+    lastX=e.clientX;lastT=performance.now();
+    currentX=0;currentY=0;velocityX=0;
+    card.classList.add("dragging");
+    card.style.transition="none";
+  };
+
   const move=e=>{
-    if(!dragging)return;
-    const x=e.clientX??e.touches?.[0]?.clientX??startX;
-    currentX=x-startX;
-    card.style.transform=`translateX(${currentX}px) rotate(${currentX/22}deg)`;
-    const op=Math.min(1,Math.abs(currentX)/90);
-    if(currentX<0){nope.style.opacity=op;like.style.opacity=0}else{like.style.opacity=op;nope.style.opacity=0}
+    if(!dragging||e.pointerId!==pointerId)return;
+    const now=performance.now();
+    currentX=e.clientX-startX;
+    currentY=e.clientY-startY;
+    const dt=Math.max(8,now-lastT);
+    velocityX=(e.clientX-lastX)/dt;
+    lastX=e.clientX;lastT=now;
+    schedule();
   };
-  const up=()=>{
-    if(!dragging)return;dragging=false;card.classList.remove("dragging");
-    if(currentX>95){card.style.transform="translateX(520px) rotate(18deg)";card.style.opacity="0";setTimeout(()=>acceptJob(id),180)}
-    else if(currentX<-95){card.style.transform="translateX(-520px) rotate(-18deg)";card.style.opacity="0";setTimeout(()=>showFeedbackSheet(id),180)}
-    else{card.style.transform="";nope.style.opacity=0;like.style.opacity=0}
+
+  const reset=()=>{
+    card.style.transition="transform .46s cubic-bezier(.2,.85,.2,1), opacity .28s ease, box-shadow .35s ease";
+    card.style.transform="translate3d(0,0,0) rotate(0deg)";
+    card.style.boxShadow="";
+    if(nope)nope.style.opacity=0;
+    if(like)like.style.opacity=0;
+    if(shadow){
+      shadow.style.transition="transform .46s cubic-bezier(.2,.85,.2,1), opacity .35s ease";
+      shadow.style.transform="";
+      shadow.style.opacity="";
+    }
   };
-  card.addEventListener("pointerdown",down);window.addEventListener("pointermove",move);window.addEventListener("pointerup",up,{once:false});
+
+  const fly=direction=>{
+    const width=Math.max(window.innerWidth,430);
+    const duration=.30;
+    card.style.transition=`transform ${duration}s cubic-bezier(.18,.78,.23,1),opacity ${duration*.8}s ease`;
+    card.style.transform=`translate3d(${direction*width*1.3}px,${currentY*.18}px,0) rotate(${direction*10}deg)`;
+    card.style.opacity="0";
+    if(shadow){
+      shadow.style.transition=`transform ${duration}s cubic-bezier(.18,.78,.23,1),opacity ${duration}s ease`;
+      shadow.style.transform="translate3d(0,0,0) scale(1)";
+      shadow.style.opacity="1";
+    }
+    setTimeout(()=>direction>0?acceptJob(id):showFeedbackSheet(id),duration*1000-15);
+  };
+
+  const up=e=>{
+    if(!dragging||(e.pointerId!==undefined&&e.pointerId!==pointerId))return;
+    dragging=false;
+    card.classList.remove("dragging");
+    try{card.releasePointerCapture?.(pointerId)}catch(_){}
+    pointerId=null;
+
+    const distance=Math.abs(currentX);
+    const fast=Math.abs(velocityX)>.55&&distance>35;
+    if(distance>105||fast) fly(currentX>=0?1:-1);
+    else reset();
+  };
+
+  card.addEventListener("pointerdown",down);
+  card.addEventListener("pointermove",move);
+  card.addEventListener("pointerup",up);
+  card.addEventListener("pointercancel",up);
 }
 function acceptJob(id){
   if(!state.interested.includes(id))state.interested.push(id);
@@ -1617,9 +1893,9 @@ function renderHome(){
   }
   const unresolved=latestUnresolvedMoment();
   $("#view").innerHTML=`<section class="screen friend-home">
-    <div class="eyebrow">DEIN PSSND</div>
+    <div class="eyebrow">HEUTE</div>
     <h1>Was ist los?</h1>
-    <p>Sag's wie es ist. Kein Fragebogen, kein Coaching-Gelaber.</p>
+    <p>Sag einfach, was gerade los ist.</p>
     ${unresolved?`<article class="friend-followup"><small>LETZTES MAL</small><b>Es ging um „${escapeHTML(friendTopicName(unresolved.topic))}“.</b><span>Hat sich etwas verändert?</span><div><button data-old-help="yes">Besser</button><button data-old-help="later">Gleich</button><button data-old-help="no">Schlechter</button></div></article>`:""}
     <div class="friend-topics">${Object.entries(FRIEND_TOPICS).map(([key,t])=>`<button class="friend-topic" data-friend-topic="${key}"><span>${t.icon}</span><b>${escapeHTML(t.label)}</b><i>→</i></button>`).join("")}</div>
     <div class="friend-write"><textarea id="friendInput" rows="2" placeholder="Oder sag einfach in deinen Worten, was passiert ist …"></textarea><button id="friendSend" aria-label="Senden">↑</button></div>
@@ -1692,8 +1968,8 @@ function renderAnalysis(){
   const ready=draft.satisfaction&&draft.stress&&draft.energy;
   const doneCount=["satisfaction","stress","energy"].filter(k=>draft[k]).length;
   $("#view").innerHTML=`<section class="screen analysis-v6">
-    <div class="eyebrow">DEIN ARBEITSTAG</div><h1>10 Sekunden. Das reicht.</h1>
-    <p>PSSND braucht kein Tagebuch. Drei Taps reichen, um mit der Zeit zu erkennen, was wirklich hinter deiner Unzufriedenheit steckt.</p>
+    <div class="eyebrow">EINBLICKE</div><h1>Ein kurzer Check. Mehr nicht.</h1>
+    <p>Drei kurze Antworten reichen. Daraus erkennt PSSND mit der Zeit, was dir gut tut – und was nicht.</p>
 
     <article class="pulse-card">
       <div class="pulse-head"><div><small>HEUTE</small><h3>Wie war's?</h3></div><span>${doneCount}/3</span></div>
