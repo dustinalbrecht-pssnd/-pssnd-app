@@ -4,1141 +4,138 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.1.2</title>
+<title>YVIA V1.2</title>
 <style>
 :root{
-  --bg:#07090d;
-  --bg2:#0b0f15;
-  --surface:#10151d;
-  --surface2:#151b25;
-  --line:rgba(255,255,255,.075);
-  --text:#f7f7f8;
-  --muted:#8f98a6;
-  --orange:#ff8a62;
-  --coral:#ff6e5a;
-  --pink:#f45f96;
-  --gold:#f4b244;
-  --green:#68d8a6;
-  --blue:#6587ff;
-  --purple:#a16cff;
-  --shadow:0 24px 70px rgba(0,0,0,.42);
-  --radius:26px;
-  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#07090d;--surface:#10151e;--surface2:#151c27;--line:rgba(255,255,255,.075);
+  --text:#f8f8fa;--muted:#8c96a5;--coral:#ff755c;--pink:#f45f97;--orange:#ff9367;
+  --gold:#f5b548;--blue:#6488ff;--purple:#a26cff;--green:#67d6a4;--safe:env(safe-area-inset-bottom,0px)
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:#05070a;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif}
-body{
-  min-height:100dvh;
-  background:
-    radial-gradient(circle at 110% -6%,rgba(255,112,80,.16),transparent 28%),
-    radial-gradient(circle at -15% 40%,rgba(98,118,255,.06),transparent 27%),
-    var(--bg);
-  overscroll-behavior:none;
-}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid rgba(255,128,91,.65);outline-offset:2px}
-.hidden{display:none!important}
-
-#app{
-  width:min(100%,480px);
-  margin:0 auto;
-  height:100dvh;
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 100% 7%,rgba(255,119,79,.09),transparent 23%),
-    linear-gradient(180deg,#090c11 0%,#07090d 100%);
-}
-
-/* Header */
-.topbar{
-  height:70px;
-  padding:calc(10px + env(safe-area-inset-top,0px)) 18px 8px;
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  position:relative;
-  z-index:30;
-}
-.brand{display:flex;align-items:center;gap:9px}
-.brand-mark{width:31px;height:31px;position:relative}
-.brand-mark:before,.brand-mark:after{
-  content:"";position:absolute;width:19px;height:27px;border-radius:18px 18px 14px 14px;
-  transform-origin:bottom center;
-  bottom:1px;
-}
-.brand-mark:before{left:2px;transform:rotate(-37deg);background:linear-gradient(180deg,#ffb55d,#ff7258)}
-.brand-mark:after{right:2px;transform:rotate(37deg);background:linear-gradient(180deg,#ffd07b,#f35b93)}
-.brand-name{font-size:19px;font-weight:900;letter-spacing:.08em}
-.top-actions{display:flex;gap:8px;align-items:center}
-.icon-btn{
-  width:39px;height:39px;border:1px solid var(--line);border-radius:14px;
-  background:rgba(255,255,255,.045);color:#fff;display:grid;place-items:center
-}
-.avatar-btn{padding:0;overflow:hidden}
-.avatar-btn img{width:100%;height:100%;object-fit:cover}
-
-/* Layout */
-main{
-  height:calc(100dvh - 70px);
-  padding:6px 16px calc(88px + var(--safe-bottom));
-  overflow:hidden;
-}
-.screen{height:100%;min-height:0;animation:screenIn .28s cubic-bezier(.2,.8,.2,1)}
-@keyframes screenIn{from{opacity:.25;transform:translateY(8px)}to{opacity:1;transform:none}}
-.kicker{font-size:10px;font-weight:850;letter-spacing:.11em;color:var(--orange);text-transform:uppercase}
-.title{font-size:38px;line-height:.98;letter-spacing:-.055em;margin:7px 0 8px;font-weight:820}
-.subtitle{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
-
-/* Bottom nav */
-.nav{
-  position:absolute;z-index:50;left:12px;right:12px;bottom:calc(10px + var(--safe-bottom));
-  height:68px;padding:6px;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
-  background:rgba(13,17,24,.92);border:1px solid var(--line);border-radius:24px;
-  backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);
-  box-shadow:0 20px 50px rgba(0,0,0,.35)
-}
-.nav button{
-  border:0;border-radius:18px;background:transparent;color:#77808e;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px
-}
-.nav button span{font-size:18px;line-height:1}
-.nav button small{font-size:9px;font-weight:750}
-.nav button.active{background:rgba(255,255,255,.065);color:#fff}
-.nav button.active span{color:var(--orange)}
+body{min-height:100dvh;background:radial-gradient(circle at 105% -5%,rgba(255,117,92,.14),transparent 26%),var(--bg);overscroll-behavior:none}
+button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+#app{width:min(100%,480px);height:100dvh;margin:auto;position:relative;overflow:hidden;background:linear-gradient(180deg,#090c11,#07090d)}
+.topbar{height:68px;padding:calc(10px + env(safe-area-inset-top,0px)) 17px 8px;display:flex;align-items:flex-end;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:9px}.mark{width:31px;height:31px;position:relative}.mark:before,.mark:after{content:"";position:absolute;width:19px;height:27px;bottom:1px;border-radius:18px 18px 14px 14px;transform-origin:bottom center}.mark:before{left:2px;transform:rotate(-37deg);background:linear-gradient(#ffb55d,#ff7158)}.mark:after{right:2px;transform:rotate(37deg);background:linear-gradient(#ffd07b,#f35b93)}.brand b{font-size:19px;letter-spacing:.08em}
+.avatar{width:39px;height:39px;border-radius:14px;border:1px solid var(--line);background:#121823;color:white;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;object-position:50% 35%}
+main{height:calc(100dvh - 68px);padding:5px 15px calc(91px + var(--safe));overflow:hidden}
+.screen{height:100%;min-height:0;animation:in .25s ease}@keyframes in{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}
+.kicker{font-size:10px;color:var(--orange);font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+.title{font-size:37px;line-height:.98;letter-spacing:-.055em;margin:6px 0 7px}.sub{font-size:11px;line-height:1.4;color:var(--muted);margin:0}
+.nav{position:absolute;z-index:40;left:12px;right:12px;bottom:calc(10px + var(--safe));height:67px;padding:6px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(13,17,24,.94);border:1px solid var(--line);border-radius:23px;backdrop-filter:blur(22px);box-shadow:0 18px 45px rgba(0,0,0,.35)}
+.nav button{border:0;border-radius:17px;background:transparent;color:#747e8c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.nav span{font-size:17px}.nav small{font-size:9px;font-weight:800}.nav button.active{background:rgba(255,255,255,.06);color:white}.nav button.active span{color:var(--orange)}
+.moment-fab{position:absolute;z-index:55;right:18px;bottom:calc(85px + var(--safe));height:48px;padding:0 14px;border:0;border-radius:17px;background:linear-gradient(135deg,var(--coral),var(--pink));color:white;box-shadow:0 14px 32px rgba(244,95,151,.24);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:850}.moment-fab span{font-size:17px}
 
 /* Login */
-.login-screen{display:flex;flex-direction:column;justify-content:space-between;padding:5vh 4px 0}
-.login-brand{display:flex;align-items:center;gap:12px}
-.login-brand .brand-mark{width:46px;height:46px}
-.login-brand .brand-mark:before,.login-brand .brand-mark:after{width:28px;height:41px}
-.login-brand .brand-name{font-size:29px}
-.login-copy{margin-top:7vh}
-.login-copy h1{font-size:50px;line-height:.94;letter-spacing:-.07em;margin:0 0 17px;max-width:380px}
-.login-copy p{font-size:15px;color:#929ba8;line-height:1.5;max-width:360px}
-.login-orb{
-  width:225px;height:225px;border-radius:50%;margin:20px auto 12px;
-  background:
-    radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),transparent 20%),
-    linear-gradient(140deg,#ffb24d 0%,#ff7a5d 35%,#f55c98 67%,#8c6aff 100%);
-  filter:saturate(.95);
-  box-shadow:0 30px 80px rgba(244,95,150,.16);
-  position:relative;opacity:.95
-}
-.login-orb:before{
-  content:"";position:absolute;inset:25px;border-radius:50%;
-  background:linear-gradient(145deg,rgba(5,7,10,.05),rgba(5,7,10,.35));
-  transform:rotate(28deg) scale(.84);
-}
-.auth-stack{display:grid;gap:10px;margin-bottom:12px}
-.auth-btn{
-  min-height:56px;border-radius:19px;border:1px solid var(--line);
-  color:#fff;font-weight:800;background:#111722
-}
-.auth-btn.primary{border:0;background:linear-gradient(110deg,var(--coral),var(--pink));box-shadow:0 15px 36px rgba(244,95,150,.2)}
-.auth-mini{text-align:center;color:#747e8d;font-size:10px}
-.auth-mini button{border:0;background:none;color:#ff826c;font-size:10px;font-weight:800}
-.email-panel{display:grid;gap:9px;margin-bottom:10px}
-.email-panel input{height:52px;border-radius:17px;border:1px solid var(--line);background:#111722;color:#fff;padding:0 14px}
-.email-panel .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.login{display:flex;flex-direction:column;justify-content:space-between;height:auto!important;min-height:calc(100dvh - 28px);padding:calc(10px + env(safe-area-inset-top,0px)) 3px calc(12px + env(safe-area-inset-bottom,0px))}
+.login-brand{display:flex;gap:12px;align-items:center}.login-brand .mark{width:43px;height:43px}.login-brand .mark:before,.login-brand .mark:after{width:26px;height:38px}.login-brand b{font-size:28px}
+.login-copy{margin-top:5vh}.login-copy h1{font-size:48px;line-height:.94;letter-spacing:-.07em;margin:0 0 14px}.login-copy p{font-size:14px;line-height:1.48;color:#929baa;max-width:365px}
+.orb{width:180px;height:180px;border-radius:50%;margin:16px auto 10px;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.45),transparent 18%),linear-gradient(140deg,#ffb44e,#ff795c 35%,#f45e98 67%,#8c6aff);box-shadow:0 25px 70px rgba(244,95,151,.15)}
+.auth{display:grid;gap:9px}.auth button,.auth input{height:53px;border-radius:17px}.auth button{border:1px solid var(--line);background:#111722;color:white;font-weight:800}.auth button.primary{border:0;background:linear-gradient(110deg,var(--coral),var(--pink))}.auth input{border:1px solid var(--line);background:#111722;color:white;padding:0 13px}
+@media(max-height:740px){.login-copy{margin-top:18px}.login-copy h1{font-size:39px}.login-copy p{font-size:12px}.orb{width:110px;height:110px;margin:6px auto}.auth button,.auth input{height:47px}}
 
-/* STIMMUNG */
-.mood-screen{display:grid;grid-template-rows:auto auto 1fr auto;min-height:0}
-.mood-head{padding-top:3px}
-.mood-grid{
-  min-height:0;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:8px
-}
-.mood-card{
-  border:1px solid var(--line);border-radius:20px;background:#111722;color:#fff;padding:12px;
-  text-align:left;display:flex;flex-direction:column;justify-content:space-between;min-height:0;
-  transition:transform .15s ease,border-color .15s ease,background .15s ease
-}
-.mood-card:active{transform:scale(.97)}
-.mood-card.selected{
-  border-color:rgba(255,124,88,.7);
-  background:linear-gradient(145deg,rgba(255,111,84,.25),rgba(244,95,150,.13));
-  box-shadow:0 0 0 1px rgba(255,115,83,.12),0 14px 34px rgba(0,0,0,.18)
-}
-.mood-icon{font-size:23px}
-.mood-card b{font-size:12px;line-height:1.18}
-.mood-card small{font-size:8px;color:#8b95a4}
-.mood-card.selected small{color:#d9bbc0}
-.mood-summary{
-  margin-top:10px;border-radius:18px;border:1px solid rgba(255,123,87,.16);
-  background:linear-gradient(135deg,rgba(255,116,86,.11),rgba(244,95,150,.06));
-  padding:12px;display:grid;grid-template-columns:32px 1fr 24px;gap:9px;align-items:center
-}
-.mood-summary .spark{width:32px;height:32px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--coral));color:#16100b}
-.mood-summary b{display:block;font-size:11px}
-.mood-summary p{margin:2px 0 0;font-size:9px;line-height:1.35;color:#9da6b4}
-.mood-summary button{border:0;background:none;color:#cc8e7c;font-size:16px}
-.mood-tabs{
-  margin-top:9px;display:grid;grid-template-columns:1fr 1fr;background:#0e141e;border:1px solid var(--line);border-radius:15px;padding:4px
-}
-.mood-tabs button{height:34px;border:0;border-radius:11px;background:transparent;color:#737d8d;font-size:9px;font-weight:800}
-.mood-tabs button.active{background:#1a2230;color:#fff}
-.analysis-panel{min-height:0;overflow:hidden;margin-top:10px}
-.analysis-overview{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:9px}
-.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.metric{
-  background:#111722;border:1px solid var(--line);border-radius:16px;padding:10px
-}
-.metric span{font-size:14px}.metric strong{display:block;font-size:20px;margin:3px 0 0}.metric small{font-size:8px;color:#828c9b}
-.metric i{display:block;height:4px;border-radius:99px;background:#242b36;margin-top:8px;overflow:hidden}
-.metric i b{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--coral),var(--pink))}
-.metric:nth-child(2) i b{background:linear-gradient(90deg,var(--blue),var(--purple))}
-.metric:nth-child(3) i b{background:linear-gradient(90deg,var(--gold),var(--coral))}
-.chart-card{
-  min-height:0;background:#0f151e;border:1px solid var(--line);border-radius:18px;padding:11px;display:flex;flex-direction:column
-}
-.chart-head{display:flex;justify-content:space-between;align-items:center}
-.chart-head b{font-size:11px}.chart-head small{font-size:8px;color:#7f8998}
-.chart-wrap{flex:1;min-height:80px;margin-top:6px}
-.insight-card{background:#101722;border:1px solid var(--line);border-radius:17px;padding:11px}
-.insight-card small{font-size:8px;color:var(--orange);font-weight:850;letter-spacing:.08em}
-.insight-card b{display:block;font-size:12px;margin-top:4px}
-.insight-card p{font-size:9px;color:#9099a7;margin:4px 0 0;line-height:1.35}
+/* Stimmung */
+.mood-screen{display:grid;grid-template-rows:auto auto minmax(0,1fr);min-height:0}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:10px;padding:4px;background:#0e141d;border:1px solid var(--line);border-radius:15px}.tabs button{height:34px;border:0;border-radius:11px;background:transparent;color:#737d8c;font-size:8px;font-weight:850}.tabs button.active{background:#1a2230;color:white}
+.mood-body{min-height:0;overflow:hidden;margin-top:9px}
+.checkin{height:100%;display:grid;grid-template-rows:auto auto 1fr auto;gap:9px}
+.feelings{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.feelings::-webkit-scrollbar{display:none}.feel-chip{flex:none;border:1px solid var(--line);border-radius:999px;background:#111722;color:#aab2bd;padding:8px 10px;font-size:8px;font-weight:750}.feel-chip.on{border-color:rgba(255,123,88,.55);background:rgba(255,115,86,.14);color:#fff}
+.triple{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.rate{background:#111722;border:1px solid var(--line);border-radius:17px;padding:10px}.rate small{font-size:7px;color:#7f8998;display:block}.rate b{font-size:18px;display:block;margin:4px 0}.rate input{width:100%;accent-color:var(--coral)}
+.freebox{min-height:0;display:grid;grid-template-rows:auto 1fr;background:#101722;border:1px solid var(--line);border-radius:18px;padding:10px}.freebox label{font-size:8px;color:#7f8998;font-weight:800;margin-bottom:5px}.freebox textarea{min-height:0;resize:none;border:0;background:transparent;color:white;outline:none;font-size:11px;line-height:1.4}
+.save-check{height:45px;border:0;border-radius:15px;background:linear-gradient(135deg,var(--coral),var(--pink));color:white;font-size:10px;font-weight:850}
+.analysis{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:9px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.metric{background:#111722;border:1px solid var(--line);border-radius:16px;padding:10px}.metric span{font-size:15px}.metric strong{display:block;font-size:20px;margin:3px 0}.metric small{font-size:7px;color:#7f8998}.metric i{display:block;height:4px;background:#252c37;border-radius:99px;margin-top:7px;overflow:hidden}.metric i b{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--pink))}.metric:nth-child(2) i b{background:linear-gradient(90deg,var(--blue),var(--purple))}.metric:nth-child(3) i b{background:linear-gradient(90deg,var(--gold),var(--coral))}
+.chart-card{min-height:0;background:#0f151e;border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column}.chart-head{display:flex;justify-content:space-between}.chart-head b{font-size:10px}.chart-head small{font-size:7px;color:#798493}.chart{flex:1;min-height:80px;margin-top:5px}
+.insight{background:linear-gradient(135deg,rgba(255,116,86,.1),rgba(244,95,151,.05));border:1px solid rgba(255,120,85,.13);border-radius:17px;padding:10px}.insight small{font-size:7px;color:var(--orange);font-weight:850}.insight b{display:block;font-size:11px;margin:4px 0}.insight p{font-size:8px;line-height:1.35;color:#929baa;margin:0}
+.test{height:100%;display:flex;flex-direction:column}.test-intro{background:#111722;border:1px solid var(--line);border-radius:20px;padding:15px;margin-top:3px}.test-intro h3{font-size:17px;margin:0 0 6px}.test-intro p{font-size:9px;line-height:1.4;color:#8b95a4;margin:0}.test-start{height:45px;border:0;border-radius:15px;background:linear-gradient(135deg,var(--coral),var(--pink));color:white;font-size:10px;font-weight:850;margin-top:10px}
+.test-q{flex:1;display:flex;flex-direction:column;justify-content:center}.test-progress{font-size:8px;color:#798493;margin-bottom:12px}.test-q h2{font-size:27px;line-height:1.05;margin:0 0 20px}.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.scale button{height:50px;border:1px solid var(--line);border-radius:15px;background:#111722;color:white;font-size:19px}.test-result{background:#111722;border:1px solid var(--line);border-radius:20px;padding:15px;margin-top:12px}.test-result strong{font-size:34px}.test-result h3{font-size:15px;margin:6px 0}.test-result p{font-size:9px;line-height:1.4;color:#8f99a7}
 
-/* MATCHES */
-.matches-screen{display:grid;grid-template-rows:auto auto 1fr auto;min-height:0}
-.match-topline{display:flex;justify-content:space-between;align-items:flex-start}
-.match-actions-head{display:flex;gap:7px}
-.pill-btn{height:34px;padding:0 11px;border:1px solid var(--line);border-radius:13px;background:#111722;color:#a0a9b6;font-size:9px;font-weight:800}
-.pill-btn.active{background:#1a2230;color:#fff}
-.deck{
-  position:relative;min-height:0;margin-top:12px
-}
-.deck-card{
-  position:absolute;inset:0;border-radius:27px;overflow:hidden;background:#111722;border:1px solid var(--line);box-shadow:var(--shadow);
-  touch-action:pan-y;user-select:none;will-change:transform,opacity;transform:translate3d(0,0,0)
-}
-.deck-card.back{transform:translateY(9px) scale(.965);opacity:.72;background:#0f141c}
-.job-image{height:55%;min-height:210px;background-size:cover;background-position:center;position:relative}
-.job-image:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,13,.88) 0%,rgba(7,9,13,.18) 55%,transparent 100%)}
-.job-score{
-  position:absolute;z-index:3;left:14px;top:14px;padding:8px 10px;border-radius:999px;
-  background:rgba(9,13,18,.72);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px);
-  font-size:10px;font-weight:850;color:#ffe0b8
-}
-.job-heart{
-  position:absolute;z-index:3;right:14px;top:14px;width:39px;height:39px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
-  background:rgba(9,13,18,.7);color:#fff;display:grid;place-items:center;font-size:17px
-}
-.job-image-title{position:absolute;z-index:3;left:15px;right:15px;bottom:14px}
-.job-image-title h2{font-size:24px;line-height:1.02;margin:0 0 4px;letter-spacing:-.04em}
-.job-image-title p{font-size:10px;color:#d4d8de;margin:0}
-.job-body{height:45%;padding:12px 14px 13px;display:flex;flex-direction:column}
-.job-facts{display:flex;gap:6px;flex-wrap:wrap}
-.job-facts span{font-size:8px;padding:7px 9px;border-radius:999px;background:#171e29;color:#b7bec8}
-.job-reasons{margin-top:10px;display:grid;gap:6px;overflow:hidden}
-.job-reasons div{display:flex;gap:7px;font-size:9px;color:#a7afba;line-height:1.3}
-.job-reasons b{color:#ff936f}
-.job-more{
-  margin-top:auto;height:38px;border:1px solid var(--line);border-radius:14px;background:#151b25;color:#dce0e6;font-size:10px;font-weight:800
-}
-.swipe-footer{display:grid;grid-template-columns:58px 1fr 58px;gap:10px;align-items:center;margin-top:10px}
-.swipe-footer button{height:54px;border-radius:18px}
-.swipe-no,.swipe-like{border:1px solid var(--line);background:#111722;color:#fff;font-size:19px}
-.swipe-like{border:0;background:linear-gradient(145deg,var(--coral),var(--pink));box-shadow:0 12px 28px rgba(244,95,150,.2)}
-.swipe-hint{text-align:center;font-size:8px;color:#697383}
-.saved-strip{display:flex;gap:8px;overflow:auto;padding:1px 0 2px;scrollbar-width:none}
-.saved-strip::-webkit-scrollbar{display:none}
-.saved-mini{flex:0 0 112px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#111722}
-.saved-mini .pic{height:54px;background-size:cover;background-position:center}
-.saved-mini div:last-child{padding:7px}
-.saved-mini b{font-size:9px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.saved-mini small{font-size:7px;color:#7d8796}
+/* Matches */
+.matches{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}.match-head{display:flex;justify-content:space-between;align-items:start}.saved-btn{height:34px;border:1px solid var(--line);border-radius:13px;background:#111722;color:#9aa4b2;padding:0 10px;font-size:8px;font-weight:800}
+.deck{position:relative;min-height:0;margin-top:9px}.card{position:absolute;inset:0;border-radius:25px;overflow:hidden;background:#111722;border:1px solid var(--line);box-shadow:0 22px 60px rgba(0,0,0,.35);touch-action:pan-y;will-change:transform}.card.back{transform:translateY(8px) scale(.965);opacity:.72}.jobpic{height:56%;background-size:cover;background-position:center;position:relative}.jobpic:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,13,.9),rgba(7,9,13,.12) 60%,transparent)}.score{position:absolute;z-index:2;top:13px;left:13px;padding:8px 10px;border-radius:999px;background:rgba(8,12,17,.72);border:1px solid rgba(255,255,255,.12);font-size:9px;font-weight:850}.jobtitle{position:absolute;z-index:2;left:14px;right:14px;bottom:12px}.jobtitle h2{font-size:23px;line-height:1.02;margin:0 0 4px}.jobtitle p{font-size:9px;color:#d0d5dc;margin:0}.jobbody{height:44%;padding:10px 13px;display:flex;flex-direction:column}.facts{display:flex;gap:5px;flex-wrap:wrap}.facts span{padding:6px 8px;border-radius:999px;background:#171e29;color:#b4bcc7;font-size:7px}.why{display:grid;gap:4px;margin-top:8px;overflow:hidden}.why div{font-size:8px;color:#a4adb9}.why b{color:#ff916f;margin-right:6px}.more{margin-top:auto;height:35px;border:1px solid var(--line);border-radius:13px;background:#161d28;color:white;font-size:9px;font-weight:800}.swipebar{display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:center;margin-top:8px}.swipebar button{height:48px;border-radius:17px}.pass{border:1px solid var(--line);background:#111722;color:white}.like{border:0;background:linear-gradient(135deg,var(--coral),var(--pink));color:white}.swipebar span{text-align:center;font-size:7px;color:#677180}
 
-/* CHAT */
-.chat-screen{display:grid;grid-template-rows:auto 1fr auto;min-height:0}
-.chat-header-copy{padding-top:3px}
-.chat-list{min-height:0;overflow:auto;padding:12px 1px 8px;display:flex;flex-direction:column;gap:8px;scrollbar-width:none}
-.chat-list::-webkit-scrollbar{display:none}
-.msg{max-width:87%;padding:10px 12px;border-radius:17px;font-size:11px;line-height:1.45}
-.msg.bot{align-self:flex-start;background:#111722;border:1px solid var(--line);color:#e8ebef}
-.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff}
-.chat-suggestions{display:flex;gap:6px;overflow:auto;margin-bottom:7px;scrollbar-width:none}
-.chat-suggestions::-webkit-scrollbar{display:none}
-.chat-suggestions button{flex:none;border:1px solid var(--line);border-radius:999px;background:#111722;color:#a8b0bb;padding:8px 10px;font-size:8px;font-weight:700}
-.chat-input{display:grid;grid-template-columns:42px 1fr 42px;gap:7px;align-items:end;background:#101722;border:1px solid var(--line);border-radius:19px;padding:7px}
-.chat-input button{width:42px;height:42px;border:0;border-radius:14px;background:#171e29;color:#fff}
-.chat-input button.send{background:linear-gradient(135deg,var(--coral),var(--pink))}
-.chat-input textarea{height:42px;max-height:90px;resize:none;border:0;background:transparent;color:#fff;padding:10px 4px;outline:none;font-size:11px}
+/* Chat */
+.chat-screen{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}.messages{min-height:0;overflow:auto;padding:10px 1px 8px;display:flex;flex-direction:column;gap:7px;scrollbar-width:none}.messages::-webkit-scrollbar{display:none}.msg{max-width:87%;padding:10px 11px;border-radius:16px;font-size:10px;line-height:1.4}.bot{align-self:flex-start;background:#111722;border:1px solid var(--line)}.user{align-self:flex-end;background:linear-gradient(135deg,var(--coral),var(--pink))}.suggest{display:flex;gap:5px;overflow:auto;margin-bottom:6px;scrollbar-width:none}.suggest button{flex:none;border:1px solid var(--line);background:#111722;color:#a3acb8;border-radius:999px;padding:7px 9px;font-size:7px}.compose{display:grid;grid-template-columns:1fr 42px;gap:7px;background:#101722;border:1px solid var(--line);border-radius:18px;padding:7px}.compose textarea{height:42px;resize:none;border:0;background:transparent;color:white;outline:none;padding:9px 4px;font-size:10px}.compose button{border:0;border-radius:13px;background:linear-gradient(135deg,var(--coral),var(--pink));color:white;font-size:18px}
 
+/* Profile */
+.profile{display:grid;grid-template-rows:auto auto minmax(0,1fr);min-height:0}.profhero{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center}.profphoto{width:62px;height:62px;border-radius:20px;border:1px solid var(--line);background:#131a25;color:white;overflow:hidden}.profphoto img{width:100%;height:100%;object-fit:cover;object-position:50% 35%}.profhero small{font-size:7px;color:#778291}.profhero h1{font-size:22px;margin:4px 0}.profhero p{font-size:8px;color:#87919f;margin:0}.ptabs{display:flex;gap:5px;overflow:auto;margin-top:12px;padding:4px;background:#0d131c;border:1px solid var(--line);border-radius:15px;scrollbar-width:none}.ptabs button{flex:none;height:32px;border:0;border-radius:11px;background:transparent;color:#737e8e;font-size:7px;font-weight:850;padding:0 10px}.ptabs button.active{background:#1a2230;color:white}.ppanel{min-height:0;overflow:auto;margin-top:9px;scrollbar-width:none}.pcard{background:#101722;border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:8px}.pcard h3{font-size:12px;margin:0 0 4px}.pcard p{font-size:8px;color:#8b95a4;line-height:1.4;margin:0}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.chip{border:1px solid var(--line);border-radius:999px;background:#151d28;color:#c0c7d0;padding:8px 9px;font-size:7px}.chip.on{background:rgba(255,117,92,.12);border-color:rgba(255,117,92,.35);color:white}.addrow{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:9px}.addrow input{height:38px;border:1px solid var(--line);border-radius:13px;background:#151c27;color:white;padding:0 10px;font-size:8px}.addrow button{border:0;border-radius:13px;background:#202938;color:white;padding:0 11px;font-size:8px}.prow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.prow:last-child{border-bottom:0}.prow span{font-size:8px;color:#7f8998}.prow b{font-size:9px}.range{width:100%;accent-color:var(--coral)}.toggle-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.toggle-row button{border:1px solid var(--line);border-radius:12px;background:#151c27;color:#9ca5b1;padding:8px 9px;font-size:7px}.toggle-row button.on{background:#252f3d;color:white}.upload{margin-top:9px;border:1px dashed rgba(255,128,93,.32);border-radius:15px;padding:11px;display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center}.upload i{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--coral),var(--pink));font-style:normal}.upload b{font-size:9px}.upload small{display:block;font-size:7px;color:#7e8897}.upload button{border:0;border-radius:11px;background:#1a2230;color:white;padding:8px 9px;font-size:7px}.files{display:grid;gap:5px;margin-top:7px}.file{display:grid;grid-template-columns:28px 1fr auto;gap:7px;align-items:center;background:#141b25;border-radius:12px;padding:7px}.thumb{width:28px;height:28px;border-radius:8px;background-size:cover;background-position:center;display:grid;place-items:center;background-color:#202938}.file b{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file small{font-size:6px;color:#778291}.file button{border:0;background:none;color:#788291}.savedgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.sj{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#111722;text-align:left;color:white;padding:0}.sj .pic{height:68px;background-size:cover;background-position:center}.sj .txt{padding:7px}.sj b{font-size:8px}.sj small{display:block;font-size:6px;color:#7d8796;margin-top:2px}
 
-function prepareProfilePhoto(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=reject;
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=reject;
-      img.onload=()=>{
-        const side=Math.min(img.naturalWidth,img.naturalHeight);
-        const sx=(img.naturalWidth-side)/2;
-        /* Portrait photos usually look better when crop is moved slightly upward */
-        const portrait=img.naturalHeight>img.naturalWidth;
-        const sy=portrait?Math.max(0,(img.naturalHeight-side)*0.28):(img.naturalHeight-side)/2;
-        const canvas=document.createElement("canvas");
-        canvas.width=512;canvas.height=512;
-        const ctx=canvas.getContext("2d");
-        ctx.drawImage(img,sx,sy,side,side,0,0,512,512);
-        resolve(canvas.toDataURL("image/jpeg",.84));
-      };
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-/* PROFILE */
-.profile-screen{display:grid;grid-template-rows:auto auto 1fr;min-height:0}
-.profile-hero{display:grid;grid-template-columns:66px 1fr 36px;gap:11px;align-items:center}
-.profile-photo{width:66px;height:66px;border:1px solid var(--line);border-radius:22px;background:#121924;overflow:hidden;color:white;font-size:25px}
-.profile-photo img{width:100%;height:100%;object-fit:cover}
-.profile-hero small{font-size:8px;color:#778292;letter-spacing:.08em;font-weight:800}
-.profile-hero h1{font-size:24px;line-height:1;margin:5px 0 4px}
-.profile-hero p{font-size:9px;color:#87919f;margin:0}
-.profile-tabs{
-  margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;background:#0d131c;border:1px solid var(--line);border-radius:15px
-}
-.profile-tabs button{height:34px;border:0;border-radius:11px;background:transparent;color:#747f8f;font-size:8px;font-weight:800}
-.profile-tabs button.active{background:#1a2230;color:#fff}
-.profile-panel{min-height:0;overflow:auto;margin-top:10px;scrollbar-width:none}
-.profile-panel::-webkit-scrollbar{display:none}
-.panel-card{background:#101722;border:1px solid var(--line);border-radius:18px;padding:13px;margin-bottom:9px}
-.panel-card h3{font-size:13px;margin:0 0 4px}
-.panel-card p{font-size:9px;color:#8f99a7;line-height:1.4;margin:0}
-.upload-box{
-  margin-top:10px;border:1px dashed rgba(255,133,96,.35);border-radius:16px;padding:13px;
-  display:grid;grid-template-columns:36px 1fr auto;gap:9px;align-items:center;background:linear-gradient(135deg,rgba(255,119,83,.08),rgba(244,95,150,.04))
-}
-.upload-icon{width:36px;height:36px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff}
-.upload-box b{font-size:10px;display:block}.upload-box small{font-size:8px;color:#7f8998}
-.upload-box button{border:0;background:#1a2230;color:#fff;border-radius:11px;padding:8px 10px;font-size:8px;font-weight:800}
-.file-list{display:grid;gap:6px;margin-top:8px}
-.file-item{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:8px 9px;border-radius:13px;background:#141b25}
-.file-item span{font-size:14px}.file-item b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-item small{font-size:7px;color:#76808f}
-.file-item button{border:0;background:none;color:#8d96a4}
-.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.tag{padding:8px 10px;border-radius:999px;background:#151d28;color:#c2c8d0;font-size:8px;font-weight:700}
-.profile-jobs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.profile-job{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#111722}
-.profile-job .pic{height:72px;background-size:cover;background-position:center}
-.profile-job .txt{padding:8px}.profile-job b{font-size:9px}.profile-job small{display:block;font-size:7px;color:#7f8998;margin-top:2px}
-.profile-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.profile-row:last-child{border-bottom:0}.profile-row span{font-size:9px;color:#7f8998}.profile-row b{font-size:10px}
-
-/* DETAIL MODAL */
-.modal{position:absolute;inset:0;z-index:100;display:flex;align-items:flex-end}
-.modal.hidden{display:none}
-.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}
-.sheet{position:relative;width:100%;max-height:84%;overflow:auto;border-radius:29px 29px 0 0;background:#0d121a;border:1px solid var(--line);box-shadow:0 -30px 80px rgba(0,0,0,.45);padding:12px 16px calc(16px + var(--safe-bottom))}
-.grabber{width:38px;height:4px;border-radius:99px;background:#303744;margin:0 auto 11px}
-.sheet-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.sheet h2{font-size:28px;line-height:1;margin:4px 0}
-.sheet p{font-size:10px;color:#8c96a4;line-height:1.45}
-.close{width:36px;height:36px;border-radius:13px;border:1px solid var(--line);background:#151c27;color:#fff}
-.detail-img{height:190px;border-radius:20px;background-size:cover;background-position:center;margin:12px 0}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.detail-grid div{background:#141b25;border-radius:14px;padding:10px}.detail-grid small{font-size:7px;color:#778291}.detail-grid b{display:block;font-size:10px;margin-top:2px}
-.detail-why{margin-top:10px;background:#111722;border:1px solid var(--line);border-radius:16px;padding:11px}
-.detail-why b{font-size:10px}.detail-why p{margin:5px 0 0}
-.detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.detail-actions button{height:48px;border-radius:16px;font-weight:800}
-.detail-actions .secondary{background:#151c27;border:1px solid var(--line);color:#fff}
-.detail-actions .primary{border:0;background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff}
-
-/* Utilities */
-.toast{position:absolute;z-index:150;left:50%;bottom:94px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#1b2330;color:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:13px;font-size:9px;transition:.2s}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+/* Moment sheet */
+.modal{position:absolute;inset:0;z-index:100;display:flex;align-items:flex-end}.modal.hidden{display:none}.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}.sheet{position:relative;width:100%;border-radius:28px 28px 0 0;background:#0d121a;border:1px solid var(--line);padding:11px 15px calc(15px + var(--safe));box-shadow:0 -28px 70px rgba(0,0,0,.45)}.grab{width:38px;height:4px;border-radius:99px;background:#303744;margin:0 auto 11px}.sheet h2{font-size:23px;margin:0 0 5px}.sheet p{font-size:8px;color:#87919f;margin:0}.momentcats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.momentcats button{height:62px;border:1px solid var(--line);border-radius:16px;background:#111722;color:white;font-size:9px}.momentcats button.on{border-color:rgba(255,121,88,.5);background:rgba(255,117,92,.12)}.momentfeel{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.momentfeel button{height:42px;border:1px solid var(--line);border-radius:13px;background:#111722;color:white}.momentfeel button.on{background:#232d3b}.momentnote{width:100%;height:62px;margin-top:9px;resize:none;border:1px solid var(--line);border-radius:14px;background:#111722;color:white;padding:9px;outline:none;font-size:9px}.moment-save{width:100%;height:44px;margin-top:9px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--coral),var(--pink));color:white;font-size:9px;font-weight:850}
+.toast{position:absolute;z-index:150;left:50%;bottom:94px;transform:translate(-50%,15px);opacity:0;background:#1b2330;border:1px solid var(--line);padding:8px 12px;border-radius:12px;font-size:8px;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 input[type=file]{display:none}
-@media(max-width:365px){
-  .title{font-size:34px}.login-copy h1{font-size:45px}.mood-card{padding:10px}.job-image{min-height:185px}
-}
-
-/* ===== YVIA V1.1.1 Startscreen fix ===== */
-.login-screen{
-  min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 30px);
-  height:auto!important;
-  overflow:visible!important;
-}
-.login-screen>div:first-child{flex:0 0 auto}
-.login-screen>div:last-child{flex:0 0 auto;padding-bottom:4px}
-#main{
-  scrollbar-width:none;
-}
-#main::-webkit-scrollbar{display:none}
-
-/* Short iPhones / browser chrome visible */
-@media (max-height:780px){
-  .login-screen{padding-top:1vh}
-  .login-copy{margin-top:3vh}
-  .login-copy h1{font-size:43px;margin-bottom:12px}
-  .login-copy p{font-size:13px;line-height:1.4}
-  .login-orb{
-    width:155px;
-    height:155px;
-    margin:10px auto 8px;
-  }
-  .auth-stack{gap:8px}
-  .auth-btn{min-height:50px;border-radius:17px}
-}
-
-/* Very short viewport, e.g. Safari with bars open */
-@media (max-height:680px){
-  .login-brand .brand-mark{width:36px;height:36px}
-  .login-brand .brand-mark:before,.login-brand .brand-mark:after{width:22px;height:32px}
-  .login-brand .brand-name{font-size:24px}
-  .login-copy{margin-top:14px}
-  .login-copy h1{font-size:36px;line-height:.96;margin-bottom:9px}
-  .login-copy p{font-size:12px}
-  .login-orb{
-    width:112px;
-    height:112px;
-    margin:6px auto;
-  }
-  .auth-btn{min-height:46px}
-  .auth-mini{padding-bottom:6px}
-}
-
-
-/* ===== YVIA V1.1.2 — iPhone layout + deck fix ===== */
-
-/* STIMMUNG: all 6 options visible and readable */
-.mood-screen{
-  grid-template-rows:auto auto minmax(0,1fr) auto!important;
-}
-.analysis-panel{
-  height:100%;
-  min-height:0;
-  overflow:hidden;
-}
-.mood-grid{
-  height:calc(100% - 8px);
-  min-height:0;
-  grid-template-rows:repeat(3,minmax(0,1fr))!important;
-  gap:7px!important;
-  margin-top:8px!important;
-}
-.mood-card{
-  min-height:0!important;
-  padding:10px 11px!important;
-  justify-content:flex-start!important;
-  gap:7px;
-  overflow:hidden;
-}
-.mood-card .mood-icon{
-  font-size:20px!important;
-  line-height:1;
-  flex:0 0 auto;
-}
-.mood-card>div{
-  min-width:0;
-}
-.mood-card b{
-  display:block!important;
-  font-size:11px!important;
-  line-height:1.15!important;
-  margin:0 0 3px!important;
-  white-space:normal!important;
-}
-.mood-card small{
-  display:block!important;
-  font-size:8px!important;
-  line-height:1.25!important;
-  white-space:normal!important;
-  overflow:hidden;
-}
-.mood-summary{
-  margin-top:7px!important;
-  padding:10px 11px!important;
-  min-height:58px;
-}
-.mood-summary b{font-size:10px!important}
-.mood-summary p{font-size:8px!important;line-height:1.3!important}
-
-/* Short Safari viewport: keep all six moods tappable */
-@media (max-height:760px){
-  .mood-head .title{font-size:32px!important;margin:5px 0 5px!important}
-  .mood-head .subtitle{font-size:10px!important}
-  .mood-tabs{margin-top:6px!important}
-  .mood-grid{gap:5px!important;margin-top:6px!important}
-  .mood-card{padding:8px 9px!important;gap:4px!important}
-  .mood-card .mood-icon{font-size:17px!important}
-  .mood-card b{font-size:10px!important}
-  .mood-card small{font-size:7px!important}
-  .mood-summary{min-height:52px;padding:8px 9px!important}
-}
-
-/* MATCHES: deck must occupy the flexible row */
-.matches-screen{
-  grid-template-rows:auto minmax(0,1fr) auto auto!important;
-}
-.deck{
-  min-height:0!important;
-  height:100%!important;
-  margin-top:10px!important;
-}
-.deck-card{
-  height:100%!important;
-  min-height:0!important;
-}
-.job-image{
-  height:55%!important;
-  min-height:0!important;
-}
-.job-body{
-  height:45%!important;
-  min-height:0!important;
-}
-.job-reasons{
-  flex:1;
-  min-height:0;
-}
-.swipe-footer{
-  margin-top:7px!important;
-}
-.saved-strip{
-  max-height:91px;
-}
-@media (max-height:760px){
-  .matches-screen .title{font-size:29px!important;margin:4px 0 5px!important}
-  .matches-screen .subtitle{font-size:9px!important}
-  .deck{margin-top:6px!important}
-  .job-image{height:51%!important}
-  .job-body{height:49%!important;padding:9px 11px 10px!important}
-  .job-image-title h2{font-size:19px!important}
-  .job-image-title p{font-size:8px!important}
-  .job-reasons{margin-top:6px!important;gap:4px!important}
-  .job-reasons div{font-size:8px!important}
-  .job-more{height:32px!important}
-  .swipe-footer button{height:46px!important}
-  .saved-strip{max-height:76px}
-  .saved-mini{flex-basis:94px}
-  .saved-mini .pic{height:42px}
-}
-
-/* PROFILE PHOTO: better crop */
-.avatar-btn img,
-.profile-photo img{
-  object-fit:cover!important;
-  object-position:50% 34%!important;
-}
-.profile-photo{
-  position:relative;
-}
-.profile-photo:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
-  pointer-events:none;
-}
-
 </style>
 </head>
 <body>
 <div id="app">
   <header class="topbar hidden" id="topbar">
-    <div class="brand"><div class="brand-mark"></div><div class="brand-name">YVIA</div></div>
-    <div class="top-actions">
-      <button class="icon-btn avatar-btn" id="avatarBtn" aria-label="Profil">👤</button>
-    </div>
+    <div class="brand"><div class="mark"></div><b>YVIA</b></div>
+    <button class="avatar" id="avatarBtn">👤</button>
   </header>
-
   <main id="main"></main>
-
+  <button class="moment-fab hidden" id="momentFab"><span>✦</span> Moment</button>
   <nav class="nav hidden" id="nav">
-    <button data-route="mood"><span>♥</span><small>Stimmung</small></button>
-    <button data-route="matches"><span>♡</span><small>Matches</small></button>
-    <button data-route="chat"><span>◌</span><small>Chat</small></button>
-    <button data-route="profile"><span>♙</span><small>Profil</small></button>
+    <button data-r="mood"><span>♥</span><small>Stimmung</small></button>
+    <button data-r="matches"><span>♡</span><small>Matches</small></button>
+    <button data-r="chat"><span>◌</span><small>Chat</small></button>
+    <button data-r="profile"><span>♙</span><small>Profil</small></button>
   </nav>
 
-  <div class="modal hidden" id="detailModal">
-    <div class="modal-backdrop" id="modalBackdrop"></div>
-    <section class="sheet" id="detailSheet"></section>
-  </div>
-
+  <div class="modal hidden" id="momentModal"><div class="backdrop" id="momentBackdrop"></div><section class="sheet" id="momentSheet"></section></div>
   <div class="toast" id="toast"></div>
 </div>
-
 <script>
-const APP_VERSION="1.1.2";
-const $=(s,r=document)=>r.querySelector(s);
-const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const VERSION="1.2", $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const money=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
-
+const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n);
+const feelings=["ruhig","motiviert","genervt","gestresst","erschöpft","stolz","gelangweilt","überfordert","unsicher","zufrieden"];
+const strengthPool=["Organisation","Überblick","Kommunikation","Verlässlich","Problemlösung","Kreativ","Empathisch","Strukturiert","Praktisch","Eigenständig"];
 const jobs=[
-  {
-    id:"j1",title:"Product Manager (m/w/d)",company:"Tomorrow GmbH",city:"Berlin",salary:4400,distance:18,model:"Hybrid",type:"Vollzeit",
-    tags:["Strategie","Produkt","Team","Impact"],score:92,
-    image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
-    reasons:["Passt zu deinem Wunsch nach Entwicklung","Mehr Eigenverantwortung als in deiner aktuellen Rolle","Gutes Team und flexible Arbeitsweise"],
-    about:"Du verbindest Menschen, Prioritäten und Produktideen. Gesucht wird kein perfekter Lebenslauf, sondern jemand, der Verantwortung übernimmt und Dinge voranbringt."
-  },
-  {
-    id:"j2",title:"Teamassistenz (m/w/d)",company:"Stadtwerke Gelsenkirchen",city:"Gelsenkirchen",salary:3400,distance:7,model:"Vor Ort",type:"Vollzeit",
-    tags:["Organisation","Team","Sicherheit"],score:89,
-    image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
-    reasons:["Kurzer Arbeitsweg","Deine Organisation und Praxiserfahrung passen","Planbare Arbeitszeiten"],
-    about:"Eine strukturierte Rolle mit viel Abstimmung und Verantwortung im Tagesgeschäft. Praxis und Verlässlichkeit zählen stärker als ein perfekter Abschluss."
-  },
-  {
-    id:"j3",title:"Disponent Logistik (m/w/d)",company:"RuhrLogistik AG",city:"Essen",salary:3750,distance:14,model:"Hybrid",type:"Vollzeit",
-    tags:["Planung","Überblick","Kommunikation"],score:87,
-    image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",
-    reasons:["Dein Überblick unter Druck ist wertvoll","Mehr Verantwortung ohne Führungszwang","Gehalt über deiner Untergrenze"],
-    about:"Koordination, Planung und schnelle Entscheidungen. Besonders interessant für Menschen, die Abläufe aus der Praxis kennen."
-  },
-  {
-    id:"j4",title:"Customer Success Manager",company:"NOVA Digital",city:"Dortmund",salary:4100,distance:24,model:"Hybrid",type:"Vollzeit",
-    tags:["Menschen","Lösungen","Entwicklung"],score:84,
-    image:"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
-    reasons:["Kommunikation und Problemlösung passen","Entwicklungsmöglichkeiten","Mehr Abwechslung"],
-    about:"Kunden begleiten, Probleme lösen und Beziehungen aufbauen. Erfahrung mit Menschen ist wichtiger als der klassische Werdegang."
-  },
-  {
-    id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,distance:21,model:"Hybrid",type:"Vollzeit",
-    tags:["Abläufe","Organisation","Eigenständig"],score:82,
-    image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80",
-    reasons:["Passt zu deiner Stärke in Abläufen","Eigenständiges Arbeiten","Wenig starre Hierarchie"],
-    about:"Du hältst operative Abläufe zusammen und sorgst dafür, dass Teams arbeitsfähig bleiben."
-  }
+{id:"j1",title:"Product Manager (m/w/d)",company:"Tomorrow GmbH",city:"Berlin",salary:4400,model:"Hybrid",type:"Vollzeit",score:92,tags:["Strategie","Team","Entwicklung"],image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",reasons:["Mehr Entwicklung","Viel Eigenverantwortung","Flexible Arbeitsweise"]},
+{id:"j2",title:"Teamassistenz (m/w/d)",company:"Stadtwerke Gelsenkirchen",city:"Gelsenkirchen",salary:3400,model:"Vor Ort",type:"Vollzeit",score:89,tags:["Organisation","Team","Sicherheit"],image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",reasons:["Kurzer Weg","Organisation passt","Planbare Zeiten"]},
+{id:"j3",title:"Disponent Logistik (m/w/d)",company:"RuhrLogistik AG",city:"Essen",salary:3750,model:"Hybrid",type:"Vollzeit",score:87,tags:["Planung","Überblick","Kommunikation"],image:"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",reasons:["Praxiserfahrung passt","Mehr Verantwortung","Gehalt passt"]},
+{id:"j4",title:"Customer Success Manager",company:"NOVA Digital",city:"Dortmund",salary:4100,model:"Hybrid",type:"Vollzeit",score:84,tags:["Menschen","Lösungen","Entwicklung"],image:"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",reasons:["Kommunikation passt","Abwechslung","Entwicklung"]},
+{id:"j5",title:"Operations Coordinator",company:"Flow Works",city:"Bochum",salary:3900,model:"Hybrid",type:"Vollzeit",score:82,tags:["Abläufe","Organisation","Eigenständig"],image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80",reasons:["Abläufe passen","Eigenständig","Wenig Hierarchie"]}
 ];
+const S0={on:false,route:"login",moodTab:"check",feelings:[],draft:{satisfaction:3,stress:3,energy:3,note:""},checks:[],moments:[],liked:[],passed:[],chat:[{role:"bot",text:"Hi 👋 Ich bin YVIA. Sag mir einfach, was los ist. Kurz reicht – ich antworte dir auch kurz."}],name:"Alex",photo:"",profileTab:"me",skills:["Organisation","Überblick","Kommunikation","Verlässlich"],salary:3200,distance:25,models:["Hybrid"],night:false,weekend:false,docs:[],test:{active:false,index:0,answers:[],result:null},momentDraft:{cat:"",feel:"",note:""}};
+function load(){try{return Object.assign(structuredClone(S0),JSON.parse(localStorage.getItem("yvia_v12")||"{}"))}catch(e){return structuredClone(S0)}}let s=load();
+function save(){localStorage.setItem("yvia_v12",JSON.stringify(s))}function toast(t){let e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1600)}
+function route(r){s.route=r;save();render()}
+function render(){let logged=s.on;$("#topbar").classList.toggle("hidden",!logged);$("#nav").classList.toggle("hidden",!logged);$("#momentFab").classList.toggle("hidden",!logged);if(logged){$("#avatarBtn").innerHTML=s.photo?`<img src="${s.photo}">`:"👤";$("#avatarBtn").onclick=()=>route("profile");$("#momentFab").onclick=openMoment;$$("[data-r]").forEach(b=>{b.classList.toggle("active",b.dataset.r===s.route);b.onclick=()=>route(b.dataset.r)})}let m=$("#main");if(!logged)return login(m);m.style.height="calc(100dvh - 68px)";m.style.padding="5px 15px calc(91px + var(--safe))";m.style.overflow="hidden";({mood, matches, chat, profile}[s.route]||mood)(m)}
+function login(m){m.style.height="100dvh";m.style.padding="0 17px";m.style.overflowY="auto";m.innerHTML=`<section class="login screen"><div><div class="login-brand"><div class="mark"></div><b>YVIA</b></div><div class="login-copy"><h1>Du bist mehr als dein Jobtitel.</h1><p>YVIA versteht, wie Arbeit sich für dich anfühlt, hilft im Alltag und zeigt dir Möglichkeiten, die wirklich zu dir passen.</p></div><div class="orb"></div></div><div class="auth"><input id="nm" placeholder="Wie dürfen wir dich nennen?" value="${esc(s.name)}"><button class="primary" id="go">Mit E-Mail starten →</button><button id="apple"> &nbsp; Mit Apple fortfahren</button><small style="text-align:center;color:#6f7988;font-size:8px">V${VERSION}</small></div></section>`;$("#go").onclick=()=>{s.name=$("#nm").value.trim()||"Alex";s.on=true;s.route="mood";save();render()};$("#apple").onclick=()=>{s.on=true;s.route="mood";save();render()}}
 
-const defaultState={
-  onboarded:false,
-  route:"login",
-  mood:"okay",
-  moodTab:"today",
-  moodHistory:[
-    {d:"Mo",mood:3,stress:3,energy:3},
-    {d:"Di",mood:2,stress:4,energy:2},
-    {d:"Mi",mood:3,stress:3,energy:3},
-    {d:"Do",mood:4,stress:3,energy:4},
-    {d:"Fr",mood:3,stress:4,energy:2},
-    {d:"Sa",mood:4,stress:2,energy:4},
-    {d:"So",mood:4,stress:2,energy:4}
-  ],
-  liked:[],
-  passed:[],
-  currentIndex:0,
-  profileName:"Alex",
-  profilePhoto:"",
-  profileTab:"documents",
-  documents:[],
-  skills:["Organisation","Überblick","Kommunikation","Verlässlich","Problemlösung"],
-  values:["Gutes Team","Faire Bezahlung","Flexibilität","Entwicklung"],
-  salary:3200,
-  distance:25,
-  chat:[
-    {role:"bot",text:"Hi 👋 Ich bin YVIA. Sag mir einfach, was gerade bei der Arbeit los ist. Ich versuche nicht, dir irgendeine Floskel zu geben, sondern etwas, das du wirklich nutzen kannst."}
-  ]
-};
+/* MOOD */
+function latest(){return s.checks.at(-1)||{satisfaction:3,stress:3,energy:3}}
+function metric(k){let a=s.checks.slice(-7).map(x=>+x[k]).filter(Number.isFinite);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*20):60}
+function chart(){let a=s.checks.slice(-7);if(!a.length)a=[{satisfaction:3,energy:3},{satisfaction:3,energy:3}];let w=320,h=100,p=8;let path=k=>a.map((x,i)=>{let xx=p+i*(w-p*2)/Math.max(1,a.length-1),yy=h-p-((+x[k]-1)/4)*(h-p*2);return (i?"L":"M")+xx.toFixed(1)+" "+yy.toFixed(1)}).join(" ");return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none"><defs><linearGradient id="a"><stop stop-color="#ff8a62"/><stop offset="1" stop-color="#f45f97"/></linearGradient><linearGradient id="b"><stop stop-color="#6488ff"/><stop offset="1" stop-color="#a26cff"/></linearGradient></defs><path d="${path("satisfaction")}" fill="none" stroke="url(#a)" stroke-width="3" stroke-linecap="round"/><path d="${path("energy")}" fill="none" stroke="url(#b)" stroke-width="2.2" opacity=".8" stroke-linecap="round"/></svg>`}
+function insight(){let st=metric("stress"),sa=metric("satisfaction"),en=metric("energy");let neg=s.moments.slice(-5).filter(x=>x.feel==="bad").length;if(st>=70)return ["Dein Stress fällt gerade auf.",neg>=2?"Auch deine letzten gespeicherten Momente waren eher belastend. Das sieht nach einem Muster aus.":"Schau weniger darauf, alles zu schaffen – und mehr darauf, was gerade wirklich zu viel ist."];if(sa<50)return ["Du wirkst eher unzufrieden als nur gestresst.","Das ist wichtig: Vielleicht geht es nicht um weniger Arbeit, sondern um andere Arbeit oder bessere Bedingungen."];if(en<50)return ["Deine Energie ist gerade der auffälligste Punkt.","Achte darauf, welche Situationen dich leerziehen. Genau dafür ist der Moment-Button da."];return ["Im Moment wirkt vieles stabil.","YVIA muss dir keinen Wechsel einreden. Gute Tage sind genauso wichtig für dein Profil."]}
+const questions=["Wie gern startest du aktuell in deinen Arbeitstag?","Wie oft fühlst du dich nach der Arbeit leer?","Wie gut passt deine Arbeit zu deinem Leben?","Wie fair fühlst du dich behandelt?","Wie viel Entwicklung siehst du für dich?","Würdest du deinen Job einem guten Freund empfehlen?"];
+function mood(m){let L=latest(),ins=insight();m.innerHTML=`<section class="screen mood-screen"><div><div class="kicker">Stimmung</div><h1 class="title">Wie geht's dir<br>gerade im Job?</h1><p class="sub">Mehrere Gefühle sind okay. Schreib dazu, was gerade wirklich los ist.</p></div><div class="tabs"><button data-mt="check" class="${s.moodTab==="check"?"active":""}">Check-in</button><button data-mt="analysis" class="${s.moodTab==="analysis"?"active":""}">Auswertung</button><button data-mt="test" class="${s.moodTab==="test"?"active":""}">Selbsttest</button></div><div class="mood-body">${s.moodTab==="check"?`<div class="checkin"><div class="feelings">${feelings.map(f=>`<button class="feel-chip ${s.feelings.includes(f)?"on":""}" data-feel="${f}">${f}</button>`).join("")}</div><div class="triple">${[["satisfaction","Zufriedenheit","☺"],["stress","Stress","⚡"],["energy","Energie","◒"]].map(([k,l,ic])=>`<div class="rate"><small>${l}</small><b>${ic} ${s.draft[k]}/5</b><input type="range" min="1" max="5" value="${s.draft[k]}" data-rate="${k}"></div>`).join("")}</div><div class="freebox"><label>Wie fühlst du dich gerade?</label><textarea id="moodNote" placeholder="Zum Beispiel: Eigentlich mag ich meinen Job, aber heute hat mich mein Chef komplett fertiggemacht …">${esc(s.draft.note)}</textarea></div><button class="save-check" id="saveCheck">Check-in speichern</button></div>`:s.moodTab==="analysis"?`<div class="analysis"><div class="metrics"><div class="metric"><span>☺</span><strong>${metric("satisfaction")}%</strong><small>Zufriedenheit</small><i><b style="width:${metric("satisfaction")}%"></b></i></div><div class="metric"><span>⚡</span><strong>${metric("stress")}%</strong><small>Stress</small><i><b style="width:${metric("stress")}%"></b></i></div><div class="metric"><span>◒</span><strong>${metric("energy")}%</strong><small>Energie</small><i><b style="width:${metric("energy")}%"></b></i></div></div><div class="chart-card"><div class="chart-head"><b>Deine Entwicklung</b><small>${s.moments.length} Momente gespeichert</small></div><div class="chart">${chart()}</div></div><div class="insight"><small>YVIA ERKENNT</small><b>${esc(ins[0])}</b><p>${esc(ins[1])}</p></div></div>`:testHTML()}</div></section>`;$$("[data-mt]").forEach(b=>b.onclick=()=>{s.moodTab=b.dataset.mt;save();render()});$$("[data-feel]").forEach(b=>b.onclick=()=>{let f=b.dataset.feel;s.feelings=s.feelings.includes(f)?s.feelings.filter(x=>x!==f):[...s.feelings,f];save();render()});$$("[data-rate]").forEach(i=>i.oninput=()=>{s.draft[i.dataset.rate]=+i.value;i.closest(".rate").querySelector("b").innerHTML=(i.dataset.rate==="stress"?"⚡":i.dataset.rate==="energy"?"◒":"☺")+" "+i.value+"/5";save()});$("#moodNote")?.addEventListener("input",e=>{s.draft.note=e.target.value;save()});$("#saveCheck")?.addEventListener("click",()=>{s.checks.push({ts:Date.now(),feelings:[...s.feelings],...s.draft});s.checks=s.checks.slice(-30);s.feelings=[];s.draft={satisfaction:3,stress:3,energy:3,note:""};save();toast("Check-in gespeichert");render()});testBind()}
+function testHTML(){if(s.test.result)return `<div class="test"><div class="test-result"><small style="color:var(--orange);font-size:7px">DEIN LETZTER SELBSTTEST</small><strong>${s.test.result}%</strong><h3>${s.test.result>=70?"Vieles passt gerade.":s.test.result>=50?"Da ist Luft nach oben.":"Deine Arbeit kostet dich gerade viel."}</h3><p>Der Test ist kein Urteil. Er hilft YVIA nur dabei, besser zu verstehen, ob eher Belastung, Passung oder Entwicklung dein Thema ist.</p><button class="test-start" id="restartTest">Nochmal testen</button></div></div>`;if(!s.test.active)return `<div class="test"><div class="test-intro"><h3>2-Minuten Job-Check</h3><p>6 kurze Fragen. Keine Persönlichkeitsschublade. Am Ende bekommst du einen einfachen Hinweis, wie gut dein aktueller Job gerade zu dir passt.</p><button class="test-start" id="startTest">Selbsttest starten</button></div></div>`;let i=s.test.index;return `<div class="test"><div class="test-q"><div class="test-progress">Frage ${i+1} von ${questions.length}</div><h2>${esc(questions[i])}</h2><div class="scale">${[1,2,3,4,5].map(v=>`<button data-test="${v}">${["😣","😕","😐","🙂","😊"][v-1]}</button>`).join("")}</div></div></div>`}
+function testBind(){$("#startTest")?.addEventListener("click",()=>{s.test={active:true,index:0,answers:[],result:null};save();render()});$("#restartTest")?.addEventListener("click",()=>{s.test={active:true,index:0,answers:[],result:null};save();render()});$$("[data-test]").forEach(b=>b.onclick=()=>{let v=+b.dataset.test;s.test.answers.push(v);if(s.test.index<questions.length-1)s.test.index++;else{s.test.active=false;s.test.result=Math.round(s.test.answers.reduce((a,b)=>a+b,0)/(questions.length*5)*100)}save();render()})}
 
-function loadState(){
-  try{
-    const raw=localStorage.getItem("yvia_v11");
-    if(!raw)return structuredClone(defaultState);
-    return Object.assign(structuredClone(defaultState),JSON.parse(raw));
-  }catch(e){return structuredClone(defaultState)}
-}
-let state=loadState();
-function save(){localStorage.setItem("yvia_v11",JSON.stringify(state))}
-function toast(t){
-  const el=$("#toast");el.textContent=t;el.classList.add("show");
-  clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("show"),1800)
-}
-function route(r){
-  state.route=r;save();render()
-}
-
-function render(){
-  const logged=state.onboarded;
-  const main=$("#main");
-  $("#topbar").classList.toggle("hidden",!logged);
-  $("#nav").classList.toggle("hidden",!logged);
-
-  if(logged){
-    main.style.height="calc(100dvh - 70px)";
-    main.style.padding="6px 16px calc(88px + var(--safe-bottom))";
-    main.style.overflowY="hidden";
-    main.style.webkitOverflowScrolling="auto";
-    $("#avatarBtn").innerHTML=state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:"👤";
-    $("#avatarBtn").onclick=()=>route("profile");
-    $$("#nav button").forEach(b=>{
-      b.classList.toggle("active",b.dataset.route===state.route);
-      b.onclick=()=>route(b.dataset.route)
-    });
-  }
-
-  const m=$("#main");
-  if(!logged)return renderLogin(m);
-  if(state.route==="mood")return renderMood(m);
-  if(state.route==="matches")return renderMatches(m);
-  if(state.route==="chat")return renderChat(m);
-  if(state.route==="profile")return renderProfile(m);
-  state.route="mood";save();renderMood(m)
-}
-
-/* LOGIN */
-function renderLogin(m){
-  m.style.height="100dvh";
-  m.style.padding="calc(12px + env(safe-area-inset-top,0px)) 18px calc(18px + env(safe-area-inset-bottom,0px))";
-  m.style.overflowY="auto";
-  m.style.webkitOverflowScrolling="touch";
-  m.innerHTML=`<section class="login-screen screen">
-    <div>
-      <div class="login-brand"><div class="brand-mark"></div><div class="brand-name">YVIA</div></div>
-      <div class="login-copy">
-        <h1>Du bist mehr als dein Jobtitel.</h1>
-        <p>YVIA versteht, wie Arbeit sich für dich anfühlt, zeigt dir echte Möglichkeiten und hilft dir, bessere Entscheidungen zu treffen.</p>
-      </div>
-      <div class="login-orb"></div>
-    </div>
-    <div>
-      <div class="auth-stack" id="authStack">
-        <button class="auth-btn primary" id="emailStart">Mit E-Mail starten →</button>
-        <button class="auth-btn" id="appleStart"> &nbsp; Mit Apple fortfahren</button>
-      </div>
-      <div class="email-panel hidden" id="emailPanel">
-        <input id="nameField" placeholder="Wie dürfen wir dich nennen?" value="${esc(state.profileName)}">
-        <input id="mailField" type="email" placeholder="E-Mail">
-        <div class="row">
-          <button class="auth-btn" id="authBack">Zurück</button>
-          <button class="auth-btn primary" id="authGo">Starten →</button>
-        </div>
-      </div>
-      <div class="auth-mini">Schon dabei? <button id="loginExisting">Anmelden</button> · V${APP_VERSION}</div>
-    </div>
-  </section>`;
-  $("#emailStart").onclick=()=>{
-    $("#authStack").classList.add("hidden");
-    $("#emailPanel").classList.remove("hidden")
-  };
-  $("#authBack").onclick=()=>{
-    $("#emailPanel").classList.add("hidden");
-    $("#authStack").classList.remove("hidden")
-  };
-  $("#authGo").onclick=()=>{
-    state.profileName=$("#nameField").value.trim()||"Alex";
-    state.onboarded=true;state.route="mood";save();render()
-  };
-  $("#appleStart").onclick=()=>{state.onboarded=true;state.route="mood";save();render()};
-  $("#loginExisting").onclick=()=>{state.onboarded=true;state.route="mood";save();render()}
-}
-
-/* MOOD + ANALYSE */
-const moodOptions=[
-  ["great","😊","Richtig gut","Ich bin heute zufrieden",5],
-  ["okay","🙂","Ganz okay","Nichts Besonderes",4],
-  ["meh","😐","Geht so","Irgendwas fehlt",3],
-  ["stress","😵","Gestresst","Es ist gerade viel",2],
-  ["down","😞","Unzufrieden","So soll es nicht bleiben",2],
-  ["leave","🔥","Ich will raus","Ich habe echt genug",1]
-];
-function moodNumbers(){
-  const h=state.moodHistory||[];
-  const avg=k=>{
-    const a=h.map(x=>Number(x[k])).filter(Number.isFinite);
-    return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*20):60
-  };
-  return {mood:avg("mood"),stress:avg("stress"),energy:avg("energy")}
-}
-function moodInsight(){
-  const n=moodNumbers();
-  if(n.stress>=70&&n.mood>=60)return ["Du magst vieles – aber es kostet gerade zu viel.","Hoher Stress bei trotzdem ordentlicher Stimmung spricht eher für Belastung als für den falschen Beruf."];
-  if(n.stress>=70&&n.mood<60)return ["Das ist mehr als nur ein anstrengender Tag.","Stress und Stimmung ziehen gleichzeitig nach unten. YVIA würde jetzt vor allem auf wiederkehrende Auslöser schauen."];
-  if(n.mood<50)return ["Deine Stimmung ist zuletzt eher niedrig.","Das heißt nicht automatisch Jobwechsel. Entscheidend ist, ob Aufgabe, Umfeld oder Bedingungen dahinterstecken."];
-  return ["Im Moment ist vieles stabil.","YVIA muss dir keinen Wechsel einreden. Gute Phasen sind genauso wichtig wie schlechte."]
-}
-function chartSVG(){
-  const h=state.moodHistory?.slice(-7)||[];
-  if(!h.length)return "";
-  const w=320,hgt=105,pad=8;
-  const pts=(key,invert=false)=>h.map((x,i)=>{
-    let v=Number(x[key]??3);if(invert)v=6-v;
-    const xx=pad+i*(w-pad*2)/Math.max(1,h.length-1);
-    const yy=hgt-pad-((v-1)/4)*(hgt-pad*2);
-    return [xx,yy]
-  });
-  const path=a=>a.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
-  return `<svg viewBox="0 0 ${w} ${hgt}" width="100%" height="100%" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="ga" x1="0" x2="1"><stop stop-color="#ff8a62"/><stop offset="1" stop-color="#f45f96"/></linearGradient>
-      <linearGradient id="gb" x1="0" x2="1"><stop stop-color="#6587ff"/><stop offset="1" stop-color="#a16cff"/></linearGradient>
-    </defs>
-    <path d="${path(pts("mood"))}" fill="none" stroke="url(#ga)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${path(pts("energy"))}" fill="none" stroke="url(#gb)" stroke-width="2.2" opacity=".75" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`
-}
-function renderMood(m){
-  const n=moodNumbers(),ins=moodInsight();
-  m.innerHTML=`<section class="screen mood-screen">
-    <div class="mood-head">
-      <div class="kicker">Stimmung</div>
-      <h1 class="title">Wie geht's dir<br>gerade im Job?</h1>
-      <p class="subtitle">Ein Tap reicht. Es gibt kein richtig oder falsch.</p>
-    </div>
-
-    <div class="mood-tabs">
-      <button class="${state.moodTab==="today"?"active":""}" data-mood-tab="today">Heute</button>
-      <button class="${state.moodTab==="analysis"?"active":""}" data-mood-tab="analysis">Auswertung</button>
-    </div>
-
-    <div class="analysis-panel">
-      ${state.moodTab==="today"?`
-        <div class="mood-grid">
-          ${moodOptions.map(([id,icon,title,sub,val])=>`<button class="mood-card ${state.mood===id?"selected":""}" data-mood="${id}" data-val="${val}">
-            <span class="mood-icon">${icon}</span><div><b>${title}</b><small>${sub}</small></div>
-          </button>`).join("")}
-        </div>
-      `:`
-        <div class="analysis-overview">
-          <div class="metric-row">
-            <div class="metric"><span>☺</span><strong>${n.mood}%</strong><small>Zufriedenheit</small><i><b style="width:${n.mood}%"></b></i></div>
-            <div class="metric"><span>⚡</span><strong>${n.stress}%</strong><small>Stress</small><i><b style="width:${n.stress}%"></b></i></div>
-            <div class="metric"><span>◒</span><strong>${n.energy}%</strong><small>Energie</small><i><b style="width:${n.energy}%"></b></i></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-head"><b>Deine letzten Tage</b><small>Stimmung & Energie</small></div>
-            <div class="chart-wrap">${chartSVG()}</div>
-          </div>
-          <div class="insight-card"><small>YVIA ERKENNT</small><b>${esc(ins[0])}</b><p>${esc(ins[1])}</p></div>
-        </div>
-      `}
-    </div>
-
-    ${state.moodTab==="today"?`<div class="mood-summary"><div class="spark">✦</div><div><b>Deine Auswertung entsteht automatisch.</b><p>Keine Extra-Fragen. YVIA erkennt mit der Zeit Muster aus deinen Stimmungen.</p></div><button id="toAnalysis">→</button></div>`:""}
-  </section>`;
-
-  $$("[data-mood-tab]").forEach(b=>b.onclick=()=>{state.moodTab=b.dataset.moodTab;save();render()});
-  $$("[data-mood]").forEach(b=>b.onclick=()=>{
-    state.mood=b.dataset.mood;
-    const val=+b.dataset.val;
-    state.moodHistory=state.moodHistory||[];
-    state.moodHistory.push({d:new Date().toLocaleDateString("de-DE",{weekday:"short"}),mood:val,stress:6-val,energy:val});
-    state.moodHistory=state.moodHistory.slice(-14);
-    save();toast("Stimmung gespeichert");render()
-  });
-  $("#toAnalysis")?.addEventListener("click",()=>{state.moodTab="analysis";save();render()})
-}
+/* MOMENT BUTTON */
+function openMoment(){s.momentDraft={cat:"",feel:"",note:""};renderMoment();$("#momentModal").classList.remove("hidden")}
+function renderMoment(){$("#momentSheet").innerHTML=`<div class="grab"></div><h2>Moment speichern</h2><p>Was ist gerade passiert? Ein paar Sekunden reichen.</p><div class="momentcats">${[["Chef","👤"],["Team","👥"],["Stress","⚡"],["Aufgabe","▣"],["Erfolg","★"],["Sonstiges","…"]].map(([x,i])=>`<button class="${s.momentDraft.cat===x?"on":""}" data-cat="${x}">${i}<br>${x}</button>`).join("")}</div><div class="momentfeel">${[["good","😊"],["neutral","😐"],["bad","😣"]].map(([x,i])=>`<button class="${s.momentDraft.feel===x?"on":""}" data-mf="${x}">${i}</button>`).join("")}</div><textarea class="momentnote" id="momentNote" placeholder="Optional: Was war los?">${esc(s.momentDraft.note)}</textarea><button class="moment-save" id="momentSave">Moment speichern</button>`;$$("[data-cat]").forEach(b=>b.onclick=()=>{s.momentDraft.cat=b.dataset.cat;renderMoment()});$$("[data-mf]").forEach(b=>b.onclick=()=>{s.momentDraft.feel=b.dataset.mf;renderMoment()});$("#momentNote").oninput=e=>s.momentDraft.note=e.target.value;$("#momentSave").onclick=()=>{if(!s.momentDraft.cat||!s.momentDraft.feel)return toast("Kategorie und Gefühl auswählen");s.moments.push({ts:Date.now(),...s.momentDraft});s.moments=s.moments.slice(-50);save();$("#momentModal").classList.add("hidden");toast("Moment gespeichert")}}
+$("#momentBackdrop").onclick=()=>$("#momentModal").classList.add("hidden");
 
 /* MATCHES */
-function availableJobs(){return jobs.filter(j=>!state.passed.includes(j.id)&&!state.liked.includes(j.id))}
-function currentJob(){const a=availableJobs();return a[0]||null}
-function likedJobs(){return state.liked.map(id=>jobs.find(j=>j.id===id)).filter(Boolean)}
-function renderMatches(m){
-  const list=availableJobs(),job=list[0],next=list[1];
-  m.innerHTML=`<section class="screen matches-screen">
-    <div class="match-topline">
-      <div><div class="kicker">Matches</div><h1 class="title" style="font-size:34px">Jobs, die wirklich<br>zu dir passen.</h1><p class="subtitle">Links weiter. Rechts merken. Mehr musst du nicht tun.</p></div>
-      <div class="match-actions-head"><button class="pill-btn ${state.matchView==="saved"?"active":""}" id="savedView">${state.liked.length} gespeichert</button></div>
-    </div>
-
-    ${state.matchView==="saved"?`
-      <div style="min-height:0;overflow:auto;margin-top:12px">
-        <div class="saved-strip" style="display:grid;grid-template-columns:1fr 1fr;overflow:visible">
-          ${likedJobs().length?likedJobs().map(j=>savedMini(j,true)).join(""):`<div style="grid-column:1/-1;padding:30px 10px;text-align:center;color:#7d8796;font-size:11px">Noch keine gespeicherten Matches.</div>`}
-        </div>
-      </div>
-      <button class="job-more" id="backToDeck" style="margin-top:10px">Zurück zum Swipe-Deck</button>
-    `:`
-      ${job?`
-        <div class="deck">
-          ${next?jobCard(next,true):""}
-          ${jobCard(job,false)}
-        </div>
-        <div class="swipe-footer">
-          <button class="swipe-no" id="passBtn">✕</button>
-          <div class="swipe-hint">swipen oder tippen</div>
-          <button class="swipe-like" id="likeBtn">♥</button>
-        </div>
-      `:`<div style="display:grid;place-items:center;text-align:center;color:#8b95a4;font-size:11px;min-height:0"><div><div style="font-size:34px">✨</div><b style="color:white;display:block;margin:10px 0 5px">Für jetzt alles gesehen.</b><span>Du kannst die Demo-Matches jederzeit zurücksetzen.</span><br><button class="pill-btn" id="resetMatches" style="margin-top:14px">Zurücksetzen</button></div></div>`}
-      ${state.liked.length?`<div class="saved-strip">${likedJobs().slice(-4).map(j=>savedMini(j,false)).join("")}</div>`:""}
-    `}
-  </section>`;
-
-  $("#savedView")?.addEventListener("click",()=>{state.matchView=state.matchView==="saved"?"deck":"saved";save();render()});
-  $("#backToDeck")?.addEventListener("click",()=>{state.matchView="deck";save();render()});
-  $("#resetMatches")?.addEventListener("click",()=>{state.passed=[];state.liked=[];save();render()});
-  if(job&&state.matchView!=="saved"){
-    $("#passBtn").onclick=()=>passJob(job.id);
-    $("#likeBtn").onclick=()=>likeJob(job.id);
-    setupSwipe($("#frontCard"),job.id)
-  }
-  $$("[data-job-open]").forEach(b=>b.onclick=()=>openJob(b.dataset.jobOpen))
-}
-function savedMini(j,big=false){
-  return `<button class="saved-mini" data-job-open="${j.id}" style="${big?"flex-basis:auto;text-align:left;border:0;padding:0":""}">
-    <div class="pic" style="background-image:url('${j.image}')"></div>
-    <div><b>${esc(j.title)}</b><small>${j.score}% Match · ${esc(j.city)}</small></div>
-  </button>`
-}
-function jobCard(j,back){
-  return `<article class="deck-card ${back?"back":""}" ${back?"":"id='frontCard'"} data-id="${j.id}">
-    <div class="job-image" style="background-image:url('${j.image}')">
-      <span class="job-score">✦ ${j.score}% Match</span>
-      <button class="job-heart" type="button" data-job-heart="${j.id}">♡</button>
-      <div class="job-image-title"><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p></div>
-    </div>
-    <div class="job-body">
-      <div class="job-facts"><span>${esc(j.model)}</span><span>${esc(j.type)}</span><span>ab ${money(j.salary)}</span></div>
-      <div class="job-reasons">${j.reasons.slice(0,3).map(x=>`<div><b>✓</b><span>${esc(x)}</span></div>`).join("")}</div>
-      <button class="job-more" type="button" data-job-open="${j.id}">Mehr erfahren</button>
-    </div>
-  </article>`
-}
-function passJob(id){
-  if(!state.passed.includes(id))state.passed.push(id);
-  save();render()
-}
-function likeJob(id){
-  if(!state.liked.includes(id))state.liked.push(id);
-  save();toast("Match gespeichert");render()
-}
-function setupSwipe(card,id){
-  if(!card)return;
-  let pid=null,sx=0,sy=0,cx=0,cy=0,lx=0,lt=0,vx=0,drag=false,raf=0;
-  const paint=()=>{
-    raf=0;
-    const rot=clamp(cx/32,-7,7);
-    card.style.transform=`translate3d(${cx}px,${cy*.12}px,0) rotate(${rot}deg)`;
-    card.style.opacity=String(1-Math.min(.18,Math.abs(cx)/800));
-    const back=card.parentElement?.querySelector(".deck-card.back");
-    if(back){
-      const p=Math.min(1,Math.abs(cx)/140);
-      back.style.transform=`translateY(${9-7*p}px) scale(${.965+.03*p})`;
-      back.style.opacity=String(.72+.25*p)
-    }
-  };
-  card.onpointerdown=e=>{
-    if(e.pointerType==="mouse"&&e.button!==0)return;
-    pid=e.pointerId;card.setPointerCapture?.(pid);drag=true;sx=e.clientX;sy=e.clientY;lx=e.clientX;lt=performance.now();cx=cy=vx=0;card.style.transition="none"
-  };
-  card.onpointermove=e=>{
-    if(!drag||e.pointerId!==pid)return;
-    const now=performance.now();cx=e.clientX-sx;cy=e.clientY-sy;vx=(e.clientX-lx)/Math.max(8,now-lt);lx=e.clientX;lt=now;
-    if(!raf)raf=requestAnimationFrame(paint)
-  };
-  const end=e=>{
-    if(!drag)return;drag=false;
-    try{card.releasePointerCapture?.(pid)}catch(_){}
-    const go=Math.abs(cx)>95||(Math.abs(vx)>.55&&Math.abs(cx)>30);
-    if(!go){
-      card.style.transition="transform .46s cubic-bezier(.2,.86,.2,1),opacity .3s ease";
-      card.style.transform="translate3d(0,0,0) rotate(0deg)";card.style.opacity="1";
-      const back=card.parentElement?.querySelector(".deck-card.back");
-      if(back){back.style.transition="transform .46s cubic-bezier(.2,.86,.2,1),opacity .3s";back.style.transform="translateY(9px) scale(.965)";back.style.opacity=".72"}
-      return
-    }
-    const dir=cx>=0?1:-1;
-    card.style.transition="transform .30s cubic-bezier(.18,.78,.23,1),opacity .24s ease";
-    card.style.transform=`translate3d(${dir*window.innerWidth*1.25}px,${cy*.15}px,0) rotate(${dir*10}deg)`;
-    card.style.opacity="0";
-    setTimeout(()=>dir>0?likeJob(id):passJob(id),270)
-  };
-  card.onpointerup=end;card.onpointercancel=end
-}
+function avail(){return jobs.filter(j=>!s.liked.includes(j.id)&&!s.passed.includes(j.id))}function liked(){return s.liked.map(id=>jobs.find(j=>j.id===id)).filter(Boolean)}
+function matches(m){let a=avail(),j=a[0],n=a[1];m.innerHTML=`<section class="screen matches"><div class="match-head"><div><div class="kicker">Matches</div><h1 class="title" style="font-size:32px">Jobs, die wirklich<br>zu dir passen.</h1><p class="sub">Links weiter. Rechts merken.</p></div><button class="saved-btn" id="showSaved">${s.liked.length} gemerkt</button></div>${j?`<div class="deck">${n?card(n,true):""}${card(j,false)}</div><div class="swipebar"><button class="pass" id="pass">✕</button><span>swipen oder tippen</span><button class="like" id="like">♥</button></div>`:`<div style="display:grid;place-items:center;text-align:center;color:#7f8998"><div>Alles gesehen ✨<br><button class="saved-btn" id="resetJobs" style="margin-top:10px">Zurücksetzen</button></div></div>`}</section>`;$("#pass")?.addEventListener("click",()=>{s.passed.push(j.id);save();render()});$("#like")?.addEventListener("click",()=>{s.liked.push(j.id);save();toast("Job gemerkt");render()});$("#resetJobs")?.addEventListener("click",()=>{s.passed=[];s.liked=[];save();render()});$("#showSaved").onclick=()=>{s.profileTab="saved";route("profile")};if(j)swipe($("#front"),j.id)}
+function card(j,back){return `<article class="card ${back?"back":""}" ${back?"":"id='front'"}><div class="jobpic" style="background-image:url('${j.image}')"><span class="score">✦ ${j.score}% Match</span><div class="jobtitle"><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p></div></div><div class="jobbody"><div class="facts"><span>${j.model}</span><span>${j.type}</span><span>ab ${euro(j.salary)}</span></div><div class="why">${j.reasons.map(x=>`<div><b>✓</b>${esc(x)}</div>`).join("")}</div><button class="more">Mehr erfahren</button></div></article>`}
+function swipe(c,id){let sx=0,sy=0,cx=0,cy=0,drag=false,pid;function paint(){c.style.transform=`translate3d(${cx}px,${cy*.1}px,0) rotate(${Math.max(-7,Math.min(7,cx/30))}deg)`}c.onpointerdown=e=>{pid=e.pointerId;c.setPointerCapture?.(pid);sx=e.clientX;sy=e.clientY;drag=true;c.style.transition="none"};c.onpointermove=e=>{if(!drag||e.pointerId!==pid)return;cx=e.clientX-sx;cy=e.clientY-sy;paint()};c.onpointerup=e=>{if(!drag)return;drag=false;if(Math.abs(cx)>90){let d=cx>0?1:-1;c.style.transition=".3s";c.style.transform=`translate3d(${d*window.innerWidth*1.3}px,0,0) rotate(${d*10}deg)`;setTimeout(()=>{if(d>0)s.liked.push(id);else s.passed.push(id);save();render()},260)}else{c.style.transition=".42s cubic-bezier(.2,.85,.2,1)";c.style.transform="translate3d(0,0,0)"}}}
 
 /* CHAT */
-function chatReply(text){
-  const t=text.toLowerCase().trim();
-  const lastMood=state.mood;
-  const liked=likedJobs();
-  const name=(state.profileName||"").trim();
-  const hey=name?`${name}, `:"";
-
-  const warmOpeners=[
-    "Okay, ich verstehe, warum dich das beschäftigt.",
-    "Ja, das würde mich an deiner Stelle auch beschäftigen.",
-    "Okay. Lass uns das nicht größer machen als nötig – aber auch nicht kleinreden.",
-    "Ich glaube, ich weiß, was dich daran gerade so nervt."
-  ];
-  const opener=warmOpeners[Math.abs(t.length+(state.chat?.length||0))%warmOpeners.length];
-
-  /* Boss / leadership */
-  if(/chef|chefin|vorgesetz|leitung|kontroll|mikromanag/.test(t)){
-    if(/kontroll|mikromanag/.test(t)){
-      return `${hey}${opener} Wenn du deinen Job kannst und trotzdem jeder Schritt kontrolliert wird, geht es irgendwann nicht mehr um die Aufgabe, sondern um fehlendes Vertrauen. Ich würde morgen keinen großen Streit über „deinen Führungsstil“ anfangen. Hol dir lieber konkret Spielraum: „Sag mir bitte, was am Ende rauskommen soll und bis wann. Den Weg dahin würde ich gern selbst organisieren.“ Wenn dein Chef darauf gar nicht eingeht und das ständig so läuft, dann reden wir nicht mehr über einen schlechten Tag, sondern über ein Muster.`;
-    }
-    if(/lob|anerkenn|wertschätz|gesehen/.test(t)){
-      return `${hey}${opener} Dauerhaft nur zu hören, was nicht passt, macht einen irgendwann mürbe. Ich würde aber nicht um Lob bitten. Nimm eine Sache, die du zuletzt richtig gut gelöst hast, und frag: „Wie siehst du meine Entwicklung gerade – und wo traust du mir als Nächstes mehr Verantwortung zu?“ Das gibt dir viel mehr als ein schnelles „gut gemacht“.`;
-    }
-    return `${hey}${opener} Bevor ich dir irgendeinen Tipp hinschmeiße: Was genau ist passiert? Ein Satz reicht. Hat dein Chef dich vor anderen blöd angemacht, dir etwas Unklares gegeben, dich kontrolliert oder eine Entscheidung getroffen, die du unfair findest? Dann sage ich dir, wie ich es an deiner Stelle angehen würde.`;
-  }
-
-  /* Overload / stress */
-  if(/überforder|ueberforder|zu viel|stress|schaff.*nicht|alles.*gleichzeitig/.test(t)){
-    return `${hey}${opener} Wenn wirklich zu viel da ist, bringt dir „besser organisieren“ gar nichts. Ich würde die Entscheidung, was liegen bleibt, nicht heimlich selbst tragen. Sag: „Ich schaffe heute A und B sauber. Wenn C auch heute fertig sein muss – was davon soll dafür warten?“ Das ist ruhig, professionell und macht sichtbar, dass das Problem die Menge ist und nicht du. Und wenn du gerade komplett geladen bist: heute nichts Grundsätzliches entscheiden. Erst den Druck runter, dann weiterdenken.`;
-  }
-
-  /* Salary */
-  if(/gehalt|geld|verdien|lohn|unterbezahlt/.test(t)){
-    return `${hey}${opener} Beim Geld würde ich dich nicht mit „kenn deinen Wert“ abspeisen. Mach es greifbar: Welche drei Dinge machst du heute, die früher nicht Teil deiner Rolle waren? Genau die sind dein Argument. Im Gespräch würde ich nicht mit privaten Kosten anfangen, sondern mit Verantwortung: „Meine Rolle ist deutlich gewachsen. Ich möchte darüber sprechen, dass sich das auch im Gehalt widerspiegelt.“ Wenn du willst, können wir danach zusammen eine realistische Forderung formulieren.`;
-  }
-
-  /* Team conflict */
-  if(/kolleg|kollegin|team|streit|konflikt|respekt/.test(t)){
-    if(/arbeit.*mir|alles.*ich|bleibt.*hängen|immer ich/.test(t)){
-      return `${hey}${opener} Du klingst gerade wie der Mensch, bei dem alles landet, weil alle wissen, dass du es schon irgendwie rettest. Genau da würde ich aufhören, still der Puffer zu sein. Beim nächsten Zusatzauftrag: „Kann ich übernehmen. Dann bleibt X liegen – ist das so priorisiert?“ Du sagst nicht Nein, aber du machst den Preis sichtbar.`;
-    }
-    return `${hey}${opener} Bei Teamstress würde ich als Erstes unterscheiden: War das ein einzelner blöder Moment oder passiert das immer wieder? Wenn es konkret war, klär genau diesen Moment und hol nicht die letzten sechs Monate dazu. Zum Beispiel: „Vorhin bei X sind wir aneinandergeraten. Ich will das nicht mitschleppen – können wir kurz klären, was wir beim nächsten Mal anders machen?“ Wenn das aber ständig passiert, müssen wir eher über Grenzen als über Harmonie reden.`;
-  }
-
-  /* Quitting / changing */
-  if(/künd|kuend|wechsel|weg hier|raus|neuer job|job wechseln/.test(t)){
-    const negative=["stress","down","leave"].includes(lastMood);
-    return `${hey}${opener} Ich würde dir weder sagen „kündige sofort“ noch „halt durch“. Die wichtigere Frage ist: Willst du wirklich aus deinem Beruf raus – oder nur aus dieser Situation? ${negative?"Deine letzte Stimmung war eher belastet, deshalb würde ich heute keine Entscheidung aus dem Ärger heraus treffen. ":""}Nenn mir zwei Dinge, die du an deinem Job trotz allem behalten würdest, und zwei, die du nie wieder willst. Daraus sieht man oft erstaunlich schnell, ob du einen neuen Beruf brauchst oder einfach einen besseren Arbeitgeber.`;
-  }
-
-  /* Motivation */
-  if(/motivation|kein bock|keine lust|lustlos|sinnlos/.test(t)){
-    return `${hey}${opener} Ich würde dich jetzt nicht mit „such dir deine Motivation“ nerven. Morgen merk dir nur zwei Momente: Bei welcher Aufgabe denkst du „bitte nicht schon wieder“ – und bei welcher vergeht die Zeit schneller? Mehr musst du nicht analysieren. Wenn sich das ein paar Mal wiederholt, wissen wir viel besser, ob dir die Tätigkeit nicht mehr passt oder ob nur bestimmte Teile dich leerziehen.`;
-  }
-
-  /* Match questions */
-  if(/match|stelle|stellenangebot|jobangebot|passt.*job|passt.*stelle/.test(t)){
-    const j=currentJob()||liked[0];
-    if(!j)return `${hey}Du hast gerade keine offenen Demo-Matches mehr. Aber wir können deine gespeicherten Jobs im Profil gemeinsam auseinandernehmen – nicht nur nach Score, sondern danach, was im Alltag wirklich besser wäre.`;
-    return `${hey}Schau, bei ${j.title} würde ich mich nicht vom ${j.score}%-Score blenden lassen. Spannend sind für mich drei Dinge: ${j.reasons.slice(0,3).join(", ")}. Die eigentliche Frage ist: Löst dieser Job etwas, das dich heute wirklich stört? Wenn nicht, ist auch ein hoher Match-Score nur hübsche Mathematik.`;
-  }
-
-  /* Anxiety before talk */
-  if(/gespräch|gespraech|ansprechen|morgen.*reden|termin.*chef/.test(t)){
-    return `${hey}${opener} Dann machen wir es einfach. Geh nicht mit zehn Punkten rein. Ein Thema, ein Beispiel, ein Wunsch. Aufbau: „Mir ist bei X aufgefallen … Das macht Y mit meiner Arbeit … Ich würde gern Z ausprobieren.“ Wenn du mir sagst, worum es in dem Gespräch geht, formuliere ich dir den Einstieg so, dass er wirklich nach dir klingt.`;
-  }
-
-  /* Praise / good day */
-  if(/gut gelaufen|guter tag|zufrieden|läuft gut|laeuft gut|freue mich/.test(t)){
-    return `${hey}Das ist schön – und ich meine nicht dieses künstliche „super, weiter so“. Merk dir kurz, was heute anders war. War es die Aufgabe, die Leute, weniger Druck oder dass du selbst entscheiden konntest? Genau solche guten Tage sind wichtig, weil sie dir zeigen, was dein nächster Job unbedingt behalten sollte.`;
-  }
-
-  /* Default: one sharp follow-up like a friend */
-  return `${hey}${opener} Ich will dir darauf gerade keine 08/15-Antwort geben. Erzähl mir nur den einen Moment, der dir im Kopf hängen geblieben ist: Was ist passiert – und was daran hat dich am meisten getroffen oder genervt? Dann schauen wir nicht auf Theorie, sondern darauf, was du morgen wirklich tun kannst.`;
-}
-function renderChat(m){
-  m.innerHTML=`<section class="screen chat-screen">
-    <div class="chat-header-copy"><div class="kicker">Chat</div><h1 class="title" style="font-size:35px">Dein persönlicher<br>Karriere-Guide.</h1><p class="subtitle">Sag’s wie bei jemandem, dem du wirklich vertraust. YVIA hört zu, fragt nach und sagt dir auch, wenn du gerade vielleicht falsch abbiegst.</p></div>
-    <div class="chat-list" id="chatList">${state.chat.map(x=>`<div class="msg ${x.role}">${esc(x.text)}</div>`).join("")}</div>
-    <div>
-      <div class="chat-suggestions">
-        ${["Mein Chef macht mich wahnsinnig","Ich kann gerade nicht mehr","Soll ich wirklich wechseln?","Sag ehrlich: Passt der Job zu mir?"].map(x=>`<button data-suggest="${esc(x)}">${esc(x)}</button>`).join("")}
-      </div>
-      <div class="chat-input">
-        <button id="chatPlus">＋</button>
-        <textarea id="chatInput" rows="1" placeholder="Schreib mir etwas …"></textarea>
-        <button class="send" id="chatSend">↑</button>
-      </div>
-    </div>
-  </section>`;
-  const list=$("#chatList");requestAnimationFrame(()=>list.scrollTop=list.scrollHeight);
-  const send=()=>{
-    const i=$("#chatInput"),txt=i.value.trim();if(!txt)return;
-    state.chat.push({role:"user",text:txt},{role:"bot",text:chatReply(txt)});
-    state.chat=state.chat.slice(-30);save();render()
-  };
-  $("#chatSend").onclick=send;
-  $("#chatInput").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};
-  $$("[data-suggest]").forEach(b=>b.onclick=()=>{$("#chatInput").value=b.dataset.suggest;send()});
-  $("#chatPlus").onclick=()=>toast("Dateien im Chat kommen später mit dem Backend.")
-}
+function friendReply(t){t=t.toLowerCase();let name=s.name?`${s.name}, `:"";if(/chef|chefin|leitung|kontroll/.test(t))return `${name}uff 😕 das würde mich auch nerven. Sag mir kurz, was genau passiert ist – dann überlegen wir einen Satz, den du morgen wirklich sagen kannst.`;if(/überforder|ueberforder|zu viel|stress/.test(t))return `${name}das klingt gerade echt viel. Du musst nicht alles retten. Frag morgen ganz konkret: „Was hat heute wirklich Priorität – und was darf warten?“`;if(/künd|kuend|weg|wechsel/.test(t))return `${name}ich würde heute noch nicht kündigen. Erst rausfinden: Willst du wirklich aus dem Beruf raus – oder nur aus dieser Situation?`;if(/geld|gehalt|lohn|verdien/.test(t))return `${name}ja, das kann richtig frustrieren. Nimm drei Dinge, die du heute zusätzlich leistest – genau damit würde ich ins Gehaltsgespräch gehen.`;if(/kolleg|team|streit/.test(t))return `${name}boah, sowas hängt einem nach 😕. War das ein einmaliger blöder Moment oder passiert das öfter?`;if(/motivation|kein bock|keine lust/.test(t))return `${name}ich glaub, du musst dich gerade nicht „mehr motivieren“. Schau morgen nur: Welche Aufgabe zieht dir Energie – und welche fühlt sich okay an?`;if(/match|job|stelle/.test(t)){let j=avail()[0]||liked()[0];return j?`${name}ehrlich? ${j.title} sieht interessant aus – aber nur, wenn es wirklich etwas löst, das dich heute nervt. Der Score allein ist mir zu wenig.`:`${name}lass uns deine gemerkten Jobs anschauen. Ich würde nicht nach dem höchsten Score gehen, sondern danach, was deinen Alltag wirklich besser macht.`}return `${name}erzähl mir den einen Moment, der dir gerade im Kopf hängt. Ich hör zu ❤️`;}
+function chat(m){m.innerHTML=`<section class="screen chat-screen"><div><div class="kicker">Chat</div><h1 class="title" style="font-size:33px">Sag's mir einfach.</h1><p class="sub">Wie bei jemandem, dem du vertraust. Kurz, ehrlich, ohne Coach-Gelaber.</p></div><div class="messages" id="msgs">${s.chat.map(x=>`<div class="msg ${x.role}">${esc(x.text)}</div>`).join("")}</div><div><div class="suggest">${["Mein Chef nervt mich","Ich kann gerade nicht mehr","Soll ich wechseln?","Passt der Job wirklich?"].map(x=>`<button data-s="${esc(x)}">${esc(x)}</button>`).join("")}</div><div class="compose"><textarea id="ci" placeholder="Was ist los?"></textarea><button id="send">↑</button></div></div></section>`;let box=$("#msgs");requestAnimationFrame(()=>box.scrollTop=box.scrollHeight);function send(){let i=$("#ci"),t=i.value.trim();if(!t)return;s.chat.push({role:"user",text:t},{role:"bot",text:friendReply(t)});s.chat=s.chat.slice(-30);save();render()}$("#send").onclick=send;$("#ci").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};$$("[data-s]").forEach(b=>b.onclick=()=>{$("#ci").value=b.dataset.s;send()})}
 
 /* PROFILE */
-function renderProfile(m){
-  const docs=state.documents||[];
-  const liked=likedJobs();
-  const panel=state.profileTab==="documents"?`
-    <div class="panel-card">
-      <h3>Deine Unterlagen</h3><p>Lade Lebenslauf, Zeugnisse und Zertifikate hoch. In dieser Demo werden Dateiname und Typ lokal gespeichert.</p>
-      <div class="upload-box"><div class="upload-icon">↥</div><div><b>Lebenslauf hochladen</b><small>PDF, DOC oder DOCX</small></div><button id="cvUploadBtn">Auswählen</button></div>
-      <div class="upload-box"><div class="upload-icon">＋</div><div><b>Zeugnisse & weitere Dokumente</b><small>Arbeitszeugnisse, Zertifikate, Nachweise</small></div><button id="docUploadBtn">Hinzufügen</button></div>
-      <input id="cvInput" type="file" accept=".pdf,.doc,.docx,application/pdf">
-      <input id="docInput" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,image/*">
-      <div class="file-list">${docs.length?docs.map((d,i)=>`<div class="file-item"><span>${d.kind==="Lebenslauf"?"📄":"📎"}</span><div><b>${esc(d.name)}</b><small>${esc(d.kind)} · ${esc(d.size)}</small></div><button data-del-doc="${i}">×</button></div>`).join(""):`<div style="font-size:8px;color:#717c8b;padding:8px 2px">Noch keine Dokumente hinterlegt.</div>`}</div>
-    </div>
-  `:state.profileTab==="strengths"?`
-    <div class="panel-card"><h3>Deine Stärken</h3><p>Kein perfekter Lebenslauf nötig. YVIA nutzt diese Punkte fürs Matching.</p><div class="tag-wrap">${state.skills.map(x=>`<span class="tag">${esc(x)}</span>`).join("")}</div></div>
-    <div class="panel-card"><h3>Deine Werte</h3><div class="tag-wrap">${state.values.map(x=>`<span class="tag">${esc(x)}</span>`).join("")}</div></div>
-  `:state.profileTab==="saved"?`
-    <div class="panel-card"><h3>Gespeicherte Matches</h3><p>${liked.length} Job${liked.length===1?"":"s"} gemerkt.</p><div class="profile-jobs">${liked.length?liked.map(j=>`<button class="profile-job" data-job-open="${j.id}"><div class="pic" style="background-image:url('${j.image}')"></div><div class="txt"><b>${esc(j.title)}</b><small>${esc(j.company)} · ${j.score}%</small></div></button>`).join(""):`<div style="grid-column:1/-1;color:#74808f;font-size:9px;padding:16px 0">Noch nichts gespeichert.</div>`}</div></div>
-  `:`
-    <div class="panel-card"><h3>Dein Rahmen</h3>
-      <div class="profile-row"><span>Gehalt</span><b>ab ${money(state.salary)}</b></div>
-      <div class="profile-row"><span>Entfernung</span><b>max. ${state.distance} km</b></div>
-      <div class="profile-row"><span>Profilstatus</span><b>${docs.length?"Unterlagen vorhanden":"Unterlagen fehlen"}</b></div>
-      <div class="profile-row"><span>Gespeicherte Matches</span><b>${liked.length}</b></div>
-    </div>
-    <div class="panel-card"><button class="job-more" id="resetDemo">Demo-Daten zurücksetzen</button></div>
-  `;
-
-  m.innerHTML=`<section class="screen profile-screen">
-    <div class="profile-hero">
-      <button class="profile-photo" id="profilePhotoBtn">${state.profilePhoto?`<img src="${state.profilePhoto}" alt="">`:"👤"}</button>
-      <div><small>DEIN YVIA PROFIL</small><h1>${esc(state.profileName||"Alex")}</h1><p>Dein Weg. Deine Stärken. Deine Möglichkeiten.</p></div>
-      <button class="icon-btn" id="profileNameBtn">···</button>
-      <input id="photoInput" type="file" accept="image/*">
-    </div>
-    <div class="profile-tabs">
-      <button class="${state.profileTab==="documents"?"active":""}" data-pt="documents">Unterlagen</button>
-      <button class="${state.profileTab==="strengths"?"active":""}" data-pt="strengths">Stärken</button>
-      <button class="${state.profileTab==="saved"?"active":""}" data-pt="saved">Gemerkt</button>
-      <button class="${state.profileTab==="settings"?"active":""}" data-pt="settings">Rahmen</button>
-    </div>
-    <div class="profile-panel">${panel}</div>
-  </section>`;
-
-  $$("[data-pt]").forEach(b=>b.onclick=()=>{state.profileTab=b.dataset.pt;save();render()});
-  $("#profilePhotoBtn").onclick=()=>$("#photoInput").click();
-  $("#photoInput").onchange=async e=>{
-    const f=e.target.files?.[0];if(!f)return;
-    try{
-      state.profilePhoto=await prepareProfilePhoto(f);
-      save();toast("Profilbild angepasst");render();
-    }catch(err){
-      toast("Profilbild konnte nicht verarbeitet werden");
-    }
-  };
-  $("#profileNameBtn").onclick=()=>{
-    const n=prompt("Wie soll YVIA dich nennen?",state.profileName||"");
-    if(n!==null){state.profileName=n.trim()||state.profileName;save();render()}
-  };
-  $("#cvUploadBtn")?.addEventListener("click",()=>$("#cvInput").click());
-  $("#docUploadBtn")?.addEventListener("click",()=>$("#docInput").click());
-  $("#cvInput")?.addEventListener("change",e=>addDocs([...e.target.files],"Lebenslauf"));
-  $("#docInput")?.addEventListener("change",e=>addDocs([...e.target.files],"Dokument"));
-  $$("[data-del-doc]").forEach(b=>b.onclick=()=>{state.documents.splice(+b.dataset.delDoc,1);save();render()});
-  $$("[data-job-open]").forEach(b=>b.onclick=()=>openJob(b.dataset.jobOpen));
-  $("#resetDemo")?.addEventListener("click",()=>{localStorage.removeItem("yvia_v11");state=structuredClone(defaultState);render()})
-}
-function addDocs(files,kind){
-  files.forEach(f=>state.documents.push({name:f.name,kind,size:f.size>1e6?(f.size/1e6).toFixed(1)+" MB":Math.max(1,Math.round(f.size/1024))+" KB"}));
-  state.documents=state.documents.slice(-20);save();toast(kind==="Lebenslauf"?"Lebenslauf hinzugefügt":"Dokumente hinzugefügt");render()
-}
-
-/* JOB DETAIL */
-function openJob(id){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  const liked=state.liked.includes(id);
-  $("#detailSheet").innerHTML=`<div class="grabber"></div>
-    <div class="sheet-head"><div><div class="kicker">${j.score}% Match</div><h2>${esc(j.title)}</h2><p>${esc(j.company)} · ${esc(j.city)}</p></div><button class="close" id="closeModal">×</button></div>
-    <div class="detail-img" style="background-image:url('${j.image}')"></div>
-    <div class="detail-grid"><div><small>GEHALT</small><b>ab ${money(j.salary)}</b></div><div><small>MODELL</small><b>${esc(j.model)}</b></div><div><small>ORT</small><b>${esc(j.city)}</b></div><div><small>ARBEITSZEIT</small><b>${esc(j.type)}</b></div></div>
-    <div class="detail-why"><b>Warum YVIA das passend findet</b><p>${j.reasons.map(x=>"• "+x).join("<br>")}</p></div>
-    <div class="detail-why"><b>Worum es geht</b><p>${esc(j.about)}</p></div>
-    <div class="detail-actions"><button class="secondary" id="detailClose">Zurück</button><button class="primary" id="detailLike">${liked?"Gespeichert ✓":"♥ Speichern"}</button></div>`;
-  $("#detailModal").classList.remove("hidden");
-  const close=()=>$("#detailModal").classList.add("hidden");
-  $("#closeModal").onclick=close;$("#detailClose").onclick=close;$("#modalBackdrop").onclick=close;
-  $("#detailLike").onclick=()=>{if(!state.liked.includes(id))state.liked.push(id);save();close();toast("Match gespeichert");render()}
-}
+async function profileImage(file){let url=URL.createObjectURL(file);try{let img=new Image();await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});let side=Math.min(img.naturalWidth,img.naturalHeight),sx=(img.naturalWidth-side)/2,sy=Math.max(0,(img.naturalHeight-side)*.28),c=document.createElement("canvas");c.width=c.height=480;c.getContext("2d").drawImage(img,sx,sy,side,side,0,0,480,480);return c.toDataURL("image/jpeg",.84)}finally{URL.revokeObjectURL(url)}}
+function profile(m){let p=s.profileTab;let panel=p==="strengths"?`<div class="pcard"><h3>Deine Stärken</h3><p>Tippe an, was zu dir passt. Du kannst auch eigene ergänzen.</p><div class="chips">${strengthPool.map(x=>`<button class="chip ${s.skills.includes(x)?"on":""}" data-skill="${x}">${x}</button>`).join("")}</div><div class="addrow"><input id="newSkill" placeholder="Eigene Stärke"><button id="addSkill">Hinzufügen</button></div></div>`:p==="frame"?`<div class="pcard"><h3>Dein Rahmen</h3><div class="prow"><span>Mindestens Gehalt</span><b id="sal">${euro(s.salary)}</b></div><input class="range" id="salary" type="range" min="1800" max="7000" step="100" value="${s.salary}"><div class="prow"><span>Max. Entfernung</span><b id="dist">${s.distance} km</b></div><input class="range" id="distance" type="range" min="5" max="100" step="5" value="${s.distance}"><div class="toggle-row">${["Vor Ort","Hybrid","Homeoffice"].map(x=>`<button class="${s.models.includes(x)?"on":""}" data-model="${x}">${x}</button>`).join("")}</div><div class="toggle-row"><button class="${s.night?"on":""}" id="night">Nachtschicht okay</button><button class="${s.weekend?"on":""}" id="weekend">Wochenende okay</button></div></div>`:p==="docs"?docsHTML():p==="saved"?`<div class="pcard"><h3>Gemerkt</h3><div class="savedgrid">${liked().length?liked().map(j=>`<button class="sj"><div class="pic" style="background-image:url('${j.image}')"></div><div class="txt"><b>${esc(j.title)}</b><small>${j.company} · ${j.score}%</small></div></button>`).join(""):`<p>Noch keine Jobs gemerkt.</p>`}</div></div>`:`<div class="pcard"><h3>Das bist du bei YVIA</h3><p>${s.skills.slice(0,3).join(" · ")}</p><div class="chips">${s.feelings.slice(0,4).map(x=>`<span class="chip on">${x}</span>`).join("")}</div></div><div class="pcard"><h3>Dein letzter Stand</h3><div class="prow"><span>Zufriedenheit</span><b>${metric("satisfaction")}%</b></div><div class="prow"><span>Stress</span><b>${metric("stress")}%</b></div><div class="prow"><span>Energie</span><b>${metric("energy")}%</b></div></div>`;m.innerHTML=`<section class="screen profile"><div class="profhero"><button class="profphoto" id="photoBtn">${s.photo?`<img src="${s.photo}">`:"👤"}</button><div><small>DEIN YVIA PROFIL</small><h1>${esc(s.name)}</h1><p>Stärken, Rahmen, Unterlagen und gemerkte Jobs.</p></div><input type="file" id="photoInput" accept="image/*"></div><div class="ptabs">${[["me","Ich"],["strengths","Stärken"],["frame","Rahmen"],["docs","Unterlagen"],["saved","Gemerkt"]].map(([k,l])=>`<button class="${p===k?"active":""}" data-pt="${k}">${l}</button>`).join("")}</div><div class="ppanel">${panel}</div></section>`;$$("[data-pt]").forEach(b=>b.onclick=()=>{s.profileTab=b.dataset.pt;save();render()});$("#photoBtn").onclick=()=>$("#photoInput").click();$("#photoInput").onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{s.photo=await profileImage(f);save();toast("Profilbild gespeichert");render()}catch(err){toast("Bild konnte nicht geladen werden")}};$$("[data-skill]").forEach(b=>b.onclick=()=>{let x=b.dataset.skill;s.skills=s.skills.includes(x)?s.skills.filter(v=>v!==x):[...s.skills,x];save();render()});$("#addSkill")?.addEventListener("click",()=>{let v=$("#newSkill").value.trim();if(v&&!s.skills.includes(v))s.skills.push(v);save();render()});$("#salary")?.addEventListener("input",e=>{s.salary=+e.target.value;$("#sal").textContent=euro(s.salary);save()});$("#distance")?.addEventListener("input",e=>{s.distance=+e.target.value;$("#dist").textContent=s.distance+" km";save()});$$("[data-model]").forEach(b=>b.onclick=()=>{let x=b.dataset.model;s.models=s.models.includes(x)?s.models.filter(v=>v!==x):[...s.models,x];save();render()});$("#night")?.addEventListener("click",()=>{s.night=!s.night;save();render()});$("#weekend")?.addEventListener("click",()=>{s.weekend=!s.weekend;save();render()});docBind()}
+function docsHTML(){return `<div class="pcard"><h3>Unterlagen</h3><p>Lebenslauf, Zeugnisse und Bilder. In dieser Demo werden Dateien nur lokal vorgemerkt.</p><div class="upload"><i>↥</i><div><b>Lebenslauf</b><small>PDF, DOC, DOCX</small></div><button id="cvBtn">Auswählen</button></div><div class="upload"><i>＋</i><div><b>Zeugnisse & Bilder</b><small>PDF, Bilder, Dokumente</small></div><button id="docsBtn">Hinzufügen</button></div><input type="file" id="cvInput" accept=".pdf,.doc,.docx,application/pdf"><input type="file" id="docsInput" multiple accept="image/*,.pdf,.doc,.docx,application/pdf"><div class="files">${s.docs.map((d,i)=>`<div class="file"><div class="thumb" ${d.thumb?`style="background-image:url('${d.thumb}')"`:""}>${d.thumb?"":"📎"}</div><div><b>${esc(d.name)}</b><small>${esc(d.kind)}</small></div><button data-del="${i}">×</button></div>`).join("")}</div></div>`}
+async function makeThumb(file){if(!file.type.startsWith("image/"))return "";try{let u=URL.createObjectURL(file),img=new Image();await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=u});let c=document.createElement("canvas"),side=Math.min(img.naturalWidth,img.naturalHeight);c.width=c.height=100;c.getContext("2d").drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,100,100);URL.revokeObjectURL(u);return c.toDataURL("image/jpeg",.65)}catch(e){return ""}}
+function docBind(){$("#cvBtn")?.addEventListener("click",()=>$("#cvInput").click());$("#docsBtn")?.addEventListener("click",()=>$("#docsInput").click());$("#cvInput")?.addEventListener("change",async e=>addFiles([...e.target.files],"Lebenslauf"));$("#docsInput")?.addEventListener("change",async e=>addFiles([...e.target.files],"Dokument"));$$("[data-del]").forEach(b=>b.onclick=()=>{s.docs.splice(+b.dataset.del,1);save();render()})}
+async function addFiles(fs,kind){for(let f of fs)s.docs.push({name:f.name,kind,thumb:await makeThumb(f)});s.docs=s.docs.slice(-20);save();toast("Datei hinzugefügt");render()}
 
 render();
 </script>
