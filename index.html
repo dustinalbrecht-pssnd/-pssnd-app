@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07090d">
-<title>YVIA V1.1.1</title>
+<title>YVIA V1.1.2</title>
 <style>
 :root{
   --bg:#07090d;
@@ -267,6 +267,32 @@ main{
 .chat-input button.send{background:linear-gradient(135deg,var(--coral),var(--pink))}
 .chat-input textarea{height:42px;max-height:90px;resize:none;border:0;background:transparent;color:#fff;padding:10px 4px;outline:none;font-size:11px}
 
+
+function prepareProfilePhoto(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=reject;
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=reject;
+      img.onload=()=>{
+        const side=Math.min(img.naturalWidth,img.naturalHeight);
+        const sx=(img.naturalWidth-side)/2;
+        /* Portrait photos usually look better when crop is moved slightly upward */
+        const portrait=img.naturalHeight>img.naturalWidth;
+        const sy=portrait?Math.max(0,(img.naturalHeight-side)*0.28):(img.naturalHeight-side)/2;
+        const canvas=document.createElement("canvas");
+        canvas.width=512;canvas.height=512;
+        const ctx=canvas.getContext("2d");
+        ctx.drawImage(img,sx,sy,side,side,0,0,512,512);
+        resolve(canvas.toDataURL("image/jpeg",.84));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 /* PROFILE */
 .profile-screen{display:grid;grid-template-rows:auto auto 1fr;min-height:0}
 .profile-hero{display:grid;grid-template-columns:66px 1fr 36px;gap:11px;align-items:center}
@@ -378,6 +404,141 @@ input[type=file]{display:none}
   .auth-mini{padding-bottom:6px}
 }
 
+
+/* ===== YVIA V1.1.2 — iPhone layout + deck fix ===== */
+
+/* STIMMUNG: all 6 options visible and readable */
+.mood-screen{
+  grid-template-rows:auto auto minmax(0,1fr) auto!important;
+}
+.analysis-panel{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+.mood-grid{
+  height:calc(100% - 8px);
+  min-height:0;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin-top:8px!important;
+}
+.mood-card{
+  min-height:0!important;
+  padding:10px 11px!important;
+  justify-content:flex-start!important;
+  gap:7px;
+  overflow:hidden;
+}
+.mood-card .mood-icon{
+  font-size:20px!important;
+  line-height:1;
+  flex:0 0 auto;
+}
+.mood-card>div{
+  min-width:0;
+}
+.mood-card b{
+  display:block!important;
+  font-size:11px!important;
+  line-height:1.15!important;
+  margin:0 0 3px!important;
+  white-space:normal!important;
+}
+.mood-card small{
+  display:block!important;
+  font-size:8px!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+  overflow:hidden;
+}
+.mood-summary{
+  margin-top:7px!important;
+  padding:10px 11px!important;
+  min-height:58px;
+}
+.mood-summary b{font-size:10px!important}
+.mood-summary p{font-size:8px!important;line-height:1.3!important}
+
+/* Short Safari viewport: keep all six moods tappable */
+@media (max-height:760px){
+  .mood-head .title{font-size:32px!important;margin:5px 0 5px!important}
+  .mood-head .subtitle{font-size:10px!important}
+  .mood-tabs{margin-top:6px!important}
+  .mood-grid{gap:5px!important;margin-top:6px!important}
+  .mood-card{padding:8px 9px!important;gap:4px!important}
+  .mood-card .mood-icon{font-size:17px!important}
+  .mood-card b{font-size:10px!important}
+  .mood-card small{font-size:7px!important}
+  .mood-summary{min-height:52px;padding:8px 9px!important}
+}
+
+/* MATCHES: deck must occupy the flexible row */
+.matches-screen{
+  grid-template-rows:auto minmax(0,1fr) auto auto!important;
+}
+.deck{
+  min-height:0!important;
+  height:100%!important;
+  margin-top:10px!important;
+}
+.deck-card{
+  height:100%!important;
+  min-height:0!important;
+}
+.job-image{
+  height:55%!important;
+  min-height:0!important;
+}
+.job-body{
+  height:45%!important;
+  min-height:0!important;
+}
+.job-reasons{
+  flex:1;
+  min-height:0;
+}
+.swipe-footer{
+  margin-top:7px!important;
+}
+.saved-strip{
+  max-height:91px;
+}
+@media (max-height:760px){
+  .matches-screen .title{font-size:29px!important;margin:4px 0 5px!important}
+  .matches-screen .subtitle{font-size:9px!important}
+  .deck{margin-top:6px!important}
+  .job-image{height:51%!important}
+  .job-body{height:49%!important;padding:9px 11px 10px!important}
+  .job-image-title h2{font-size:19px!important}
+  .job-image-title p{font-size:8px!important}
+  .job-reasons{margin-top:6px!important;gap:4px!important}
+  .job-reasons div{font-size:8px!important}
+  .job-more{height:32px!important}
+  .swipe-footer button{height:46px!important}
+  .saved-strip{max-height:76px}
+  .saved-mini{flex-basis:94px}
+  .saved-mini .pic{height:42px}
+}
+
+/* PROFILE PHOTO: better crop */
+.avatar-btn img,
+.profile-photo img{
+  object-fit:cover!important;
+  object-position:50% 34%!important;
+}
+.profile-photo{
+  position:relative;
+}
+.profile-photo:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
+  pointer-events:none;
+}
+
 </style>
 </head>
 <body>
@@ -407,7 +568,7 @@ input[type=file]{display:none}
 </div>
 
 <script>
-const APP_VERSION="1.1.1";
+const APP_VERSION="1.1.2";
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -789,29 +950,87 @@ function setupSwipe(card,id){
 
 /* CHAT */
 function chatReply(text){
-  const t=text.toLowerCase();
-  if(/chef|vorgesetz|leitung|kontroll/.test(t)){
-    if(/kontroll/.test(t))return "Wenn du deinen Job kannst und trotzdem jeder Schritt kommentiert wird, würde mich das auch nerven. Ich würde aber nicht mit „Du kontrollierst mich ständig“ starten. Sag lieber: „Lass uns Ergebnis und Termin festlegen. Den Weg dahin würde ich gern selbst organisieren.“ Damit holst du dir Freiheit, ohne einen Machtkampf aufzumachen.";
-    return "Erzähl mir kurz den konkreten Moment: Was hat dein Chef gesagt oder gemacht? Dann kann ich dir sagen, wie ich es an deiner Stelle ansprechen würde.";
+  const t=text.toLowerCase().trim();
+  const lastMood=state.mood;
+  const liked=likedJobs();
+  const name=(state.profileName||"").trim();
+  const hey=name?`${name}, `:"";
+
+  const warmOpeners=[
+    "Okay, ich verstehe, warum dich das beschäftigt.",
+    "Ja, das würde mich an deiner Stelle auch beschäftigen.",
+    "Okay. Lass uns das nicht größer machen als nötig – aber auch nicht kleinreden.",
+    "Ich glaube, ich weiß, was dich daran gerade so nervt."
+  ];
+  const opener=warmOpeners[Math.abs(t.length+(state.chat?.length||0))%warmOpeners.length];
+
+  /* Boss / leadership */
+  if(/chef|chefin|vorgesetz|leitung|kontroll|mikromanag/.test(t)){
+    if(/kontroll|mikromanag/.test(t)){
+      return `${hey}${opener} Wenn du deinen Job kannst und trotzdem jeder Schritt kontrolliert wird, geht es irgendwann nicht mehr um die Aufgabe, sondern um fehlendes Vertrauen. Ich würde morgen keinen großen Streit über „deinen Führungsstil“ anfangen. Hol dir lieber konkret Spielraum: „Sag mir bitte, was am Ende rauskommen soll und bis wann. Den Weg dahin würde ich gern selbst organisieren.“ Wenn dein Chef darauf gar nicht eingeht und das ständig so läuft, dann reden wir nicht mehr über einen schlechten Tag, sondern über ein Muster.`;
+    }
+    if(/lob|anerkenn|wertschätz|gesehen/.test(t)){
+      return `${hey}${opener} Dauerhaft nur zu hören, was nicht passt, macht einen irgendwann mürbe. Ich würde aber nicht um Lob bitten. Nimm eine Sache, die du zuletzt richtig gut gelöst hast, und frag: „Wie siehst du meine Entwicklung gerade – und wo traust du mir als Nächstes mehr Verantwortung zu?“ Das gibt dir viel mehr als ein schnelles „gut gemacht“.`;
+    }
+    return `${hey}${opener} Bevor ich dir irgendeinen Tipp hinschmeiße: Was genau ist passiert? Ein Satz reicht. Hat dein Chef dich vor anderen blöd angemacht, dir etwas Unklares gegeben, dich kontrolliert oder eine Entscheidung getroffen, die du unfair findest? Dann sage ich dir, wie ich es an deiner Stelle angehen würde.`;
   }
-  if(/überforder|ueberforder|zu viel|stress/.test(t))return "Wenn wirklich zu viel auf dem Tisch liegt, ist „besser organisieren“ kein guter Tipp. Ich würde die Prioritätsentscheidung zurückgeben: „Ich schaffe A und B sauber. Wenn C heute auch fertig sein muss: Was davon soll dafür warten?“ So wird sichtbar, dass nicht alles gleichzeitig geht.";
-  if(/gehalt|geld|verdien|lohn/.test(t))return "Beim Gehalt würde ich nicht mit „alles ist teurer geworden“ argumentieren. Dein stärkster Punkt ist dein Wert. Schreib dir drei Aufgaben auf, die du heute übernimmst und früher nicht gemacht hast. Dann hast du einen sauberen Einstieg ins Gespräch.";
-  if(/kolleg|team|streit|konflikt/.test(t))return "Bei Teamstress hilft mir immer eine Frage: Geht es um einen konkreten Moment oder um ein Muster? Wenn es konkret war, klär genau den Moment früh. Wenn es ständig passiert, reden wir über Grenzen und Rollen – nicht nur über Harmonie.";
-  if(/künd|kuend|weg|wechsel/.test(t))return "Ich würde heute nicht sofort kündigen. Erst trennen: Willst du wirklich aus dem Beruf raus – oder nur weg von Führung, Arbeitszeit oder diesem Arbeitgeber? Schau auf das, was du trotz allem noch magst. Das ist oft der schnellste Weg zur richtigen Entscheidung.";
-  if(/motivation|kein bock|keine lust/.test(t))return "Wenn du ein paar Tage keine Motivation hast, würde ich noch keine große Karrierefrage daraus machen. Aber merk dir morgen zwei Momente: Was zieht dir Energie und was geht überraschend leicht? Genau da steckt meistens mehr Wahrheit drin als in „ich bin unmotiviert“.";
-  if(/match|stelle|job/.test(t)){
-    const j=currentJob()||likedJobs()[0];
-    return j?`Dein stärkstes aktuelles Match ist ${j.title} bei ${j.company}. Der spannende Punkt ist nicht nur der Score: ${j.reasons[0]}. Wenn du willst, können wir gemeinsam prüfen, ob das wirklich besser zu dir passt oder nur auf dem Papier gut aussieht.`:"Du hast gerade keine offenen Demo-Matches mehr. Deine gespeicherten Jobs findest du unter Matches oder im Profil.";
+
+  /* Overload / stress */
+  if(/überforder|ueberforder|zu viel|stress|schaff.*nicht|alles.*gleichzeitig/.test(t)){
+    return `${hey}${opener} Wenn wirklich zu viel da ist, bringt dir „besser organisieren“ gar nichts. Ich würde die Entscheidung, was liegen bleibt, nicht heimlich selbst tragen. Sag: „Ich schaffe heute A und B sauber. Wenn C auch heute fertig sein muss – was davon soll dafür warten?“ Das ist ruhig, professionell und macht sichtbar, dass das Problem die Menge ist und nicht du. Und wenn du gerade komplett geladen bist: heute nichts Grundsätzliches entscheiden. Erst den Druck runter, dann weiterdenken.`;
   }
-  return "Sag mir den konkreten Moment. Nicht die ganze Geschichte: Was ist passiert, wer war beteiligt und was hat dich daran am meisten genervt? Dann versuche ich dir etwas zu sagen, das du morgen tatsächlich benutzen kannst.";
+
+  /* Salary */
+  if(/gehalt|geld|verdien|lohn|unterbezahlt/.test(t)){
+    return `${hey}${opener} Beim Geld würde ich dich nicht mit „kenn deinen Wert“ abspeisen. Mach es greifbar: Welche drei Dinge machst du heute, die früher nicht Teil deiner Rolle waren? Genau die sind dein Argument. Im Gespräch würde ich nicht mit privaten Kosten anfangen, sondern mit Verantwortung: „Meine Rolle ist deutlich gewachsen. Ich möchte darüber sprechen, dass sich das auch im Gehalt widerspiegelt.“ Wenn du willst, können wir danach zusammen eine realistische Forderung formulieren.`;
+  }
+
+  /* Team conflict */
+  if(/kolleg|kollegin|team|streit|konflikt|respekt/.test(t)){
+    if(/arbeit.*mir|alles.*ich|bleibt.*hängen|immer ich/.test(t)){
+      return `${hey}${opener} Du klingst gerade wie der Mensch, bei dem alles landet, weil alle wissen, dass du es schon irgendwie rettest. Genau da würde ich aufhören, still der Puffer zu sein. Beim nächsten Zusatzauftrag: „Kann ich übernehmen. Dann bleibt X liegen – ist das so priorisiert?“ Du sagst nicht Nein, aber du machst den Preis sichtbar.`;
+    }
+    return `${hey}${opener} Bei Teamstress würde ich als Erstes unterscheiden: War das ein einzelner blöder Moment oder passiert das immer wieder? Wenn es konkret war, klär genau diesen Moment und hol nicht die letzten sechs Monate dazu. Zum Beispiel: „Vorhin bei X sind wir aneinandergeraten. Ich will das nicht mitschleppen – können wir kurz klären, was wir beim nächsten Mal anders machen?“ Wenn das aber ständig passiert, müssen wir eher über Grenzen als über Harmonie reden.`;
+  }
+
+  /* Quitting / changing */
+  if(/künd|kuend|wechsel|weg hier|raus|neuer job|job wechseln/.test(t)){
+    const negative=["stress","down","leave"].includes(lastMood);
+    return `${hey}${opener} Ich würde dir weder sagen „kündige sofort“ noch „halt durch“. Die wichtigere Frage ist: Willst du wirklich aus deinem Beruf raus – oder nur aus dieser Situation? ${negative?"Deine letzte Stimmung war eher belastet, deshalb würde ich heute keine Entscheidung aus dem Ärger heraus treffen. ":""}Nenn mir zwei Dinge, die du an deinem Job trotz allem behalten würdest, und zwei, die du nie wieder willst. Daraus sieht man oft erstaunlich schnell, ob du einen neuen Beruf brauchst oder einfach einen besseren Arbeitgeber.`;
+  }
+
+  /* Motivation */
+  if(/motivation|kein bock|keine lust|lustlos|sinnlos/.test(t)){
+    return `${hey}${opener} Ich würde dich jetzt nicht mit „such dir deine Motivation“ nerven. Morgen merk dir nur zwei Momente: Bei welcher Aufgabe denkst du „bitte nicht schon wieder“ – und bei welcher vergeht die Zeit schneller? Mehr musst du nicht analysieren. Wenn sich das ein paar Mal wiederholt, wissen wir viel besser, ob dir die Tätigkeit nicht mehr passt oder ob nur bestimmte Teile dich leerziehen.`;
+  }
+
+  /* Match questions */
+  if(/match|stelle|stellenangebot|jobangebot|passt.*job|passt.*stelle/.test(t)){
+    const j=currentJob()||liked[0];
+    if(!j)return `${hey}Du hast gerade keine offenen Demo-Matches mehr. Aber wir können deine gespeicherten Jobs im Profil gemeinsam auseinandernehmen – nicht nur nach Score, sondern danach, was im Alltag wirklich besser wäre.`;
+    return `${hey}Schau, bei ${j.title} würde ich mich nicht vom ${j.score}%-Score blenden lassen. Spannend sind für mich drei Dinge: ${j.reasons.slice(0,3).join(", ")}. Die eigentliche Frage ist: Löst dieser Job etwas, das dich heute wirklich stört? Wenn nicht, ist auch ein hoher Match-Score nur hübsche Mathematik.`;
+  }
+
+  /* Anxiety before talk */
+  if(/gespräch|gespraech|ansprechen|morgen.*reden|termin.*chef/.test(t)){
+    return `${hey}${opener} Dann machen wir es einfach. Geh nicht mit zehn Punkten rein. Ein Thema, ein Beispiel, ein Wunsch. Aufbau: „Mir ist bei X aufgefallen … Das macht Y mit meiner Arbeit … Ich würde gern Z ausprobieren.“ Wenn du mir sagst, worum es in dem Gespräch geht, formuliere ich dir den Einstieg so, dass er wirklich nach dir klingt.`;
+  }
+
+  /* Praise / good day */
+  if(/gut gelaufen|guter tag|zufrieden|läuft gut|laeuft gut|freue mich/.test(t)){
+    return `${hey}Das ist schön – und ich meine nicht dieses künstliche „super, weiter so“. Merk dir kurz, was heute anders war. War es die Aufgabe, die Leute, weniger Druck oder dass du selbst entscheiden konntest? Genau solche guten Tage sind wichtig, weil sie dir zeigen, was dein nächster Job unbedingt behalten sollte.`;
+  }
+
+  /* Default: one sharp follow-up like a friend */
+  return `${hey}${opener} Ich will dir darauf gerade keine 08/15-Antwort geben. Erzähl mir nur den einen Moment, der dir im Kopf hängen geblieben ist: Was ist passiert – und was daran hat dich am meisten getroffen oder genervt? Dann schauen wir nicht auf Theorie, sondern darauf, was du morgen wirklich tun kannst.`;
 }
 function renderChat(m){
   m.innerHTML=`<section class="screen chat-screen">
-    <div class="chat-header-copy"><div class="kicker">Chat</div><h1 class="title" style="font-size:35px">Dein persönlicher<br>Karriere-Guide.</h1><p class="subtitle">Frag alles. YVIA darf dir auch widersprechen.</p></div>
+    <div class="chat-header-copy"><div class="kicker">Chat</div><h1 class="title" style="font-size:35px">Dein persönlicher<br>Karriere-Guide.</h1><p class="subtitle">Sag’s wie bei jemandem, dem du wirklich vertraust. YVIA hört zu, fragt nach und sagt dir auch, wenn du gerade vielleicht falsch abbiegst.</p></div>
     <div class="chat-list" id="chatList">${state.chat.map(x=>`<div class="msg ${x.role}">${esc(x.text)}</div>`).join("")}</div>
     <div>
       <div class="chat-suggestions">
-        ${["Mein Chef nervt","Ich bin überfordert","Soll ich wechseln?","Was hältst du von meinem Match?"].map(x=>`<button data-suggest="${esc(x)}">${esc(x)}</button>`).join("")}
+        ${["Mein Chef macht mich wahnsinnig","Ich kann gerade nicht mehr","Soll ich wirklich wechseln?","Sag ehrlich: Passt der Job zu mir?"].map(x=>`<button data-suggest="${esc(x)}">${esc(x)}</button>`).join("")}
       </div>
       <div class="chat-input">
         <button id="chatPlus">＋</button>
@@ -878,9 +1097,14 @@ function renderProfile(m){
 
   $$("[data-pt]").forEach(b=>b.onclick=()=>{state.profileTab=b.dataset.pt;save();render()});
   $("#profilePhotoBtn").onclick=()=>$("#photoInput").click();
-  $("#photoInput").onchange=e=>{
+  $("#photoInput").onchange=async e=>{
     const f=e.target.files?.[0];if(!f)return;
-    const r=new FileReader();r.onload=()=>{state.profilePhoto=r.result;save();render()};r.readAsDataURL(f)
+    try{
+      state.profilePhoto=await prepareProfilePhoto(f);
+      save();toast("Profilbild angepasst");render();
+    }catch(err){
+      toast("Profilbild konnte nicht verarbeitet werden");
+    }
   };
   $("#profileNameBtn").onclick=()=>{
     const n=prompt("Wie soll YVIA dich nennen?",state.profileName||"");
