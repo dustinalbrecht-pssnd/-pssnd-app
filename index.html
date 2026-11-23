@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>eUpdate</title>
+    <link rel="stylesheet" href="assets/eupdate.css" />
+    <script>
+      const routes = {
+        feed: 'ranking',
+        builder: 'Bauen',
+        attachments: 'Aufsaetze',
+        creators: 'Creator',
+        events: 'News',
+        detail: 'Loadout',
+      };
+      const hash = location.hash.slice(1);
+      const params = new URLSearchParams(location.search);
+      const view = hash === 'detail' && !params.has('id') ? 'feed' : hash;
+      const destination = Object.hasOwn(routes, view) ? routes[view] : routes.feed;
+      location.replace(destination + '/' + location.search);
+    </script>
+  </head>
+  <body>
+    <main><a href="ranking/">Zum Ranking</a></main>
+  </body>
+</html>
