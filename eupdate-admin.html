@@ -1670,6 +1670,11 @@ label :is(input, textarea, select) {
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
+#removeCreatorCodesNames {
+  max-height: 34dvh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
 .empty {
   color: var(--muted);
 }
@@ -2380,24 +2385,21 @@ label :is(input, textarea, select) {
             </section>
             <section class="view" id="codesView" hidden>
               <div class="panel">
-                <h2>Streamer-Freigabecodes</h2>
-                <p>
-                  Hier kannst du Streamer-Codes ansehen, kopieren, neu erzeugen und sperren. Neue Codes
-                  werden auf dem Server verschlüsselt gespeichert und sind auch nach einer erneuten
-                  Anmeldung verfügbar. Ältere Codes liegen nur als Hash vor: Erzeuge für sie bei Bedarf
-                  einen neuen Code. Der bisherige Code wird dabei ungültig; bestehende Loadouts bleiben
-                  erhalten.
-                </p>
+                <h2>Neuen Streamer-Code erstellen</h2>
                 <form id="createCodeForm">
                   <label
                     >Streamer-Name<input
                       name="name"
                       required
                       maxlength="40"
-                      placeholder="Name des Creators" /></label
-                  ><button class="primary">Persönlichen Code erzeugen</button>
+                      placeholder="Name des Streamers" /></label
+                  ><button class="primary" type="submit" id="createStreamerCode">Code erstellen</button>
                 </form>
                 <div id="newCode" hidden class="notice"></div>
+              </div>
+              <div class="toolbar">
+                <h2>Aktive Codes</h2>
+                <button type="button" id="removeAllCreatorCodes" class="danger" hidden>Alle Codes entfernen</button>
               </div>
               <div id="codesList"></div>
             </section>
@@ -2405,6 +2407,18 @@ label :is(input, textarea, select) {
         </div>
       </section>
     </main>
+    <dialog id="removeCreatorCodesDialog" class="editor-dialog" aria-labelledby="removeCreatorCodesTitle" aria-describedby="removeCreatorCodesDescription">
+      <div class="toolbar editor-heading">
+        <h2 id="removeCreatorCodesTitle">Streamer-Codes entfernen</h2>
+      </div>
+      <p id="removeCreatorCodesDescription">Die ausgewählten Codes werden gesperrt und verschwinden aus der aktiven Liste.</p>
+      <ul id="removeCreatorCodesNames"></ul>
+      <p id="removeCreatorCodesStatus" class="notice" role="status" hidden></p>
+      <div class="actions editor-actions">
+        <button type="button" id="cancelRemoveCreatorCodes" autofocus>Abbrechen</button>
+        <button type="button" id="confirmRemoveCreatorCodes" class="danger">Codes entfernen</button>
+      </div>
+    </dialog>
     <dialog id="catalogImportDialog" class="editor-dialog" aria-labelledby="catalogImportTitle">
       <div class="toolbar editor-heading">
         <h2 id="catalogImportTitle">Katalogtabelle importieren</h2>
@@ -2559,10 +2573,11 @@ label :is(input, textarea, select) {
         if (token) timer = setTimeout(logout, 20 * 60000);
       }
       function logout() {
-        if ($('newCode')) {
-          $('newCode').textContent = '';
-          $('newCode').hidden = true;
-        }
+        clearNewCreatorCode();
+        creatorCodeJob = null;
+        creatorCodesToRemove = [];
+        $('createCodeForm').reset();
+        if ($('removeCreatorCodesDialog').open) $('removeCreatorCodesDialog').close();
         token = '';
         serverHealth = null;
         $('token').value = '';
@@ -3057,17 +3072,41 @@ label :is(input, textarea, select) {
         }
       };
 
+      let creatorCodeJob = null;
+      let creatorCodesToRemove = [];
+
+      function activeCreatorCodes() {
+        return (dashboard?.creatorCodes || []).filter((code) =>
+          code.active === true || code.active === 1 || code.active === '1',
+        );
+      }
+
+      function clearNewCreatorCode() {
+        $('newCode').textContent = '';
+        $('newCode').hidden = true;
+      }
+
+      function renderCreatorCodeControls() {
+        const busy = !!creatorCodeJob;
+        $('createCodeForm').elements.name.disabled = busy;
+        $('createStreamerCode').disabled = busy;
+        $('removeAllCreatorCodes').disabled = busy;
+        $('confirmRemoveCreatorCodes').disabled = busy || !creatorCodesToRemove.length;
+        $('cancelRemoveCreatorCodes').disabled = busy;
+        for (const button of $('codesList').querySelectorAll('button')) button.disabled = busy;
+      }
+
       function renderCodes() {
-        $('codesList').innerHTML = (dashboard.creatorCodes || [])
+        const codes = activeCreatorCodes();
+        $('removeAllCreatorCodes').hidden = !codes.length;
+        $('codesList').innerHTML = codes
           .map(
             (c) =>
               '<article class="card"><h3>' +
               esc(c.name) +
               '</h3><p>' +
-              (c.active ? 'Aktiv' : 'Gesperrt') +
-              ' · ' +
               Number(c.uses || 0) +
-              ' Veröffentlichungen</p>' +
+              (Number(c.uses || 0) === 1 ? ' Veröffentlichung</p>' : ' Veröffentlichungen</p>') +
               (c.code
                 ? '<label>Persönlicher Streamer-Code<input readonly type="text" value="' +
                   esc(c.code) +
@@ -3076,35 +3115,165 @@ label :is(input, textarea, select) {
                   '" style="font-family:ui-monospace,monospace;font-size:16px"><button type="button" data-copy-code="' +
                   esc(c.id) +
                   '">Code kopieren</button></label>'
-                : '<p class="notice">Dieser ältere Code kann nicht aus seinem Hash angezeigt werden. Erzeuge einen neuen Code zum Versenden.</p>') +
+                : '<p class="muted">Erzeuge einen neuen Code, wenn du diesen Streamer erneut einladen willst.</p>') +
               '<div class="actions"><button type="button" data-regenerate-code="' +
               esc(c.id) +
               '">Neuen Code erzeugen</button><button type="button" data-rename-code="' +
               esc(c.id) +
-              '">Name bearbeiten</button><button type="button" data-code-id="' +
-              esc(c.id) +
-              '" data-code-active="' +
-              (c.active ? '0' : '1') +
-              '">' +
-              (c.active ? 'Code sperren' : 'Code aktivieren') +
-              '</button></div></article>',
+              '">Name bearbeiten</button><button type="button" class="danger" data-remove-code="' +
+              esc(c.id) + '">Entfernen</button></div></article>',
           )
-          .join('');
+          .join('') || '<p class="empty">Noch keine aktiven Streamer-Codes.</p>';
+        renderCreatorCodeControls();
       }
-      async function copyCreatorCode(id) {
-        const c = dashboard.creatorCodes.find((x) => x.id === id);
+      async function copyCreatorCode(c, button) {
         if (!c?.code) throw Error('Bitte zuerst einen neuen Code erzeugen');
         try {
           await navigator.clipboard.writeText(c.code);
         } catch {
-          const input = document
-            .querySelector('[data-copy-code="' + id + '"]')
-            .parentElement.querySelector('input');
+          const input = button.closest('label').querySelector('input');
           input.focus();
           input.select();
           if (!document.execCommand('copy')) throw Error('Code markieren und manuell kopieren');
         }
         note('Code kopiert · du kannst ihn jetzt persönlich versenden');
+      }
+
+      async function changeCreatorCodes(action) {
+        if (!token || creatorCodeJob) return;
+        const job = {};
+        creatorCodeJob = job;
+        const current = () => !!token && creatorCodeJob === job;
+        renderCreatorCodeControls();
+        try {
+          await action(current);
+        } catch (error) {
+          if (current()) note(error.message);
+        } finally {
+          if (current()) {
+            creatorCodeJob = null;
+            renderCreatorCodeControls();
+          }
+        }
+      }
+
+      function renderCreatorCodeRemoval(message = '', error = false) {
+        const count = creatorCodesToRemove.length;
+        $('removeCreatorCodesTitle').textContent = count === 1 ? 'Streamer-Code entfernen' : 'Streamer-Codes entfernen';
+        $('confirmRemoveCreatorCodes').textContent = count === 1 ? 'Code entfernen' : `${count} Codes entfernen`;
+        $('removeCreatorCodesNames').innerHTML = creatorCodesToRemove.map((code) => '<li>' + esc(code.name) + '</li>').join('');
+        const status = $('removeCreatorCodesStatus');
+        status.textContent = message;
+        status.classList.toggle('error', error);
+        status.hidden = !message;
+        renderCreatorCodeControls();
+      }
+
+      const removeCreatorCodesDialog = $('removeCreatorCodesDialog');
+
+      function confirmCreatorCodeRemoval(codes) {
+        if (creatorCodeJob || !codes.length) return;
+        creatorCodesToRemove = codes.map(({ id, name }) => ({ id: String(id), name }));
+        renderCreatorCodeRemoval();
+        removeCreatorCodesDialog.showModal();
+      }
+
+      $('removeAllCreatorCodes').onclick = () => confirmCreatorCodeRemoval(activeCreatorCodes());
+      $('cancelRemoveCreatorCodes').onclick = () => removeCreatorCodesDialog.close();
+      removeCreatorCodesDialog.addEventListener('cancel', (event) => {
+        if (creatorCodeJob) event.preventDefault();
+      });
+      removeCreatorCodesDialog.addEventListener('close', () => {
+        creatorCodesToRemove = [];
+        renderCreatorCodeRemoval();
+      });
+
+      $('confirmRemoveCreatorCodes').onclick = () => changeCreatorCodes(async (current) => {
+        clearNewCreatorCode();
+        const targets = creatorCodesToRemove;
+        let failure = '';
+        for (const [index, code] of targets.entries()) {
+          if (!current()) return;
+          renderCreatorCodeRemoval(`Sperre den Code für ${code.name} (${index + 1} von ${targets.length}) …`);
+          try {
+            await request('/api/admin/creator-codes/' + encodeURIComponent(code.id), 'PATCH', { active: false });
+          } catch (error) {
+            failure = error.message;
+            break;
+          }
+        }
+        if (!current()) return;
+        try {
+          await load();
+        } catch (error) {
+          if (current()) renderCreatorCodeRemoval('Die Liste konnte noch nicht aktualisiert werden. ' + error.message, true);
+          return;
+        }
+        if (!current()) return;
+        const stillActive = new Set(activeCreatorCodes().map((code) => String(code.id)));
+        creatorCodesToRemove = targets.filter((code) => stillActive.has(code.id));
+        const removed = targets.length - creatorCodesToRemove.length;
+        if (creatorCodesToRemove.length) {
+          renderCreatorCodeRemoval(`${removed} entfernt. ${failure || 'Der Server meldet noch aktive Codes.'}`, true);
+        } else {
+          removeCreatorCodesDialog.close();
+          note(removed === 1 ? 'Streamer-Code entfernt' : `${removed} Streamer-Codes entfernt`);
+        }
+      });
+
+      $('codesList').addEventListener('click', async (event) => {
+        const button = event.target.closest('button');
+        if (!button || creatorCodeJob) return;
+        const { copyCode, renameCode, regenerateCode, removeCode } = button.dataset;
+        const id = copyCode ?? renameCode ?? regenerateCode ?? removeCode;
+        const code = activeCreatorCodes().find((entry) => String(entry.id) === id);
+        if (!code) return;
+        try {
+          if (copyCode !== undefined) {
+            await copyCreatorCode(code, button);
+          } else if (removeCode !== undefined) {
+            confirmCreatorCodeRemoval([code]);
+          } else if (renameCode !== undefined) {
+            const name = prompt('Streamer-Name', code.name)?.trim();
+            if (!name || name === code.name) return;
+            await changeCreatorCodes(async (current) => {
+              await request('/api/admin/creator-codes/' + encodeURIComponent(id), 'PATCH', { name, active: true });
+              if (!current()) return;
+              await load();
+              if (current()) note('Name aktualisiert');
+            });
+          } else if (confirm('Einen neuen Code erzeugen? Der bisherige Code wird sofort ungültig.')) {
+            await changeCreatorCodes(async (current) => {
+              clearNewCreatorCode();
+              await request('/api/admin/creator-codes/' + encodeURIComponent(id) + '/regenerate', 'POST', {});
+              if (!current()) return;
+              await load();
+              if (current()) note('Neuer Code erstellt');
+            });
+          }
+        } catch (error) {
+          note(error.message);
+        }
+      });
+
+      async function createCreatorCode(form) {
+        const name = form.elements.name.value.trim();
+        if (!name) {
+          note('Trage einen Streamer-Namen ein.');
+          return;
+        }
+        await changeCreatorCodes(async (current) => {
+          clearNewCreatorCode();
+          const result = await request('/api/admin/creator-codes', 'POST', { name });
+          if (!current()) return;
+          form.reset();
+          $('newCode').textContent = result.code
+            ? `${result.name || name} · ${result.code}`
+            : `Code für ${result.name || name} erstellt.`;
+          $('newCode').hidden = false;
+          await load();
+          if (current()) note('Code erstellt. Teile ihn persönlich mit dem Streamer.');
+        });
       }
 
       function renderSettings() {
@@ -4637,15 +4806,6 @@ label :is(input, textarea, select) {
             editContent('newsimages', { id: String(n.id), img: n.img || '' });
           }
 
-          if (b.dataset.renameCode) {
-            const c = dashboard.creatorCodes.find((x) => x.id === b.dataset.renameCode),
-              name = prompt('Streamer-Name', c.name);
-            if (name?.trim()) {
-              await request('/api/admin/creator-codes/' + c.id, 'PATCH', { name, active: !!c.active });
-              await load();
-              note('Name aktualisiert');
-            }
-          }
         } catch (e) {
           note(e.message);
         }
@@ -4942,40 +5102,6 @@ label :is(input, textarea, select) {
         const b = e.target.closest('button');
         if (!b) return;
         try {
-          if (b.dataset.copyCode) {
-            await copyCreatorCode(b.dataset.copyCode);
-            return;
-          }
-          if (b.dataset.regenerateCode) {
-            if (
-              !confirm(
-                'Einen neuen Code erzeugen? Der bisherige Code wird sofort ungültig. Bestehende Loadouts bleiben erhalten.',
-              )
-            )
-              return;
-            b.disabled = true;
-            try {
-              await request(
-                '/api/admin/creator-codes/' + b.dataset.regenerateCode + '/regenerate',
-                'POST',
-                {},
-              );
-              await load();
-              note('Neuer Code erstellt. Jetzt kopieren und persönlich versenden.');
-            } finally {
-              b.disabled = false;
-            }
-            return;
-          }
-          if (b.dataset.codeId) {
-            await request('/api/admin/creator-codes/' + b.dataset.codeId, 'PATCH', {
-              active: b.dataset.codeActive === '1',
-            });
-            await load();
-            note('Code aktualisiert');
-            return;
-          }
-
           if (b.dataset.postAction) {
             const id = b.dataset.id,
               action = b.dataset.postAction;
@@ -5059,6 +5185,10 @@ label :is(input, textarea, select) {
       document.addEventListener('submit', async (e) => {
         if (e.target.id === 'loginForm') return;
         e.preventDefault();
+        if (e.target.id === 'createCodeForm') {
+          await createCreatorCode(e.target);
+          return;
+        }
         const form = e.target,
           submit = form.querySelector('button[type="submit"],button:not([type])');
         if (submit) submit.disabled = true;
@@ -5112,16 +5242,6 @@ label :is(input, textarea, select) {
             );
             $('weaponDialog').close();
             note('Waffe gespeichert. Die App lädt den Katalog beim nächsten Aktualisieren.');
-          } else if (form.id === 'createCodeForm') {
-            const x = await request('/api/admin/creator-codes', 'POST', { name: data.name });
-            $('newCode').hidden = false;
-            $('newCode').textContent =
-              x.name +
-              ': ' +
-              x.code +
-              ' — persönlich weitergeben. Der Code bleibt verschlüsselt gespeichert und ist in der Liste erneut abrufbar.';
-            form.reset();
-            note('Code erstellt');
           } else if (form.id === 'settingsForm') {
             await request('/api/admin/config', 'PUT', configPayload(data));
             note('Betreiberangaben gespeichert. Die Freigabe findest du in der Übersicht.');
