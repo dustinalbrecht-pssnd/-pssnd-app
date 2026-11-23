@@ -1,4 +1,4 @@
-import { CAT, CLASS, GAME, MODE, WM, art } from './katalog.js';
+import { ATTACHMENT_BY, BY, CAT, CLASS, GAME, MODE, WM, art } from './katalog.js';
 import {
   API,
   BO7_MODES,
@@ -37,7 +37,8 @@ import {
   weapon,
 } from './app.js';
 import { navigate } from './navigation.js';
-import { attachmentEdit, attachmentLimit, renderGunsmith, standardCount } from './aufsaetze.js';
+import { attachmentEdit, attachmentLimit, knownAttachmentIds, languageButtons, renderGunsmith, standardCount } from './aufsaetze.js';
+import { currentAttachmentId } from './katalog-abgleich.js';
 import {
   GEAR,
   GEAR_NAMES,
@@ -243,12 +244,23 @@ function importLoadout(x) {
 
 function payload() {
   const b = build();
+  const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
+    const w = BY[weaponId];
+    if (!w) return [weaponId, parts];
+    const assigned = knownAttachmentIds(w);
+    return [weaponId, parts.map((p) => {
+      const id = currentAttachmentId(weaponId, p.id, assigned);
+      return id !== p.id && !p.custom && ATTACHMENT_BY[id]
+        ? { ...p, id, name: ATTACHMENT_BY[id].en }
+        : p;
+    })];
+  }));
   return {
     game: state.game,
     mode: state.mode,
     primary: b.primary,
     secondary: b.secondary,
-    attachments: b.parts,
+    attachments,
     gear: b.gear,
     dmzLoot: !!b.dmzLoot,
     ...b.gear,
@@ -306,6 +318,7 @@ function renderBuilder() {
           ...(mode === 'mp' ? ['field'] : []),
           ...(g !== 'mw4' ? ['wildcard'] : []),
         ];
+  if (el('gearLanguage')) el('gearLanguage').innerHTML = languageButtons('Sprache der Ausrüstung');
   el('gearSlots').dataset.slotCount = String(keys.length);
   el('gearSlots').innerHTML = keys
     .map((key) => {

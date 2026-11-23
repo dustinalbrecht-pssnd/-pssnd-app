@@ -1,5 +1,6 @@
 import { html, siteConfig, state } from './app.js';
 import { attachmentLanguage } from './aufsaetze.js';
+import { equipmentNames } from './katalog-abgleich.js';
 
 const GEAR = {
   tactical: ['Rauchgranate', 'Blendgranate', 'Betäubung', 'Stim', 'Herzsensor', 'Snapshot'],
@@ -136,10 +137,12 @@ function gearVisual(name) {
 }
 
 function gearSecondaryLabel(key, name) {
-  const row = gearEntry(key, name),
-    entry = gearVisual(name),
-    english = row?.en || entry?.[0] || name || '';
-  return normalizeGearName(english) !== normalizeGearName(gearLabel(key, name)) ? english : entry?.[5] || '';
+  if (!name || name === 'Keine') return '';
+  const entry = gearVisual(name);
+  const { de, en } = equipmentNames(gearEntry(key, name), name, entry);
+  return normalizeGearName(de) === normalizeGearName(en)
+    ? entry?.[5] || ''
+    : attachmentLanguage === 'en' ? de : en;
 }
 
 function gearSecondaryMarkup(key, name) {
@@ -178,19 +181,7 @@ function gearEntry(key, name) {
 }
 
 function gearLabel(key, name) {
-  if (key === 'perk3' && normalizeGearName(name) === 'battle hardened')
-    return attachmentLanguage === 'en' ? 'Battle Hardened' : 'Taktikmaske';
-  const row = gearEntry(key, name),
-    entry = gearVisual(name),
-    override = typeof row?.de === 'string' ? row.de.trim() : '';
-  if (attachmentLanguage === 'en') return row?.en || entry?.[0] || name || 'None';
-  if (
-    override &&
-    normalizeGearName(override) !== normalizeGearName(name) &&
-    normalizeGearName(override) !== normalizeGearName(entry?.[0])
-  )
-    return override;
-  return entry?.[1] || override || name || 'Keine Auswahl';
+  return equipmentNames(gearEntry(key, name), name, gearVisual(name))[attachmentLanguage];
 }
 
 function gearArtwork(key, name) {

@@ -1,4 +1,5 @@
 import { ATTACHMENTS, ATTACHMENT_BY, ATTACHMENT_KNOWN, CAT, CLASS, VERIFIED, art } from './katalog.js';
+import { attachmentNames, currentAttachmentId, distinctAttachmentIds } from './katalog-abgleich.js';
 import { illustratedArt } from './ausruestung.js';
 import { navigate } from './navigation.js';
 import {
@@ -18,13 +19,16 @@ import {
 import { addPart, publish, renderBuilder, renderPartRows, saveParts } from './bauen.js';
 import { renderCurrentDetail } from './loadout.js';
 
-let attachmentLanguage = localStorage.getItem('eupdate_attachment_language') === 'en' ? 'en' : 'de',
-  attachmentScope = 'known';
+let attachmentLanguage = localStorage.getItem('eupdate_attachment_language') === 'en' ? 'en' : 'de';
 
 function attachmentName(part) {
-  if (part?.custom) return part[attachmentLanguage] || part.name || '';
-  const a = ATTACHMENT_BY[part?.id] || ATTACHMENTS.find((a) => a.en === part?.name || a.de === part?.name);
-  return a ? a[attachmentLanguage] : part?.name || '';
+  if (!part || part.custom) return attachmentNames(part)[attachmentLanguage];
+  const entry = ATTACHMENT_BY[part.id] || ATTACHMENTS.find((a) => {
+    if (a.slot !== part.slot) return false;
+    const { de, en } = attachmentNames(a);
+    return [a.name, a.de, a.en, de, en].includes(part.name);
+  });
+  return attachmentNames(entry || part)[attachmentLanguage];
 }
 
 function attachmentLimit(slot) {
@@ -87,14 +91,18 @@ function renderGunsmith() {
     attachmentLimit(slot) +
     (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '');
   el('attachmentRule').textContent =
-    'Alle verfügbaren Aufsatzkategorien sind auswählbar. Pro Kategorie ist ein Aufsatz möglich.';
+    'Die Liste zeigt die Aufsätze für deine gewählte Waffe. Pro Kategorie ist ein Aufsatz möglich.';
+  const known = knownAttachmentIds(w);
+  const counts = new Map();
+  for (const a of ATTACHMENTS) {
+    if (known.has(a.id)) counts.set(a.slot, (counts.get(a.slot) || 0) + 1);
+  }
   el('attachmentSlots').innerHTML = can
-    ? CAT.filter((c) => state.game === 'mw4' || c[0] !== 'apex')
+    ? CAT.filter(([key]) => state.game === 'mw4' || key !== 'apex')
+        .filter(([key]) => counts.has(key) || parts.some((p) => p.slot === key))
         .map(([key, de, en]) => {
           const part = parts.find((p) => p.slot === key),
-            available = ATTACHMENTS.filter(
-              (a) => a.active !== false && a.slot === key && knownAttachmentIds(w).has(a.id),
-            ).length;
+            available = counts.get(key) || 0;
           return (
             '<button class="attachment-tile ' +
             (part ? 'selected' : '') +
@@ -113,13 +121,13 @@ function renderGunsmith() {
             '</small></span><span class="attach-chevron">›</span></button>'
           );
         })
-        .join('')
+        .join('') || '<div class="empty">Für diese Waffe sind noch keine Aufsätze zugeordnet.</div>'
     : '<div class="empty">Für diese Waffe gibt es hier keine bestätigten Gunsmith-Aufsätze.</div>';
 }
 
-function languageButtons() {
+function languageButtons(label = 'Sprache für Aufsätze und Ausrüstung') {
   return (
-    '<div class="attachment-language" aria-label="Sprache der Aufsätze"><button data-attachment-lang="de" aria-pressed="' +
+    '<div class="attachment-language" role="group" aria-label="' + html(label) + '"><button type="button" data-attachment-lang="de" aria-pressed="' +
     (attachmentLanguage === 'de') +
     '"><svg class="language-flag" viewBox="0 0 30 20" aria-hidden="true"><path fill="#111" d="M0 0h30v7H0z"/><path fill="#d92332" d="M0 7h30v6H0z"/><path fill="#ffce00" d="M0 13h30v7H0z"/></svg> DE</button><button data-attachment-lang="en" aria-pressed="' +
     (attachmentLanguage === 'en') +
@@ -128,33 +136,32 @@ function languageButtons() {
 }
 
 function knownAttachmentIds(w) {
-  return new Set([
+  const assigned = [
     ...(w.catalogAssigned ? w.attachmentIds || [] : ATTACHMENT_KNOWN[w.id] || []),
     ...(w.customAttachments || []).map((a) => a.id),
-  ]);
+  ];
+  return distinctAttachmentIds(w.id, assigned.filter((id) => ATTACHMENT_BY[id]?.active !== false));
 }
 
-function pickAttachment(key) {
+function pickAttachment(key, query = '') {
   const w = weapon(picker.slot === 'secondary' ? 'secondary' : 'primary'),
     cat = CAT.find((c) => c[0] === key);
   if (!cat) return;
   activeAttachSlot = key;
-  attachmentScope = 'known';
   modal(
     head(
       (attachmentLanguage === 'en' ? cat[2] : cat[1]) + ' · ' + w.name,
       'Antippen genügt. Dein Aufsatz wird sofort übernommen.',
     ) +
       languageButtons() +
-      '<label class="field-label">Aufsatz suchen<input id="attachmentSearch" class="field" type="search" placeholder="Name, Freischaltwaffe oder Stufe" autocomplete="off"></label>' +
-      '<div class="attachment-scope"><button data-attachment-scope="known">Zur Waffe zugeordnet</button></div>' +
+      '<label class="field-label">Aufsatz suchen<input id="attachmentSearch" class="field" type="search" placeholder="Name, Freischaltwaffe oder Stufe" autocomplete="off" value="' + html(query) + '"></label>' +
       '<p class="fine-print" id="attachmentInfo"></p><button class="custom-attachment-entry" id="addOwnAttachment">＋ Eigenen Aufsatz hinzufügen <span>Fehlt dein Aufsatz? Trage ihn hier ein.</span></button><div id="attachmentOptions" class="attachment-options"></div>' +
       '<div class="dialog-actions"><button class="ghost-btn" data-close>Zurück</button>' +
       (storedParts(w).some((p) => p.slot === key)
         ? '<button class="ghost-btn" id="removeSlot">Aufsatz entfernen</button>'
         : '') +
       '</div>' +
-      '<p class="fine-print attachment-source">728 Katalog-Aufsätze · 1229 belegte Zuordnungen · 15 Kategorien. <a href="https://warzoneloadout.games/de/mw4/attachments" target="_blank" rel="noopener">Namensquelle ↗</a></p>',
+      '<p class="fine-print attachment-source"><a href="https://warzoneloadout.games/de/mw4/attachments" target="_blank" rel="noopener">Aufsatzkatalog ↗</a> · <a href="https://ggranked.com/games/call-of-duty-modern-warfare-4/meta/weapons" target="_blank" rel="noopener">Waffenlisten ↗</a></p>',
   );
   renderAttachmentOptions();
 }
@@ -164,66 +171,43 @@ function renderAttachmentOptions() {
     known = knownAttachmentIds(w),
     q = (el('attachmentSearch')?.value || '').trim().toLocaleLowerCase(),
     selected = storedParts(w).find((p) => p.slot === activeAttachSlot);
-  const options = ATTACHMENTS.filter(
-    (a) =>
-      a.active !== false &&
-      a.slot === activeAttachSlot &&
-      known.has(a.id) &&
-      [a.de, a.en, a.unlock, a.level].join(' ').toLocaleLowerCase().includes(q),
-  );
-  el('attachmentInfo').textContent =
-    options.length +
-    ' Aufsätze · ' +
-    (w.catalogAssigned
-      ? 'Vom Betreiber dieser Waffe zugeordnet.'
-      : attachmentScope === 'known'
-        ? 'Belegte Zuordnung für ' + w.name + '.'
-        : 'Alle Namen dieser Kategorie. Waffen-Verfügbarkeit im Spiel prüfen.');
-  document
-    .querySelectorAll('[data-attachment-scope]')
-    .forEach((b) => b.classList.toggle('selected', b.dataset.attachmentScope === attachmentScope));
+  const options = ATTACHMENTS.filter((a) => {
+    if (a.slot !== activeAttachSlot || !known.has(a.id)) return false;
+    const { de, en } = attachmentNames(a);
+    return [de, en, a.de, a.en, a.unlock, a.level].join(' ').toLocaleLowerCase().includes(q);
+  });
+  const selectedId = currentAttachmentId(w.id, selected?.id, known);
+  const isSelected = (a) => selected?.custom !== true && (selectedId
+    ? selectedId === a.id
+    : selected && [a.name, a.en, a.de, ...Object.values(attachmentNames(a))].includes(selected.name));
+  el('attachmentInfo').textContent = options.length + ' passende Aufsätze für ' + w.name;
   el('attachmentOptions').innerHTML = options.length
     ? options
         .map(
           (a) =>
             '<button class="attachment-option ' +
-            (selected && (selected.id === a.id || selected.name === a.en || selected.name === a.de)
-              ? 'selected'
-              : '') +
+            (isSelected(a) ? 'selected' : '') +
             '" data-attachment-id="' +
             html(a.id) +
             '"><span><strong>' +
-            html(a[attachmentLanguage]) +
+            html(attachmentNames(a)[attachmentLanguage]) +
             '</strong><small>Freischaltung: ' +
             html(a.unlock) +
             ' · Stufe ' +
             html(a.level || '–') +
-            (known.has(a.id) ? ' · passend für ' + html(w.name) : ' · Zuordnung offen') +
             '</small></span><span aria-hidden="true">' +
-            (selected && (selected.id === a.id || selected.name === a.en || selected.name === a.de)
-              ? '✓'
-              : '+') +
+            (isSelected(a) ? '✓' : '+') +
             '</span></button>',
         )
         .join('')
-    : '<div class="empty">Für diese Waffe ist hier noch kein passender Aufsatz zugeordnet.</div>';
+    : '<div class="empty">' + (q ? 'Keine zugeordneten Aufsätze für diese Suche.' : 'Für diese Waffe ist in dieser Kategorie kein Aufsatz zugeordnet.') + '</div>';
 }
 
 function saveCatalogAttachment(id) {
   const a = ATTACHMENT_BY[id];
   if (!a || a.slot !== activeAttachSlot) return;
   const w = weapon(picker.slot === 'secondary' ? 'secondary' : 'primary');
-  if (!knownAttachmentIds(w).has(id)) {
-    el('attachmentOptions').innerHTML =
-      '<div class="catalog-confirm"><h3>' +
-      html(a[attachmentLanguage]) +
-      '</h3><p>Die Quelle bestätigt diese Kombination mit ' +
-      html(w.name) +
-      ' noch nicht. Ist der Aufsatz in deinem Spiel für diese Waffe verfügbar?</p><button class="primary-btn" data-attachment-confirm="' +
-      html(id) +
-      '">Ja, übernehmen</button><button class="ghost-btn" id="backAttachmentOptions">Zurück zur Liste</button></div>';
-    return;
-  }
+  if (!knownAttachmentIds(w).has(id)) return;
   saveSlot(a.en, a.id);
 }
 
@@ -302,23 +286,15 @@ document.addEventListener('click', (e) => {
   if (button.dataset.attachmentLang) {
     attachmentLanguage = button.dataset.attachmentLang;
     localStorage.setItem('eupdate_attachment_language', attachmentLanguage);
+    const openSearch = el('attachmentSearch');
+    renderBuilder();
     renderGunsmith();
     renderCurrentDetail();
-    if (!el('modal').hidden) pickAttachment(activeAttachSlot);
-    return;
-  }
-  if (button.dataset.attachmentScope) {
-    attachmentScope = button.dataset.attachmentScope;
-    renderAttachmentOptions();
+    if (openSearch) pickAttachment(activeAttachSlot, openSearch.value);
     return;
   }
   if (button.dataset.attachmentId) {
     saveCatalogAttachment(button.dataset.attachmentId);
-    return;
-  }
-  if (button.dataset.attachmentConfirm) {
-    const part = ATTACHMENT_BY[button.dataset.attachmentConfirm];
-    if (part) saveSlot(part.en, part.id);
     return;
   }
   if (button.dataset.attachSlot) {
@@ -337,7 +313,6 @@ document.addEventListener('click', (e) => {
   if (button.id === 'loadExample')
     renderPartRows(VERIFIED[el('partRows').dataset.weapon].map(([slot, name]) => ({ slot, name })));
   if (button.id === 'saveParts') saveParts();
-  if (button.id === 'backAttachmentOptions') renderAttachmentOptions();
   if (button.id === 'addOwnAttachment') ownAttachmentForm();
   if (button.id === 'backOwnAttachment') pickAttachment(activeAttachSlot);
   if (button.id === 'nextAttachments') attachmentEdit('primary');
@@ -359,6 +334,7 @@ export {
   attachmentLanguage,
   attachmentLimit,
   attachmentName,
+  knownAttachmentIds,
   languageButtons,
   renderGunsmith,
   standardCount,
