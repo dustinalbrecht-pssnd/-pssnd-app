@@ -5930,7 +5930,7 @@ main,
 @media (min-width: 1120px) {
   :root {
     --desktop-shell: 1370px;
-    --desktop-nav-width: 148px;
+    --desktop-nav-width: 190px;
     --desktop-gap: 22px;
     --desktop-start: max(var(--desktop-gap), calc((100% - var(--desktop-shell)) / 2));
   }
@@ -5954,13 +5954,15 @@ main,
     border-radius: 16px;
   }
   .bottom-nav a {
+    display: grid;
+    grid-template-columns: 23px minmax(0, 1fr);
+    align-items: center;
     min-height: 48px;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 7px;
-    padding: 7px 8px;
+    gap: 9px;
+    padding: 7px 10px;
     border-radius: 10px;
     font-size: 13px;
+    text-align: left;
   }
   .bottom-nav a.active::before {
     inset: 24% auto 24% 0;
@@ -5972,12 +5974,15 @@ main,
     width: 23px;
     height: 23px;
   }
+  .bottom-nav .nav-icon {
+    justify-self: center;
+  }
 }
 
 /* Baukasten */
 .builder-view {
   --builder-edge: max(clamp(14px, 2.5vw, 36px), calc((100% - 1392px) / 2));
-  --builder-nav-width: 148px;
+  --builder-nav-width: var(--desktop-nav-width);
   --builder-nav-gap: 36px;
   --builder-control: color-mix(in srgb, var(--bg) 74%, var(--surface));
   --builder-outline: color-mix(in srgb, var(--line) 72%, transparent);
@@ -6606,6 +6611,8 @@ main,
   margin-top: 8px;
 }
 .settings-nav-icon {
+  font-family: 'Segoe UI Symbol', 'DejaVu Sans', sans-serif;
+  font-variant-emoji: text;
   font-size: 22px;
   line-height: 1;
 }
@@ -6629,18 +6636,6 @@ main,
   }
   .bottom-nav a[data-view="settings"] {
     padding-inline: 6px;
-  }
-}
-@media (min-width: 1120px) {
-  .bottom-nav a[data-view="settings"] {
-    gap: 3px;
-    padding-inline: 4px;
-    font-size: 11px;
-  }
-  .bottom-nav a[data-view="settings"] .settings-nav-icon {
-    flex: none;
-    width: 17px;
-    font-size: 17px;
   }
 }
 .attachment-tile.apex-locked,
