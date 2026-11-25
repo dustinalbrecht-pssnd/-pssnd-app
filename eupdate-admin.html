@@ -1863,6 +1863,112 @@ label :is(input, textarea, select) {
         margin: 12px 0;
         padding: 10px;
       }
+      .mw4-settings-editor {
+        margin-bottom: 14px;
+      }
+      .mw4-settings-editor h2 {
+        margin: 0 0 6px;
+      }
+      .mw4-settings-editor p {
+        margin: 6px 0 12px;
+      }
+      .mw4-settings-controls {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding-block: 8px;
+        background: var(--surface);
+      }
+      .mw4-settings-tools {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+        gap: 12px;
+      }
+      .mw4-settings-editor label {
+        display: grid;
+        align-content: start;
+        gap: 5px;
+        min-width: 0;
+        font-weight: 650;
+      }
+      .mw4-settings-editor label small {
+        color: var(--muted);
+        font-size: 0.82em;
+        font-weight: 400;
+      }
+      .mw4-settings-editor select,
+      .mw4-settings-editor input {
+        width: 100%;
+        min-width: 0;
+      }
+      .mw4-settings-fields section {
+        margin-top: 16px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--bg);
+      }
+      .mw4-settings-fields h3 {
+        margin: 0 0 12px;
+      }
+      .mw4-fields-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+        gap: 12px;
+      }
+      .mw4-field,
+      .mw4-quick-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px;
+      }
+      .mw4-fields-grid label {
+        grid-template-rows: 1fr auto;
+      }
+      .mw4-fields-grid label > span {
+        display: grid;
+        gap: 2px;
+      }
+      .mw4-settings-editor button.mw4-favorite {
+        align-self: start;
+        min-width: 38px;
+        padding: 4px 7px;
+        color: var(--muted);
+        font-size: 19px;
+      }
+      .mw4-settings-editor button.mw4-favorite[aria-pressed="true"] {
+        color: var(--gold, #ffda0a);
+      }
+      .mw4-quick-row {
+        padding-block: 8px;
+      }
+      .mw4-quick-row + .mw4-quick-row {
+        border-top: 1px solid var(--line);
+      }
+      .mw4-quick-row small {
+        display: block;
+        color: var(--muted);
+      }
+      .mw4-settings-fields [hidden] {
+        display: none;
+      }
+      .mw4-settings-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-block: 14px 0;
+      }
+      #mw4PublishStatus[data-error="true"] {
+        color: #ff9797;
+      }
+      .custom-settings > summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .custom-settings > .toolbar:first-of-type {
+        margin-top: 14px;
+      }
       .traffic-summary {
         display: grid;
         grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
@@ -2361,17 +2467,45 @@ label :is(input, textarea, select) {
               <div id="adsList"></div>
             </section>
             <section id="gamesettingsView" class="view" hidden>
-              <div class="toolbar">
-                <button type="button" id="newSettingEntry" class="primary" disabled>+ Einstellung hinzufügen</button>
-                <button type="button" id="newSettingCategory" disabled>+ Kategorie hinzufügen</button>
-              </div>
-              <div class="toolbar">
-                <input id="adminSettingSearch" type="search" aria-label="Einstellungen suchen" placeholder="Einstellungen suchen …" />
-                <select id="adminSettingCategory" aria-label="Kategorie filtern"><option value="">Alle Kategorien</option></select>
-              </div>
-              <p id="adminSettingsStatus" class="muted" role="status"></p>
-              <div id="settingEntryList"></div>
-              <details class="panel"><summary>Kategorien verwalten</summary><div id="settingCategoryList"></div></details>
+              <form id="mw4SettingsForm" class="panel mw4-settings-editor" autocomplete="off">
+                <h2>MW4-Spielmenü</h2>
+                <p class="muted">Wähle ein Menü und trage die Werte aus dem Spiel ein. Veröffentlichte Werte erscheinen auf der Website. Wenn du einen Wert leerst und erneut veröffentlichst, wird er dort entfernt.</p>
+                <div class="mw4-settings-controls">
+                  <div class="mw4-settings-tools">
+                    <label>Spielmenü<select id="mw4PresetCategory" disabled></select></label>
+                    <label>Felder suchen<input type="search" id="mw4PresetSearch" placeholder="z. B. Totzone" disabled /></label>
+                  </div>
+                  <div class="mw4-settings-actions">
+                    <button type="submit" class="primary" id="mw4PublishValues" disabled>Werte veröffentlichen</button>
+                    <button type="button" id="mw4DownloadValues" disabled>Veröffentlichte Werte als Bild ↓</button>
+                  </div>
+                  <p id="mw4PublishStatus" role="status" hidden></p>
+                  <p id="mw4MenuStatus" class="muted" role="status"></p>
+                </div>
+                <div id="mw4PresetFields" class="mw4-settings-fields"></div>
+                <details id="mw4AccountMenu" hidden>
+                  <summary>Kontodaten, Netzwerk-Info und Import im Spiel</summary>
+                  <dl>
+                    <dt>Activision-Konto</dt><dd>Anzeigename, E-Mail, verknüpfte Plattformen und Zwei-Faktor-Authentifizierung.</dd>
+                    <dt>Netzwerk-Info</dt><dd>NAT-Typ, Verbindungsstatus, geografische Region und IP-Adresse.</dd>
+                    <dt>Einstellungen importieren</dt><dd>Controller-, Grafik- und Audio-Werte im Spiel aus früheren Call-of-Duty-Teilen übernehmen.</dd>
+                  </dl>
+                </details>
+              </form>
+              <details class="panel custom-settings">
+                <summary>Eigene Einstellungen und Kategorien</summary>
+                <div class="toolbar">
+                  <button type="button" id="newSettingEntry" class="primary" disabled>+ Einstellung hinzufügen</button>
+                  <button type="button" id="newSettingCategory" disabled>+ Kategorie hinzufügen</button>
+                </div>
+                <div class="toolbar">
+                  <input id="adminSettingSearch" type="search" aria-label="Eigene Einstellungen suchen" placeholder="Eigene Einstellungen suchen …" />
+                  <select id="adminSettingCategory" aria-label="Kategorie filtern"><option value="">Alle Kategorien</option></select>
+                </div>
+                <p id="adminSettingsStatus" class="muted" role="status"></p>
+                <div id="settingEntryList"></div>
+                <details class="panel"><summary>Kategorien verwalten</summary><div id="settingCategoryList"></div></details>
+              </details>
             </section>
             <section id="analyticsView" class="view" hidden>
               <div class="toolbar">
@@ -2443,7 +2577,7 @@ label :is(input, textarea, select) {
                     >Kontakt für Werbeanfragen<input name="advertisingEmail" maxlength="300" /></label
                   ><label class="">Menü · Ranking<input name="navRanking" maxlength="300" /></label
                   ><label class="">Menü · Bauen<input name="navBuilder" maxlength="300" /></label
-                  ><label class="">Menü · MW4-Einstellungen<input name="navGameSettings" maxlength="300" /></label
+                  ><label class="">Menü · Einstellungen<input name="navGameSettings" maxlength="300" /></label
                   ><label class="wide"
                     >Zusätzliche Datenschutzhinweise<textarea
                       name="privacyText"
@@ -2740,7 +2874,7 @@ label :is(input, textarea, select) {
       import { mountCatalogImport } from './assets/katalog-import.js';
       import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
-      import { mountAdminSettings } from './assets/admin-einstellungen.js';
+      import { mountAdminSettings } from './assets/admin-einstellungen.js?v=mw4-katalog-20261125';
       import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
       import {
         attachmentNames,
@@ -4231,7 +4365,7 @@ label :is(input, textarea, select) {
         $('deleteAdError').hidden = true;
         renderAdDeleteControls();
         try {
-          const result = await request('/api/admin/content/ads/' + encodeURIComponent(removal.id), 'DELETE');
+          const result = await request('/api/admin/content/ads/' + encodeURIComponent(removal.id), 'DELETE', {});
           if (!isCurrent()) return;
           if (result.ok !== true) throw Error('Der Server hat das Löschen nicht bestätigt.');
           // A dashboard request started before deletion can still hold the old list.
