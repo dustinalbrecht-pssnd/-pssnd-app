@@ -1944,7 +1944,7 @@ label :is(input, textarea, select) {
                 <h2 id="taskTitle">Offene Aufgaben</h2>
                 <div class="task-grid">
                   <button type="button" class="task-card" data-tab="posts" data-task="posts">
-                    <strong id="pendingCount">0</strong><span>Loadouts prüfen</span>
+                    <strong id="pendingCount">0</strong><span>Ausstehende Loadouts prüfen</span>
                   </button>
                   <button type="button" class="task-card" data-tab="comments" data-task="comments">
                     <strong id="moderationCount">0</strong><span>Kommentare &amp; Meldungen prüfen</span>
@@ -2072,16 +2072,19 @@ label :is(input, textarea, select) {
             <section class="view" id="postsView" hidden="">
               <div class="toolbar">
                 <button type="button" class="primary" id="newAdminLoadout">+ Loadout erstellen</button>
-                <select id="postKind" style="width: auto">
+                <select id="postKind" aria-label="Beitragsart" style="width: auto">
                   <option value="all">Alle Beiträge</option>
                   <option value="sets">Community-Loadouts</option>
-                  <option value="creators">Streamer-Loadouts</option></select
-                ><select id="postState" style="width: auto">
+                  <option value="creators">Streamer-Loadouts</option>
+                </select>
+                <select id="postState" aria-label="Status" style="width: auto">
+                  <option value="all">Alle Status</option>
                   <option value="pending">Ausstehend</option>
                   <option value="approved">Veröffentlicht</option>
                   <option value="hidden">Ausgeblendet</option>
-                  <option value="all">Alle Status</option>
                 </select>
+                <input id="postSearch" type="search" aria-label="Loadout suchen" placeholder="Titel, Name oder #ID"
+                  style="width: min(100%, 245px)" />
               </div>
               <div class="admin-prelaunch" id="postLaunchNote">
                 Du kannst Loadouts als Entwurf speichern und nach der Community-Freigabe veröffentlichen.
@@ -2089,6 +2092,7 @@ label :is(input, textarea, select) {
               <div class="actions">
                 <button type="button" data-activity-seen="posts">Als gesehen markieren</button>
               </div>
+              <p id="postResultCount" class="muted" role="status"></p>
               <div id="postsList"></div>
             </section>
             <section class="view" id="feedbackView" hidden>
@@ -2786,10 +2790,10 @@ label :is(input, textarea, select) {
         publicRelease = release;
         computeActivity();
         renderOverview();
+        renderPosts();
 
         const focused = document.activeElement;
         if (!automatic || !focused?.closest('input, textarea, select')) {
-          renderPosts();
           renderNews();
           if (!focused?.closest('[data-report-form]')) renderComments();
           renderFeedback();
@@ -2911,9 +2915,8 @@ label :is(input, textarea, select) {
         const button = e.target.closest('button[data-start], button[data-tab]');
         if (!button || button.disabled || !dashboard) return;
         const view = button.dataset.start || button.dataset.tab;
-        if (button.dataset.task === 'posts') {
-          $('postKind').value = 'all';
-          $('postState').value = 'pending';
+        if (view === 'posts') {
+          resetPostFilters(button.dataset.task === 'posts' ? 'pending' : 'all');
           renderPosts();
         }
         if (button.dataset.task === 'comments') {
@@ -2954,12 +2957,26 @@ label :is(input, textarea, select) {
         return weaponDetails.join('') + (gear.length ? '<p><strong>Ausrüstung</strong></p><ul>' + gear.join('') + '</ul>' : '');
       }
 
+      function resetPostFilters(status = 'all') {
+        $('postKind').value = 'all';
+        $('postState').value = status;
+        $('postSearch').value = '';
+      }
+
       function renderPosts() {
+        if (!dashboard) return;
         const kind = $('postKind').value,
           status = $('postState').value,
-          list = dashboard.posts.filter(
-            (x) => (kind === 'all' || x.kind === kind) && (status === 'all' || x.status === status),
-          );
+          query = $('postSearch').value.trim().toLocaleLowerCase('de'),
+          id = /^#?\d+$/.test(query) ? Number(query.replace(/^#/, '')) : null;
+        const list = dashboard.posts.filter((post) => {
+          if (kind !== 'all' && post.kind !== kind) return false;
+          if (status !== 'all' && post.status !== status) return false;
+          if (!query) return true;
+          if (id !== null) return Number(post.id) === id;
+          return [post.title, post.name].some((value) => String(value || '').toLocaleLowerCase('de').includes(query));
+        });
+        $('postResultCount').textContent = list.length + ' von ' + dashboard.posts.length + ' Loadouts';
         $('postsList').innerHTML = list.length
           ? list
               .map(
@@ -4284,10 +4301,7 @@ label :is(input, textarea, select) {
           data.creatorInvitationId = raw.get('creatorInvitationId') || '';
           data.status = raw.get('status') || 'pending';
           await request('/api/admin/posts' + (item.id ? '/' + item.id : ''), item.id ? 'PUT' : 'POST', data);
-          if (!item.id) {
-            $('postKind').value = data.kind;
-            $('postState').value = data.status;
-          }
+          if (!item.id) resetPostFilters();
         } else if (type === 'news') {
           await request(
             '/api/admin/news' + (item ? '/' + item.id : ''),
@@ -5200,8 +5214,7 @@ label :is(input, textarea, select) {
         load()
           .then(() => note('Aktualisiert'))
           .catch((e) => note(e.message));
-      $('postKind').onchange = renderPosts;
-      $('postState').onchange = renderPosts;
+      $('postSearch').addEventListener('input', renderPosts);
       $('commentState').onchange = renderComments;
       $('reportState').onchange = renderComments;
       document.addEventListener('click', async (e) => {
@@ -5214,7 +5227,9 @@ label :is(input, textarea, select) {
             let reason = '';
             if (['hidden', 'delete'].includes(action)) {
               reason = prompt(
-                'Begründung für den Verfasser (mindestens 10 Zeichen). Beschreibe Sachverhalt und verletzte Regel / Rechtsgrundlage. Keine fremden privaten Daten.',
+                action === 'delete'
+                  ? 'Begründung für den Verfasser (mindestens 10 Zeichen). Bei einem eigenen Test kannst du „Test-Loadout entfernt“ angeben.'
+                  : 'Begründung für den Verfasser (mindestens 10 Zeichen). Beschreibe Sachverhalt und verletzte Regel / Rechtsgrundlage. Keine fremden privaten Daten.',
                 '',
               );
               if (reason === null) return;
@@ -5223,13 +5238,19 @@ label :is(input, textarea, select) {
                 return;
               }
             }
-            if (action === 'delete' && !confirm('Beitrag und zugehörige Likes endgültig löschen?')) return;
-            await request('/api/admin/posts/' + id, action === 'delete' ? 'DELETE' : 'PATCH', {
-              status: action,
-              reason,
-            });
-            await load();
-            note('Beitrag aktualisiert');
+            if (action === 'delete' && !confirm('Loadout #' + id + ' und seine zugehörigen Likes endgültig löschen?')) return;
+            b.disabled = true;
+            try {
+              await request('/api/admin/posts/' + id, action === 'delete' ? 'DELETE' : 'PATCH', {
+                status: action,
+                reason,
+              });
+              await load();
+              note(action === 'delete' ? 'Loadout #' + id + ' gelöscht.' : 'Beitrag aktualisiert');
+            } finally {
+              b.disabled = false;
+            }
+            return;
           }
           if (b.dataset.editNews) {
             const item = dashboard.news.find((x) => String(x.id) === b.dataset.editNews);
@@ -5505,8 +5526,7 @@ label :is(input, textarea, select) {
         const tab = e.target.closest('#activityLinks [data-tab]')?.dataset.tab;
         if (!tab || !activityNew[tab]?.size) return;
         if (tab === 'posts') {
-          $('postKind').value = 'all';
-          $('postState').value = 'all';
+          resetPostFilters();
           renderPosts();
         }
         if (tab === 'comments') {
