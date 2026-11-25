@@ -2541,6 +2541,7 @@ label :is(input, textarea, select) {
     <script type="module">
       import { MW_IMAGES } from './assets/waffenbilder.js';
       import { mountCatalogImport } from './assets/katalog-import.js';
+      import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
       import {
         attachmentNames,
         currentAttachmentId,
@@ -4090,6 +4091,8 @@ label :is(input, textarea, select) {
         editorState = { type: 'posts', item: x, busy: false };
         $('saveContent').textContent = 'Änderungen speichern';
         const names = Object.fromEntries((dashboard.weapons || []).map((w) => [w.id, w.name]));
+        const seasons = new Map(loadoutWeaponSeasons(x));
+        const editSeasons = serverHealth?.features?.includes('weapon-seasons');
         $('editorTitle').textContent =
           (x.kind === 'creators' ? 'Streamer' : 'Loadout') + ' #' + x.id + ' bearbeiten';
         $('editorFields').innerHTML =
@@ -4108,6 +4111,13 @@ label :is(input, textarea, select) {
             x.primary,
           ) +
           selectField('secondary', 'Sekundärwaffe', names, x.secondary) +
+          (editSeasons
+            ? '<label>Season der Primärwaffe<input name="primarySeason" type="number" min="0" max="9007199254740991" step="1" value="' +
+              (weaponSeason(x, x.primary) ?? '') +
+              '"></label><label>Season der Sekundärwaffe<input name="secondarySeason" type="number" min="0" max="9007199254740991" step="1" value="' +
+              (weaponSeason(x, x.secondary) ?? '') +
+              '"></label>'
+            : '') +
           '</div>' +
           areaField('note', 'Beschreibung', x.note) +
           (x.kind === 'creators'
@@ -4146,12 +4156,25 @@ label :is(input, textarea, select) {
             .join('') +
           '</div>';
         const form = $('contentEditor');
-        form.elements.primary.onchange = () => {
-          $('editPrimaryParts').innerHTML = postPartsFields(form.elements.primary.value, []);
-        };
-        form.elements.secondary.onchange = () => {
-          $('editSecondaryParts').innerHTML = postPartsFields(form.elements.secondary.value, []);
-        };
+        for (const [slot, partsId] of [['primary', 'editPrimaryParts'], ['secondary', 'editSecondaryParts']]) {
+          const weapon = form.elements[slot];
+          const season = form.elements[slot + 'Season'];
+          weapon.onchange = () => {
+            $(partsId).innerHTML = postPartsFields(weapon.value, []);
+            if (season) season.value = seasons.get(weapon.value) ?? '';
+          };
+          if (season) {
+            season.oninput = () => {
+              if (!season.validity.valid) return;
+              if (season.value === '') seasons.delete(weapon.value);
+              else seasons.set(weapon.value, season.valueAsNumber);
+              const otherSlot = slot === 'primary' ? 'secondary' : 'primary';
+              if (form.elements[otherSlot].value === weapon.value) {
+                form.elements[otherSlot + 'Season'].value = season.value;
+              }
+            };
+          }
+        }
         wireEditorImage();
         wireLoadoutControls();
         $('contentDialog').showModal();
@@ -4164,6 +4187,14 @@ label :is(input, textarea, select) {
           { type, item } = editorState;
         if (type === 'posts') {
           data.game = 'mw4';
+          if (raw.has('primarySeason')) {
+            data.weaponSeasons = {};
+            for (const slot of ['primary', 'secondary']) {
+              const value = raw.get(slot + 'Season');
+              if (value !== '') data.weaponSeasons[data[slot]] = Number(value);
+              delete data[slot + 'Season'];
+            }
+          }
           data.photo = editorImage;
           data.dmzLoot = raw.has('dmzLoot');
           data.gear = {};
