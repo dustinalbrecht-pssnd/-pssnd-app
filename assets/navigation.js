@@ -2,7 +2,7 @@ const routes = {
   feed: 'ranking',
   builder: 'Bauen',
   attachments: 'Aufsaetze',
-  creators: 'Creator',
+  settings: 'Einstellungen',
   events: 'News',
   detail: 'Loadout',
 };
@@ -67,6 +67,13 @@ export function currentParam(name) {
   return activeURL?.searchParams.get(name);
 }
 
+export function replaceViewParam(name, value) {
+  if (!activeURL) return;
+  if (value) activeURL.searchParams.set(name, value);
+  else activeURL.searchParams.delete(name);
+  history.replaceState(null, '', activeURL);
+}
+
 export async function navigate(view, { params, replace = false, fromHistory = false } = {}) {
   if (!Object.hasOwn(routes, view)) return false;
 
@@ -114,7 +121,7 @@ export function startNavigation(activate) {
     )
       return;
     event.preventDefault();
-    navigate(control.dataset.view);
+    navigate(control.dataset.view, { params: control.dataset.streamerView === '1' ? { streamer: '1' } : undefined });
   });
 
   window.addEventListener('popstate', () => {
@@ -127,6 +134,13 @@ export function startNavigation(activate) {
   const oldHash = location.hash.slice(1);
   const legacyView =
     oldHash === 'detail' && !new URLSearchParams(location.search).has('id') ? 'feed' : oldHash;
+  const params = new URLSearchParams(location.search);
+  params.delete('quelle');
+  if (['creators', 'creator', 'streamer'].includes(legacyView) || page === 'creators') {
+    params.set('streamer', '1');
+    navigate('feed', { params, replace: true });
+    return;
+  }
   const view = Object.hasOwn(routes, legacyView) ? legacyView : page;
-  navigate(view, { params: new URLSearchParams(location.search), replace: true });
+  navigate(view, { params, replace: true });
 }

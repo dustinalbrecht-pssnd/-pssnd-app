@@ -701,8 +701,8 @@ async function saveExport() {
   toast('Bild bereit ✓');
 }
 
-async function downloadRank(id) {
-  const item = feed.find((x) => x.id === id) || creators.find((x) => x.id === id);
+async function downloadRank(id, kind) {
+  const item = kind === 'creators' ? creators.find((x) => x.id === id) : feed.find((x) => x.id === id);
   if (item) await exportPng(item, true);
 }
 

@@ -1,15 +1,17 @@
 import { BY, GAME, MODE, WM, art, loadWeaponCatalog } from './katalog.js';
 import { downloadRank, exportPng, image } from './bildexport.js';
 import { importLoadout, payload, postLoadout, renderBuilder, validateDraft } from './bauen.js';
-import { renderCreators } from './creator.js';
 import { currentParam, navigate, startNavigation } from './navigation.js';
 import { GEAR_NAMES, managedItems } from './ausruestung.js';
 import { availableInMode } from './mw4-ausruestung.js';
-import { avatar, renderFeed, setFeedStatus, updateCommunityConnection } from './ranking.js';
+import { activateRanking, avatar, renderFeed, setFeedStatus, updateCommunityConnection } from './ranking.js';
 import { renderCurrentDetail } from './loadout.js';
 import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
 import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
+import { showGameSettings } from './einstellungen.js';
+import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
+import { countPageView } from './zugriffe.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
 
@@ -27,6 +29,7 @@ const BO7_MODES = ['wz', 'mp', 'ranked', 'zm'],
   MW4_MODES = ['wz', 'mp', 'ranked', 'dmz'];
 
 let weeklyWinnerIds = [],
+  weeklyStreamerWinnerIds = null,
   weeklyPeriod = null;
 
 let state = { game: 'mw4', mode: 'wz', builds: {}, liked: false },
@@ -371,8 +374,7 @@ async function submitCreator(e) {
       toast('Auf diesem Gerät gespeichert ✓');
     }
     closeModal();
-    renderCreators();
-    navigate('creators');
+    navigate('feed', { params: { streamer: '1' } });
   } catch (err) {
     await updateChangedPrivacy(e.target, err);
     btn.disabled = false;
@@ -566,7 +568,6 @@ async function refresh() {
     setFeedStatus('Deine Beiträge auf diesem Gerät · öffentliche Rangliste nach Serververbindung');
     updateCommunityConnection('setup');
     renderFeed();
-    renderCreators();
     communityLoaded = true;
     renderCurrentDetail();
     return;
@@ -578,6 +579,7 @@ async function refresh() {
     if (!r.ok) throw Error();
     const data = await r.json();
     weeklyWinnerIds = Array.isArray(data.weeklyWinnerIds) ? data.weeklyWinnerIds : [];
+    weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
     weeklyPeriod = data.week || null;
     feed = (data.sets || [])
       .filter((x) => BY[x.primary] && GAME[x.game] && MODE[x.mode])
@@ -590,7 +592,6 @@ async function refresh() {
     updateSupportHeart();
     updateCommunityConnection('');
     renderFeed();
-    renderCreators();
     setFeedStatus(
       'Community · aktualisiert ' +
         new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) +
@@ -690,6 +691,7 @@ function privacyMarkup() {
     (c.hostingDetails
       ? '<h3>Hostingangaben des Betreibers</h3><p>' + html(c.hostingDetails).replace(/\n/g, '<br>') + '</p>'
       : '<p class="legal-draft">Die konkreten Angaben zu Hosting-Verträgen, Speicherregion und Übermittlungsgarantien werden vor der Startfreigabe ergänzt. Neue Veröffentlichungen sind bis dahin gesperrt.</p>') +
+    '<h3>Statistik zu Seitenaufrufen</h3><p>eUpdate zählt pro Tag die aufgerufene Seite, die Herkunfts-Domain und das Land, soweit diese Angaben vorliegen. Für diese Zählung speichert eUpdate weder Besucherkennungen noch IP-Adressen und setzt keine Analyse-Cookies. Do Not Track und Global Privacy Control werden berücksichtigt.</p>' +
     '<h3>KI-gestützte Aufbereitung öffentlicher Gaming-Nachrichten</h3><p>eUpdate nutzt Cloudflare Workers AI (Cloudflare, Inc.) zur automatisierten sprachlichen Bearbeitung, Übersetzung und Zusammenfassung öffentlich zugänglicher Gaming-Nachrichten. Dabei werden Artikeltexte, Überschriften und Quellenangaben an das KI-Modell übermittelt. Nutzereingaben aus Kommentaren, Loadouts, Profilen, Feedback und private Kontaktdaten werden für diese News-Funktion nicht an das KI-Modell übermittelt. Die News-Verarbeitung erfolgt serverseitig unabhängig vom einzelnen Besuch. Beim bloßen Lesen einer News wird keine personenbezogene Anfrage an das KI-Modell gesendet. Enthalten öffentlich zugängliche Quellartikel personenbezogene Angaben, können diese Teil der KI-Eingabe sein; ihre Verarbeitung muss im Einzelfall auf eine Rechtsgrundlage gestützt werden. Die hierfür eingesetzten Cloudflare-Dienste und etwaige Drittlandübermittlungen sind unter den Hostingangaben beschrieben. Weitere Informationen: <a href="https://developers.cloudflare.com/workers-ai/platform/data-usage/" target="_blank" rel="noopener noreferrer">Cloudflare Workers AI – Datenverwendung ↗</a>.</p>' +
     '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden. Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Hochgeladene Profilfotos werden im Browser zugeschnitten und als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
     '<h3>4. Kommentare und Moderation</h3><p>Bei einem Kommentar speichern wir den optionalen Spielernamen, Text, Loadout-Bezug, Zeitpunkt, Freigabestatus, Nachweis deiner Bestätigung und Einwilligung und einen Hash deines privaten Löschschlüssels. Bei eingeschalteter Automatik erscheinen Kommentare ohne erkannte Auffälligkeit sofort mit deinem Namen öffentlich. Auffällige Kommentare bleiben bis zur manuellen Freigabe privat. Für öffentliche Kommentare bestätigst du ebenfalls Volljährigkeit und die Nutzungsregeln. Der Betreiber kann die Automatik ausschalten; dann werden alle neuen Kommentare vor Veröffentlichung geprüft. Ohne Namen erscheint „Gast“. Grundlage der Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO; Moderation und Missbrauchsschutz beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Kommentare über „Meine Beiträge“ löschen oder deine Einwilligung über den Betreiberkontakt widerrufen.</p><p>Ein serverseitiger Regelfilter prüft Namen und Text auf hinterlegte Begriffe, Links, mögliche Kontaktangaben, auffällige Schreibweisen und Spam. Bekannte gesperrte Ausdrücke und direkte Links führen zur Ablehnung; andere erkannte Auffälligkeiten zur manuellen Prüfung. Dabei wird keine externe KI genutzt und kein Kommentar an einen KI-Anbieter gesendet. Abgewiesene Texte werden nicht in der App-Datenbank gespeichert. Der Filter kann harmlose Texte anhalten oder problematische Texte übersehen. Öffentliche Inhalte lassen sich melden; der Betreiber kann sie ausblenden oder löschen. Bei einer irrtümlichen Ablehnung oder einer offenen Prüfung kannst du den Betreiber kontaktieren.</p>' +
@@ -704,7 +706,7 @@ function privacyMarkup() {
   );
 }
 
-const PRIVACY_TEMPLATE_VERSION = '2026-10-17-ai-transparency-1';
+const PRIVACY_TEMPLATE_VERSION = '2026-11-25-traffic-1';
 
 function noticeVersion() {
   return siteConfig.privacyNoticeVersion || PRIVACY_TEMPLATE_VERSION;
@@ -1081,7 +1083,7 @@ function openSupport() {
 document.addEventListener('click', (e) => {
   const n = e.target.closest('button');
   if (!n) return;
-  if (n.dataset.download) downloadRank(Number(n.dataset.download));
+  if (n.dataset.download) downloadRank(Number(n.dataset.download), n.dataset.downloadKind);
   if (n.id === 'openPrivacy') privacy();
   if (n.id === 'openImprint') imprint();
   if (n.id === 'openUsage') modal(head('Nutzungsregeln', 'Öffentlich teilen · ohne Konto') + usageMarkup());
@@ -1142,18 +1144,13 @@ function applySiteContent() {
   if (routeTitle) document.title = (c.appName || 'eUpdate') + ' · ' + routeTitle;
   if (!communityCopyReady) return;
   if (c.appName) document.querySelector('.brand > span:last-child').firstChild.textContent = c.appName;
-  const creatorHint = el('view-creators')?.querySelector('.local-hint');
-  if (creatorHint)
-    creatorHint.textContent = c.communityReady
-      ? 'Ohne Konto veröffentlichen. Beiträge werden vor der Freigabe geprüft.'
-      : 'Die Community öffnet bald. Bauen und Bildexport sind schon möglich.';
   for (const [view, key] of Object.entries({
     feed: 'navRanking',
     builder: 'navBuilder',
-    creators: 'navCreators',
+    settings: 'navGameSettings',
   })) {
     const button = document.querySelector('.bottom-nav [data-view="' + view + '"]');
-    if (c[key]) {
+    if (button && c[key]) {
       const nodes = [...button.childNodes].filter((n) => n.nodeType === 3);
       if (nodes.length) nodes[nodes.length - 1].textContent = c[key];
     }
@@ -1161,10 +1158,9 @@ function applySiteContent() {
   const copy = [
     ['#rankingTitle', 'rankingTitle'],
     ['#rankingSubtitle', 'rankingSubtitle'],
-    ['#creatorSubtitle', 'creatorSubtitle'],
+    ['#gameSettingsHeading', 'gameSettingsTitle'],
     ['#view-builder .page-heading h1', 'builderTitle'],
     ['#view-builder .page-heading p', 'builderText'],
-    ['#view-creators .page-heading h1', 'creatorTitle'],
     ['#view-events .page-heading p', 'eventsText'],
     ['#setupTitle', 'setupTitle'],
     ['#setupText', 'setupText'],
@@ -1174,6 +1170,11 @@ function applySiteContent() {
       const n = document.querySelector(selector);
       if (n) n.textContent = c[key];
     }
+  const settingsIntro = el('gameSettingsIntro');
+  if (settingsIntro) {
+    settingsIntro.textContent = c.gameSettingsSubtitle || '';
+    settingsIntro.hidden = !settingsIntro.textContent;
+  }
   const newsFootnote = document.querySelector('.live-footnote');
   if (newsFootnote)
     newsFootnote.textContent =
@@ -1183,26 +1184,18 @@ function applySiteContent() {
   const cards = managedItems('ads') || [],
     advertising = el('appAdvertising');
   if (advertising)
-    advertising.innerHTML = cards
-      .map(
-        (x) =>
-          '<article class="ad-card"><span class="eyebrow">WERBUNG</span>' +
-          (x.img ? '<img src="' + html(x.img) + '" alt="">' : '') +
-          '<strong>' +
-          html(x.title) +
-          '</strong><p>' +
-          html(x.text) +
-          '</p>' +
-          (x.url
-            ? '<a href="' +
-              html(x.url) +
-              '" target="_blank" rel="noopener noreferrer sponsored">Mehr erfahren ↗</a>'
-            : '') +
-          '</article>',
-      )
-      .join('');
+    advertising.innerHTML = cards.map((ad) => {
+      const banner = ad.img ? '<img class="ad-banner" src="' + html(ad.img) + '" alt="' + html(ad.title) +
+        '" width="' + BANNER_WIDTH + '" height="' + BANNER_HEIGHT + '" loading="lazy">' : '';
+      const link = /^https:\/\/[^\s"<>]+$/.test(ad.url || '') ?
+        ' href="' + html(ad.url) + '" target="_blank" rel="noopener noreferrer sponsored"' : '';
+      const media = banner && link ? '<a class="ad-banner-link"' + link + '>' + banner + '</a>' : banner;
+      return '<article class="ad-card"><span class="eyebrow">Werbung</span>' + media +
+        '<strong>' + html(ad.title) + '</strong>' + (ad.text ? '<p>' + html(ad.text) + '</p>' : '') +
+        (link ? '<a' + link + '>Mehr erfahren ↗</a>' : '') + '</article>';
+    }).join('');
   el('advertisingContact').innerHTML = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.advertisingEmail || '')
-    ? '<a href="mailto:' + html(c.advertisingEmail) + '">Werbung auf eUpdate anfragen ↗</a>'
+    ? '<a href="mailto:' + html(c.advertisingEmail) + '">Werbung anfragen · Banner 1.200 × 400 px ↗</a>'
     : '';
   renderBuilder();
   if (el('tipModes')) renderTips();
@@ -1888,16 +1881,17 @@ document.addEventListener('keydown', (e) => {
 function activateView(view) {
   document.body.classList.toggle('builder-view', view === 'builder');
   arrangeHeader();
-  if (view === 'feed') renderFeed();
+  if (view === 'feed') activateRanking();
   if (view === 'builder') renderBuilder();
   if (view === 'attachments') {
     picker.slot = currentParam('slot') === 'secondary' ? 'secondary' : 'primary';
     renderGunsmith();
   }
-  if (view === 'creators') renderCreators();
   if (view === 'events') renderLive();
   if (view === 'detail') renderCurrentDetail();
+  if (view === 'settings') showGameSettings();
   applySiteContent();
+  countPageView(API, view);
 }
 
 function start() {
@@ -2127,5 +2121,6 @@ export {
   toast,
   updateChangedPrivacy,
   weapon,
+  weeklyStreamerWinnerIds,
   weeklyWinnerIds,
 };

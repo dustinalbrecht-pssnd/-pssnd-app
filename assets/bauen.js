@@ -38,7 +38,7 @@ import {
 } from './app.js';
 import { navigate } from './navigation.js';
 import {
-  attachmentEdit, attachmentLanguage, attachmentLimit, attachmentName, attachmentUnavailable, knownAttachmentIds,
+  apexConflictMessage, attachmentEdit, attachmentLanguage, attachmentLimit, attachmentName, attachmentUnavailable, knownAttachmentIds,
   languageButtons, renderGunsmith, standardCount,
 } from './aufsaetze.js';
 import { currentAttachmentId, weaponNames } from './katalog-abgleich.js';
@@ -53,7 +53,7 @@ import {
   gearSecondaryMarkup,
   gearSlots,
 } from './ausruestung.js';
-import { avatar, redrawFeed, visibleRank } from './ranking.js';
+import { avatar, rankPlace, redrawFeed } from './ranking.js';
 import { loadoutWeaponSeasons, weaponSeason } from './season.js';
 
 function setGame(game) {
@@ -328,10 +328,11 @@ function renderWeaponCards(b) {
     const parts = storedParts(w);
     const meta = card.querySelector('.build-weapon-meta');
     const allowed = availableInMode(w, state.mode);
+    const conflict = apexConflictMessage(parts);
     meta.textContent = allowed
-      ? CLASS[w.cls].split(' · ').at(-1) + (parts.some((p) => p.slot === 'apex') ? ' · Apex' : '')
+      ? CLASS[w.cls].split(' · ').at(-1) + (conflict ? ' · ' + conflict : parts.some((p) => p.slot === 'apex') ? ' · Apex' : '')
       : (w ? 'Gesperrt in ' : 'Wähle eine freigegebene Waffe für ') + MODE[state.mode];
-    meta.classList.toggle('build-weapon-restriction', !allowed);
+    meta.classList.toggle('build-weapon-restriction', !allowed || Boolean(conflict));
     const attach = card.querySelector('[data-attach]');
     attach.querySelector('.build-attachment-count').textContent = standardCount(parts) + '/' + attachmentLimit();
     attach.disabled = !w;
@@ -479,8 +480,14 @@ function validateDraft() {
       toast('Wähle eine freigegebene ' + (slot === 'primary' ? 'Primärwaffe' : 'Sekundärwaffe') + ' für ' + MODE[state.mode] + '.');
       return false;
     }
+    const parts = storedParts(w);
+    const conflict = apexConflictMessage(parts);
+    if (conflict || standardCount(parts) > attachmentLimit()) {
+      toast((conflict || 'Zu viele reguläre Aufsätze.') + ' Prüfe ' + weaponNames(w)[attachmentLanguage] + '.');
+      return false;
+    }
     const allowed = knownAttachmentIds(w);
-    const blocked = storedParts(w).find((part) => attachmentUnavailable(w, part, allowed));
+    const blocked = parts.find((part) => attachmentUnavailable(w, part, allowed));
     if (blocked) {
       toast(attachmentName(blocked) + ' ist gesperrt. Ändere die Aufsätze bei ' + weaponNames(w)[attachmentLanguage] + '.');
       return false;
@@ -599,7 +606,8 @@ async function postLoadout(e) {
     if (el('feedSeason')) el('feedSeason').value = 'all';
     el('feedSort').value = 'new';
     redrawFeed();
-    toast('Dein Loadout: Platz #' + (visibleRank.indexOf(post.id) + 1) + ' auf diesem Gerät ✓');
+    const place = rankPlace(post.id);
+    toast(place ? 'Dein Loadout: Platz #' + place + ' auf diesem Gerät ✓' : 'Loadout auf diesem Gerät gespeichert ✓');
     return;
   }
   const btn = e.target.querySelector('button[type=submit]');

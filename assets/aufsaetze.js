@@ -19,6 +19,7 @@ import {
 } from './app.js';
 import { addPart, publish, renderBuilder, renderPartRows, saveParts } from './bauen.js';
 import { renderCurrentDetail } from './loadout.js';
+import { apexBlockedSlots, apexConflict } from './apex-regeln.js';
 
 let attachmentLanguage = localStorage.getItem('eupdate_attachment_language') === 'en' ? 'en' : 'de';
 
@@ -38,6 +39,16 @@ function attachmentLimit() {
 
 function standardCount(parts) {
   return parts.filter((p) => p.slot !== 'apex').length;
+}
+
+function categoryNames(slots) {
+  return slots.map((slot) => CAT.find(([key]) => key === slot)?.[attachmentLanguage === 'en' ? 2 : 1] || slot).join(', ');
+}
+
+function apexConflictMessage(parts) {
+  const conflict = apexConflict(parts);
+  if (!conflict) return '';
+  return attachmentName(conflict.apex) + ' sperrt ' + categoryNames(conflict.conflicts.map(({ slot }) => slot)) + '.';
 }
 
 const ATTACHMENT_ART_SLOTS = [
@@ -93,8 +104,10 @@ function renderGunsmith() {
     (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '');
   el('attachmentRule').textContent =
     'Freigegebene Aufsätze für diese Waffe in ' + MODE[state.mode] +
-    '. Pro Kategorie kannst du einen Aufsatz wählen.';
+    '. Apex hat einen eigenen Aufsatzplatz.' + (apexConflictMessage(parts) ? ' ' + apexConflictMessage(parts) : '');
   const known = knownAttachmentIds(w);
+  const apex = parts.find((part) => part.slot === 'apex'),
+    locked = apexBlockedSlots(apex);
   const counts = new Map();
   for (const a of ATTACHMENTS) {
     if (known.has(a.id)) counts.set(a.slot, (counts.get(a.slot) || 0) + 1);
@@ -104,13 +117,15 @@ function renderGunsmith() {
         .filter(([key]) => counts.has(key) || parts.some((p) => p.slot === key))
         .map(([key, de, en]) => {
           const part = parts.find((p) => p.slot === key),
-            available = counts.get(key) || 0;
+            available = counts.get(key) || 0,
+            lockedByApex = locked.includes(key);
           return (
-            '<button class="attachment-tile ' +
+            '<button type="button" class="attachment-tile ' +
             (part ? 'selected' : '') +
+            (lockedByApex ? ' apex-locked' : '') +
             '" data-attach-slot="' +
             key +
-            '">' +
+            '"' + (lockedByApex && !part ? ' disabled' : '') + '>' +
             attachmentArtwork(key) +
             '<span><b>' +
             html(attachmentLanguage === 'en' ? en : de) +
@@ -118,8 +133,8 @@ function renderGunsmith() {
             html(
               part
                 ? attachmentName(part) + (part.custom ? ' · eigene Angabe' : '') +
-                  (attachmentUnavailable(w, part, known) ? ' · gesperrt' : '')
-                : available + ' passende Aufsätze',
+                  (lockedByApex ? ' · mit Apex gesperrt' : attachmentUnavailable(w, part, known) ? ' · gesperrt' : '')
+                : lockedByApex ? 'Gesperrt durch ' + attachmentName(apex) : available + ' passende Aufsätze',
             ) +
             '</small></span><span class="attach-chevron">›</span></button>'
           );
@@ -186,6 +201,7 @@ function renderAttachmentOptions() {
     known = knownAttachmentIds(w),
     q = (el('attachmentSearch')?.value || '').trim().toLocaleLowerCase(),
     selected = storedParts(w).find((p) => p.slot === activeAttachSlot);
+  const parts = storedParts(w).filter((part) => part.slot !== activeAttachSlot);
   const options = ATTACHMENTS.filter((a) => {
     if (a.slot !== activeAttachSlot || !known.has(a.id)) return false;
     const { de, en } = attachmentNames(a);
@@ -199,10 +215,13 @@ function renderAttachmentOptions() {
     weaponNames(w)[attachmentLanguage] + ' · ' + MODE[state.mode];
   el('attachmentOptions').innerHTML = options.length
     ? options
-        .map(
-          (a) =>
+        .map((a) => {
+          const blocked = apexBlockedSlots(a);
+          const conflict = apexConflict([...parts, a]);
+          return (
             '<button class="attachment-option ' +
             (isSelected(a) ? 'selected' : '') +
+            (conflict ? ' apex-locked' : '') +
             '" data-attachment-id="' +
             html(a.id) +
             '"><span><strong>' +
@@ -211,10 +230,13 @@ function renderAttachmentOptions() {
             html(a.unlock) +
             ' · Stufe ' +
             html(a.level || '–') +
+            (blocked.length ? '<br>Sperrt ' + html(categoryNames(blocked)) : '') +
+            (conflict ? '<br>Entferne zuerst die inkompatiblen Aufsätze.' : '') +
             '</small></span><span aria-hidden="true">' +
             (isSelected(a) ? '✓' : '+') +
-            '</span></button>',
-        )
+            '</span></button>'
+          );
+        })
         .join('')
     : '<div class="empty">' + (q ? 'Keine freigegebenen Aufsätze für diese Suche.' : 'Für diese Kategorie ist in diesem Modus kein Aufsatz freigegeben.') + '</div>';
 }
@@ -250,6 +272,11 @@ function saveSlot(value, id, custom = null) {
     ...(a ? { id: a.id } : {}),
     ...(custom ? { custom: true, de: custom.de, en: custom.en } : {}),
   });
+  const conflict = apexConflictMessage(parts);
+  if (conflict) {
+    toast(conflict + ' Entferne zuerst die inkompatiblen Aufsätze.');
+    return;
+  }
   build().parts[w.id] = parts;
   save();
   closeModal();
@@ -346,6 +373,7 @@ document.addEventListener('submit', (e) => {
 });
 
 export {
+  apexConflictMessage,
   ATTACHMENT_ART_SLOTS,
   attachmentEdit,
   attachmentLanguage,

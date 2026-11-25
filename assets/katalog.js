@@ -245,7 +245,7 @@ const CAT = [
   ['trigger', 'Abzug', 'Trigger Action'],
   ['guard', 'Handschutz', 'Guard'],
   ['cylinder', 'Trommel', 'Cylinder'],
-  ['apex', 'Apex (Extra)', 'Apex'],
+  ['apex', 'Apex-Aufsatz', 'Apex Attachment'],
 ];
 
 const ATTACHMENTS = [
