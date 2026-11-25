@@ -74,64 +74,41 @@
         </button>
       </div>
       <section class="view active" id="view-builder" data-title="Bauen">
-        <div class="page-heading">
-          <span class="eyebrow">DEIN LOADOUT</span>
+        <div class="page-heading builder-heading">
           <h1>Loadout bauen<span class="title-dot">.</span></h1>
-          <p>Tippe auf einen Slot, genau wie im Spiel.</p>
+          <button id="openArsenal" class="arsenal-button" type="button">
+            <span id="arsenalCount">Alle Waffen ansehen</span><span aria-hidden="true">→</span>
+          </button>
         </div>
         <div class="builder-settings">
-          <div class="builder-audience">
-            <span>Ich baue mein Loadout als</span>
-            <div class="audience-tabs">
-              <button data-audience="player">Spieler</button><button data-audience="streamer">Streamer</button>
-            </div>
-            <small>Wähle Spieler oder Streamer. Angaben und Freigabecode folgen beim Veröffentlichen.</small>
-          </div>
           <div class="build-config">
             <label>Spiel<select id="gameSelect" aria-label="Spiel wählen"></select></label
             ><label>Modus<select id="modeSelect" aria-label="Modus wählen"></select></label>
           </div>
+          <div class="builder-audience">
+            <span id="builderAudienceLabel">Veröffentlichen als</span>
+            <div class="audience-tabs" role="group" aria-labelledby="builderAudienceLabel">
+              <button type="button" data-audience="player">Spieler</button>
+              <button type="button" data-audience="streamer">Streamer</button>
+            </div>
+          </div>
         </div>
-        <button id="openArsenal" class="arsenal-button">
-          <span id="arsenalCount">Alle Waffen ansehen</span><span>↗</span>
-        </button>
-        <div id="weaponSlots" class="build-weapons"></div>
-        <div class="weapon-seasons">
-          <label>
-            Season der Primärwaffe
-            <input
-              type="number"
-              data-weapon-season="primary"
-              min="0"
-              max="9007199254740991"
-              step="1"
-              inputmode="numeric"
-              placeholder="Optional"
-            />
-          </label>
-          <label>
-            Season der Sekundärwaffe
-            <input
-              type="number"
-              data-weapon-season="secondary"
-              min="0"
-              max="9007199254740991"
-              step="1"
-              inputmode="numeric"
-              placeholder="Optional"
-            />
-          </label>
-        </div>
-        <div id="dmzLootPanel" class="dmz-loot-panel" hidden></div>
-        <div class="section-line">
+        <div class="section-line builder-section">
           <div>
-            <span class="eyebrow">DEINE AUSRÜSTUNG</span>
-            <h2>Granaten & Extras</h2>
+            <h2>Waffen</h2>
+            <p id="weaponSeasonHint">Die Season ist optional und dient als Filter im Ranking.</p>
+          </div>
+        </div>
+        <div id="weaponSlots" class="build-weapons"></div>
+        <div id="dmzLootPanel" class="dmz-loot-panel" hidden></div>
+        <div class="section-line builder-section">
+          <div>
+            <h2>Ausrüstung</h2>
+            <p class="game-note" id="gameNote" hidden></p>
           </div>
           <div id="gearLanguage"></div>
         </div>
         <div id="gearSlots" class="equipment-grid"></div>
-        <p class="game-note" id="gameNote"></p>
         <div class="builder-actions">
           <button class="primary-btn" id="nextAttachments">Weiter zu Aufsätzen <span>→</span></button
           ><button class="ghost-btn" id="publishLoadout">Jetzt veröffentlichen</button
