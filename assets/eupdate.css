@@ -5668,3 +5668,259 @@ textarea.field {
   display: inline-flex;
   align-items: center;
 }
+
+/* Shared layout, filters and builder fields */
+:root {
+  color-scheme: dark;
+}
+body {
+  background: radial-gradient(ellipse at 75% 0%, #30281565, transparent 42rem), var(--bg);
+}
+main,
+.topbar {
+  max-width: 1140px;
+}
+.topbar {
+  border-color: #ffffff17;
+}
+.rank-heading,
+.view > .page-heading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0 0 16px;
+  padding: clamp(18px, 4vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: linear-gradient(115deg, var(--surface) 35%, #26241b 100%);
+}
+.rank-heading::before,
+.view > .page-heading::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 45%;
+  background-image:
+    linear-gradient(#ffda0a13 1px, transparent 1px),
+    linear-gradient(90deg, #ffda0a13 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(90deg, transparent, #000);
+  content: '';
+}
+.rank-heading > div {
+  min-width: 0;
+}
+.rank-heading h1,
+.view > .page-heading h1 {
+  max-width: none;
+  margin: 5px 0 8px;
+  font-size: clamp(32px, 5.8vw, 55px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+.rank-heading p,
+.view > .page-heading p {
+  color: var(--muted);
+  font-size: clamp(14px, 2vw, 16px);
+}
+.rank-heading .head-action {
+  align-self: flex-end;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: var(--gold);
+  color: #151515;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.rank-heading .head-action span {
+  width: auto;
+  height: auto;
+  background: none;
+  color: inherit;
+}
+.rank-heading .head-action:hover {
+  filter: brightness(1.06);
+}
+.rank-filters,
+.build-config,
+.weapon-seasons {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.rank-filters {
+  grid-template-columns: minmax(0, 0.6fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.2fr);
+  overflow: visible;
+  margin: 0 0 12px;
+}
+.build-config,
+.weapon-seasons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.builder-settings {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.builder-settings > * {
+  margin: 0;
+}
+.builder-settings .build-config {
+  align-content: center;
+}
+.weapon-seasons {
+  margin-top: 12px;
+}
+.rank-filters label,
+.rank-filters label:nth-child(3),
+.build-config label,
+.weapon-seasons label {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.rank-filters select,
+.build-config select,
+.weapon-seasons input,
+.rank-filters label:first-child select,
+.build-config label:first-child select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.rank-filters #feedSort {
+  border-color: #8e7a30;
+}
+.weapon-seasons input::placeholder {
+  color: var(--muted);
+}
+.weapon-seasons input:invalid {
+  border-color: var(--gold);
+}
+.ranking-hint {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border-left: 2px solid var(--gold);
+  background: #26241b;
+  color: var(--text);
+  font-size: 13px;
+}
+.ranking-status-row {
+  margin-bottom: 14px;
+}
+.rank-summary {
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0;
+}
+.rank-summary span {
+  background: var(--surface);
+}
+.rank-list,
+.build-weapons {
+  gap: 14px;
+}
+.rank-card,
+.build-primary,
+.build-secondary,
+.detail-section,
+.creator-card {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px #0003;
+}
+.rank-card:focus-within,
+.rank-card:hover {
+  border-color: #8e7a30;
+}
+.rank-body {
+  border-top: 1px solid #ffffff12;
+}
+.rank-card.compact .rank-body {
+  border-top: 0;
+  border-left: 1px solid #ffffff12;
+}
+.rank-actions .copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.rank-actions .copy-btn span {
+  flex: none;
+  margin-left: 0;
+}
+.rank-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+  margin-bottom: 6px;
+}
+.season-chip {
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.empty {
+  padding: clamp(20px, 4vw, 36px);
+  border-style: solid;
+  border-color: var(--line);
+  background: var(--surface);
+}
+.bottom-nav {
+  background: #111417f2;
+}
+.bottom-nav a:hover {
+  color: var(--gold);
+  background: #ffda0a0a;
+}
+@media (min-width: 821px) {
+  .builder-settings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 820px) {
+  .rank-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 550px) {
+  .rank-heading {
+    display: grid;
+    justify-items: start;
+    gap: 13px;
+  }
+  .rank-filters,
+  .build-config,
+  .weapon-seasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    padding: 11px;
+  }
+  .rank-filters label:last-child {
+    grid-column: 1 / -1;
+  }
+  .rank-heading .head-action {
+    min-height: 42px;
+  }
+}

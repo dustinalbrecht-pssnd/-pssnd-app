@@ -4,6 +4,7 @@ import { BY, CLASS, MODE, WM, art } from './katalog.js';
 import { GEAR_NAMES, gearLabel } from './ausruestung.js';
 import { avatar, badge, rankPlace } from './ranking.js';
 import { attachmentName, languageButtons } from './aufsaetze.js';
+import { seasonLabel, weaponSeason } from './season.js';
 
 function renderCurrentDetail() {
   if (currentView() !== 'detail') return;
@@ -27,6 +28,8 @@ function renderCurrentDetail() {
     .filter(([k, v]) => v && GEAR_NAMES[k])
     .map(([k, v]) => GEAR_NAMES[k] + ': ' + gearLabel(k, v));
   const place = rankPlace(x.id);
+  const primarySeason = weaponSeason(x, w.id);
+  const secondarySeason = weaponSeason(x, s?.id);
   content.innerHTML =
     '<div class="detail-language"><span>Sprache / Language</span>' +
     languageButtons() +
@@ -45,6 +48,7 @@ function renderCurrentDetail() {
     '</span></div></div>' +
     '<div class="detail-stage"><span class="stage-label">PRIMÄRWAFFE · ' +
     html(CLASS[w.cls]) +
+    (primarySeason === undefined ? '' : ' · ' + seasonLabel(primarySeason)) +
     '</span>' +
     art(w) +
     '<strong>' +
@@ -52,6 +56,7 @@ function renderCurrentDetail() {
     '</strong></div>' +
     '<div class="detail-two"><div><small>SEKUNDÄR</small><b>' +
     html(s?.name || '—') +
+    (secondarySeason === undefined ? '' : ' · ' + seasonLabel(secondarySeason)) +
     '</b></div><div><small>MODUS</small><b>' +
     html(MODE[x.mode]) +
     '</b></div></div>' +

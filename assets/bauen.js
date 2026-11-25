@@ -49,6 +49,7 @@ import {
   gearSecondaryMarkup,
 } from './ausruestung.js';
 import { avatar, redrawFeed, visibleRank } from './ranking.js';
+import { loadoutWeaponSeasons, weaponSeason } from './season.js';
 
 function setGame(game) {
   if (!GAME[game]) return;
@@ -236,6 +237,10 @@ function importLoadout(x) {
   b.dmzLoot = !!x.dmzLoot;
   b.parts = { ...b.parts, ...(x.parts || x.attachments || {}) };
   b.gear = { ...b.gear, ...(x.gear || {}) };
+  b.weaponSeasons = { ...b.weaponSeasons };
+  delete b.weaponSeasons[b.primary];
+  delete b.weaponSeasons[b.secondary];
+  Object.assign(b.weaponSeasons, Object.fromEntries(loadoutWeaponSeasons(x)));
   save();
   renderBuilder();
   navigate('builder');
@@ -244,6 +249,7 @@ function importLoadout(x) {
 
 function payload() {
   const b = build();
+  const seasons = loadoutWeaponSeasons(b);
   const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
     const w = BY[weaponId];
     if (!w) return [weaponId, parts];
@@ -264,7 +270,16 @@ function payload() {
     gear: b.gear,
     dmzLoot: !!b.dmzLoot,
     ...b.gear,
+    ...(seasons.length ? { weaponSeasons: Object.fromEntries(seasons) } : {}),
   };
+}
+
+function renderWeaponSeasons(b) {
+  for (const field of document.querySelectorAll('[data-weapon-season]')) {
+    if (field !== document.activeElement) {
+      field.value = weaponSeason(b, b[field.dataset.weaponSeason]) ?? '';
+    }
+  }
 }
 
 function renderBuilder() {
@@ -277,6 +292,7 @@ function renderBuilder() {
     b = build(),
     w = weapon('primary'),
     s = weapon('secondary');
+  renderWeaponSeasons(b);
   el('gameSelect').innerHTML = Object.entries(GAME)
     .map(
       ([id, name]) => '<option value="' + id + '" ' + (id === g ? 'selected' : '') + '>' + name + '</option>',
@@ -415,6 +431,9 @@ function chooseGear(key, value) {
 }
 
 function publish() {
+  for (const field of document.querySelectorAll('[data-weapon-season]')) {
+    if (!field.reportValidity()) return;
+  }
   if (API && siteConfig.communityReady !== true) {
     communityBlocked();
     return;
@@ -503,6 +522,7 @@ async function postLoadout(e) {
     el('feedGame').value = state.game;
     el('feedMode').value = state.mode;
     el('feedWeapon').value = 'all';
+    if (el('feedSeason')) el('feedSeason').value = 'all';
     el('feedSort').value = 'new';
     redrawFeed();
     toast('Dein Loadout: Platz #' + (visibleRank.indexOf(post.id) + 1) + ' auf diesem Gerät ✓');
@@ -605,6 +625,16 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('input', (e) => {
   if (e.target.id === 'pickSearch') renderPicker();
+  const slot = e.target.dataset.weaponSeason;
+  if (!slot || !e.target.validity.valid) return;
+  const b = build();
+  const weaponId = b[slot];
+  if (!weaponId) return;
+  b.weaponSeasons ??= {};
+  if (e.target.value === '') delete b.weaponSeasons[weaponId];
+  else b.weaponSeasons[weaponId] = e.target.valueAsNumber;
+  renderWeaponSeasons(b);
+  save();
 });
 
 export { addPart, importLoadout, payload, postLoadout, publish, renderBuilder, renderPartRows, saveParts };

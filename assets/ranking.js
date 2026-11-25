@@ -17,6 +17,7 @@ import {
 import { BY, CLASS, GAME, MODE, WM, art } from './katalog.js';
 import { renderCurrentDetail } from './loadout.js';
 import { navigate } from './navigation.js';
+import { loadoutWeaponSeasons, seasonLabel } from './season.js';
 
 function badge(x) {
   return html((GAME[x.game] || 'COD') + ' · ' + (MODE[x.mode] || ''));
@@ -39,6 +40,12 @@ function rankCard(x, i) {
     n = weekly ? 1 : i + 1,
     isTop = weekly || i === 0,
     by = x.name || 'Community';
+  const seasons = loadoutWeaponSeasons(x)
+    .map(([id, season]) => {
+      const slot = id === x.primary ? 'Primär' : 'Sekundär';
+      return '<span class="season-chip">' + slot + ' · ' + seasonLabel(season) + '</span>';
+    })
+    .join('');
   const media =
     '<div class="rank-media"><span class="rank-number">#' +
     n +
@@ -57,10 +64,12 @@ function rankCard(x, i) {
     (isTop ? 'featured' : 'compact') +
     '">' +
     media +
-    '<div class="rank-body"><div class="rank-copy"><span class="rank-tag">' +
+    '<div class="rank-body"><div class="rank-copy"><div class="rank-tags"><span class="rank-tag">' +
     badge(x) +
     (x.local ? ' · NUR HIER' : '') +
-    '</span><h2><button data-detail="' +
+    '</span>' +
+    seasons +
+    '</div><h2><button data-detail="' +
     x.id +
     '">' +
     html(x.title) +
@@ -92,43 +101,86 @@ function rankCard(x, i) {
   );
 }
 
+function matchingWeaponSeasons(loadout, gun, season) {
+  return loadoutWeaponSeasons(loadout).filter(
+    ([weapon, number]) => (gun === 'all' || weapon === gun) && (season === undefined || number === season),
+  );
+}
+
+function seasonMeta(loadouts, gun, season) {
+  const topLikes = new Map();
+  return loadouts.filter((loadout) => {
+    const likes = Number(loadout.likes || 0);
+    if (likes <= 0) return false;
+    let top = false;
+    for (const [weapon] of matchingWeaponSeasons(loadout, gun, season)) {
+      // Loadouts are already ordered by descending likes.
+      if (!topLikes.has(weapon)) topLikes.set(weapon, likes);
+      if (likes === topLikes.get(weapon)) top = true;
+    }
+    return top;
+  });
+}
+
 function redrawFeed() {
   if (!el('feedGame')) return;
   const game = el('feedGame').value,
     mode = el('feedMode').value,
     gun = el('feedWeapon').value,
-    sort = el('feedSort').value;
+    sort = el('feedSort').value,
+    seasonFilter = el('feedSeason');
+  const meta = sort === 'meta',
+    weekly = sort === 'week';
+  let season = seasonFilter?.value && seasonFilter.value !== 'all' ? Number(seasonFilter.value) : undefined;
   let shown = feed.filter(
     (x) =>
       (game === 'all' || x.game === game) &&
       (mode === 'all' || x.mode === mode) &&
       (gun === 'all' || x.primary === gun || x.secondary === gun) &&
-      (sort !== 'week' || weeklyWinnerIds.includes(x.id)),
+      (!weekly || weeklyWinnerIds.includes(x.id)),
   );
-  let hint = el('weeklyHint');
-  if (!hint) {
-    hint = document.createElement('p');
-    hint.id = 'weeklyHint';
-    hint.className = 'local-hint';
-    document.querySelector('.rank-filters').after(hint);
+  if (seasonFilter) seasonFilter.options[0].textContent = meta ? 'Neueste Season' : 'Alle Seasons';
+  if (meta && season === undefined) {
+    for (const loadout of shown) {
+      for (const [, number] of matchingWeaponSeasons(loadout, gun)) {
+        if (season === undefined || number > season) season = number;
+      }
+    }
   }
-  hint.hidden = sort !== 'week';
-  hint.textContent =
-    'Die meisten Likes seit Montag, 00:00 Uhr (deutsche Zeit). Bei Gleichstand teilen sich alle Gewinner Platz 1. Entfernte Likes zählen nicht.';
+  if (season !== undefined) shown = shown.filter((x) => matchingWeaponSeasons(x, gun, season).length > 0);
   shown.sort(
     sort === 'new' ? (a, b) => Date.parse(b.created || 0) - Date.parse(a.created || 0) : compareRank,
   );
+  if (meta) shown = season === undefined ? [] : seasonMeta(shown, gun, season);
+  const hint = el('rankingHint');
+  if (hint) {
+    hint.hidden = !weekly && !meta;
+    hint.textContent = weekly
+      ? 'Die meisten Likes seit Montag, 00:00 Uhr (deutsche Zeit). Bei Gleichstand teilen sich alle Gewinner Platz 1. Entfernte Likes zählen nicht.'
+      : meta && season !== undefined
+        ? seasonLabel(season) + ' · Die Loadouts mit den meisten Likes je Waffe.'
+        : '';
+    if (!hint.textContent) hint.hidden = true;
+  }
+  const emptyTitle = weekly
+    ? 'Noch kein Wochengewinner für diese Auswahl.'
+    : meta
+      ? 'Für diese Auswahl gibt es noch keine Season-META.'
+      : season !== undefined
+        ? 'Keine Loadouts für ' + seasonLabel(season) + '.'
+        : 'Hier ist noch kein Loadout veröffentlicht.';
+  const emptyMessage = weekly
+    ? 'Es zählen nur Likes aus der laufenden Woche. Wähle alle Modi, Waffen und Seasons, um die Wochengewinner zu sehen.'
+    : meta
+      ? 'Für die Season-META braucht ein Loadout eine Waffen-Season und mindestens einen Like.'
+      : 'Wähle einen anderen Filter oder veröffentliche dein Loadout.';
   visibleRank = shown.map((x) => x.id);
   el('loadoutList').innerHTML = shown.length
     ? shown.map(rankCard).join('')
     : '<div class="empty"><strong>' +
-      (sort === 'week'
-        ? 'Noch kein Wochengewinner für diese Auswahl.'
-        : 'Hier ist noch kein Loadout veröffentlicht.') +
+      emptyTitle +
       '</strong><p>' +
-      (sort === 'week'
-        ? 'Es zählen nur Likes aus der laufenden Woche. Wähle alle Modi und Waffen, um die Wochengewinner zu sehen.'
-        : 'Wähle einen anderen Filter oder veröffentliche dein Loadout.') +
+      emptyMessage +
       '</p><button class="primary-btn" data-view="builder">Loadout bauen →</button></div>';
 }
 
@@ -151,6 +203,18 @@ function renderFeed() {
       .map((w) => '<option value="' + w.id + '">' + html(w.name) + ' (' + w.game.toUpperCase() + ')</option>')
       .join('');
   el('feedWeapon').value = present.has(old) ? old : 'all';
+  const seasonFilter = el('feedSeason');
+  if (seasonFilter) {
+    const selected = seasonFilter.value,
+      seasons = [...new Set(feed.flatMap((x) => loadoutWeaponSeasons(x).map(([, number]) => number)))];
+    seasonFilter.innerHTML =
+      '<option value="all">Alle Seasons</option>' +
+      seasons
+        .sort((a, b) => b - a)
+        .map((number) => '<option value="' + number + '">' + seasonLabel(number) + '</option>')
+        .join('');
+    seasonFilter.value = seasons.includes(Number(selected)) ? selected : 'all';
+  }
   redrawFeed();
 }
 
@@ -226,7 +290,7 @@ document.addEventListener('click', (e) => {
   if (button.id === 'refreshFeed') refresh();
 });
 document.addEventListener('change', (e) => {
-  if (['feedGame', 'feedMode', 'feedWeapon', 'feedSort'].includes(e.target.id)) redrawFeed();
+  if (['feedGame', 'feedMode', 'feedWeapon', 'feedSeason', 'feedSort'].includes(e.target.id)) redrawFeed();
 });
 
 export {
