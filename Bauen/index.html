@@ -79,21 +79,49 @@
           <h1>Loadout bauen<span class="title-dot">.</span></h1>
           <p>Tippe auf einen Slot, genau wie im Spiel.</p>
         </div>
-        <div class="builder-audience">
-          <span>Ich baue mein Loadout als</span>
-          <div class="audience-tabs">
-            <button data-audience="player">Spieler</button><button data-audience="streamer">Streamer</button>
+        <div class="builder-settings">
+          <div class="builder-audience">
+            <span>Ich baue mein Loadout als</span>
+            <div class="audience-tabs">
+              <button data-audience="player">Spieler</button><button data-audience="streamer">Streamer</button>
+            </div>
+            <small>Wähle Spieler oder Streamer. Angaben und Freigabecode folgen beim Veröffentlichen.</small>
           </div>
-          <small>Wähle Spieler oder Streamer. Angaben und Freigabecode folgen beim Veröffentlichen.</small>
-        </div>
-        <div class="build-config">
-          <label>Spiel<select id="gameSelect" aria-label="Spiel wählen"></select></label
-          ><label>Modus<select id="modeSelect" aria-label="Modus wählen"></select></label>
+          <div class="build-config">
+            <label>Spiel<select id="gameSelect" aria-label="Spiel wählen"></select></label
+            ><label>Modus<select id="modeSelect" aria-label="Modus wählen"></select></label>
+          </div>
         </div>
         <button id="openArsenal" class="arsenal-button">
           <span id="arsenalCount">Alle Waffen ansehen</span><span>↗</span>
         </button>
         <div id="weaponSlots" class="build-weapons"></div>
+        <div class="weapon-seasons">
+          <label>
+            Season der Primärwaffe
+            <input
+              type="number"
+              data-weapon-season="primary"
+              min="0"
+              max="9007199254740991"
+              step="1"
+              inputmode="numeric"
+              placeholder="Optional"
+            />
+          </label>
+          <label>
+            Season der Sekundärwaffe
+            <input
+              type="number"
+              data-weapon-season="secondary"
+              min="0"
+              max="9007199254740991"
+              step="1"
+              inputmode="numeric"
+              placeholder="Optional"
+            />
+          </label>
+        </div>
         <div id="dmzLootPanel" class="dmz-loot-panel" hidden></div>
         <div class="section-line">
           <div>
