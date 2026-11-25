@@ -5930,7 +5930,7 @@ main,
 @media (min-width: 1120px) {
   :root {
     --desktop-shell: 1370px;
-    --desktop-nav-width: 136px;
+    --desktop-nav-width: 148px;
     --desktop-gap: 22px;
     --desktop-start: max(var(--desktop-gap), calc((100% - var(--desktop-shell)) / 2));
   }
@@ -6609,10 +6609,39 @@ main,
   font-size: 22px;
   line-height: 1;
 }
-.bottom-nav [data-view="settings"] {
+.bottom-nav a[data-view="settings"] {
   min-width: 0;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  white-space: nowrap;
+}
+.settings-nav-label {
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#gameSettingsHeading {
+  font-size: clamp(26px, 7.5vw, 46px);
+}
+@media (max-width: 1119px) {
+  .bottom-nav:has(a[data-view="settings"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(max-content, 1fr) minmax(0, 1fr);
+  }
+  .bottom-nav a[data-view="settings"] {
+    padding-inline: 6px;
+  }
+}
+@media (min-width: 1120px) {
+  .bottom-nav a[data-view="settings"] {
+    gap: 3px;
+    padding-inline: 4px;
+    font-size: 11px;
+  }
+  .bottom-nav a[data-view="settings"] .settings-nav-icon {
+    flex: none;
+    width: 17px;
+    font-size: 17px;
+  }
 }
 .attachment-tile.apex-locked,
 .attachment-option.apex-locked {
