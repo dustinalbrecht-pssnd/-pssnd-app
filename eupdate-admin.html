@@ -2714,6 +2714,15 @@ label :is(input, textarea, select) {
         </div>
       </form>
     </dialog>
+    <dialog id="deleteAdDialog" class="editor-dialog" aria-labelledby="deleteAdTitle" aria-describedby="deleteAdQuestion">
+      <h2 id="deleteAdTitle">Werbung löschen</h2>
+      <p id="deleteAdQuestion">Soll <strong id="deleteAdName"></strong> dauerhaft gelöscht werden?</p>
+      <p id="deleteAdError" class="notice error" role="alert" hidden></p>
+      <div class="actions editor-actions">
+        <button type="button" id="cancelDeleteAd" autofocus>Abbrechen</button>
+        <button type="button" id="confirmDeleteAd" class="danger">Endgültig löschen</button>
+      </div>
+    </dialog>
     <dialog id="gameSettingDialog" class="editor-dialog" aria-labelledby="gameSettingDialogTitle">
       <h2 id="gameSettingDialogTitle"></h2>
       <form id="gameSettingForm">
@@ -2794,6 +2803,7 @@ label :is(input, textarea, select) {
           adminPortrait = null;
         }
         if ($('contentDialog').open) $('contentDialog').close();
+        if ($('deleteAdDialog').open) $('deleteAdDialog').close();
         $('editorFields').innerHTML = '';
         for (const id of ['feedbackList', 'commentsList', 'reportsList', 'postsList', 'codesList'])
           if ($(id)) $(id).innerHTML = '';
@@ -4074,7 +4084,7 @@ label :is(input, textarea, select) {
                   (x.active === false ? '1' : '0') +
                   '">' +
                   (x.active === false ? 'Aktivieren' : 'Ausblenden') +
-                  '</button>' + (type === 'ads' ? '<button type="button" class="danger" data-delete-ad="' + esc(x.id) + '">Löschen</button>' : '') + '</article>'
+                  '</button>' + (type === 'ads' ? adDeleteButton(x.id) : '') + '</article>'
                 );
               })
               .join('') || '<p>Keine Einträge in dieser Auswahl.</p>';
@@ -4177,6 +4187,76 @@ label :is(input, textarea, select) {
           '><button type="button" id="removeContentImage">Bild entfernen</button>'
         );
       }
+      function adDeleteButton(id) {
+        return '<button type="button" class="danger" data-delete-ad="' + esc(id) + '">Werbung löschen</button>';
+      }
+      const adDeleteDialog = $('deleteAdDialog');
+      let pendingAdRemoval = null;
+
+      function renderAdDeleteControls() {
+        const busy = pendingAdRemoval?.busy === true;
+        $('confirmDeleteAd').disabled = busy;
+        $('cancelDeleteAd').disabled = busy;
+        $('confirmDeleteAd').textContent = busy ? 'Wird gelöscht …' : 'Endgültig löschen';
+      }
+
+      function openAdDelete(id) {
+        if (adDeleteDialog.open) return;
+        const ad = dashboard?.content?.find((item) => item.type === 'ads' && String(item.id) === id);
+        if (!ad) {
+          note('Werbung in der Liste nicht gefunden. Lade die Liste neu.');
+          return;
+        }
+        pendingAdRemoval = { id, busy: false };
+        $('deleteAdName').textContent = '„' + ad.title + '“';
+        $('deleteAdError').hidden = true;
+        renderAdDeleteControls();
+        adDeleteDialog.showModal();
+      }
+
+      $('cancelDeleteAd').onclick = () => {
+        if (!pendingAdRemoval?.busy) adDeleteDialog.close();
+      };
+      adDeleteDialog.addEventListener('cancel', (event) => {
+        if (pendingAdRemoval?.busy) event.preventDefault();
+      });
+      adDeleteDialog.addEventListener('close', () => {
+        pendingAdRemoval = null;
+      });
+      $('confirmDeleteAd').onclick = async () => {
+        const removal = pendingAdRemoval;
+        if (!removal || removal.busy) return;
+        const isCurrent = () => !!token && pendingAdRemoval === removal;
+        removal.busy = true;
+        $('deleteAdError').hidden = true;
+        renderAdDeleteControls();
+        try {
+          const result = await request('/api/admin/content/ads/' + encodeURIComponent(removal.id), 'DELETE');
+          if (!isCurrent()) return;
+          if (result.ok !== true) throw Error('Der Server hat das Löschen nicht bestätigt.');
+          // A dashboard request started before deletion can still hold the old list.
+          appliedSequence = ++loadingSequence;
+          dashboard.content = (dashboard.content || []).filter((item) =>
+            item.type !== 'ads' || String(item.id) !== removal.id,
+          );
+          if (editorState?.type === 'ads' && String(editorState.item?.id) === removal.id) {
+            $('contentDialog').close();
+          }
+          adDeleteDialog.close();
+          renderManagedContent();
+          $('adsSearch').focus();
+          note('Werbung gelöscht.');
+        } catch (error) {
+          if (!isCurrent()) return;
+          $('deleteAdError').textContent = error.message;
+          $('deleteAdError').hidden = false;
+        } finally {
+          if (isCurrent()) {
+            removal.busy = false;
+            renderAdDeleteControls();
+          }
+        }
+      };
       function editContent(type, item = null) {
         editorState = { type, item, busy: false };
         editorImage = '';
@@ -4226,7 +4306,8 @@ label :is(input, textarea, select) {
             inputField('title', 'Titel / Firma', item?.title, 'text', true) +
             areaField('text', 'Beschreibung', item?.text) +
             inputField('url', 'Ziel-Link', item?.url, 'url') +
-            imageEditor(item?.img, true);
+            imageEditor(item?.img, true) +
+            (item?.id ? adDeleteButton(item.id) : '');
         if (type === 'newsimages')
           fields =
             imageEditor(item?.img) +
@@ -5090,16 +5171,7 @@ label :is(input, textarea, select) {
             note('Verfügbarkeit gespeichert');
           }
           if (b.dataset.deleteAd) {
-            const ad = dashboard.content.find((item) => item.type === 'ads' && item.id === b.dataset.deleteAd);
-            if (!ad || b.disabled || !confirm('Werbung „' + ad.title + '“ endgültig löschen?')) return;
-            b.disabled = true;
-            try {
-              await request('/api/admin/content/ads/' + encodeURIComponent(ad.id), 'DELETE');
-              await load();
-              note('Werbung gelöscht.');
-            } finally {
-              b.disabled = false;
-            }
+            openAdDelete(b.dataset.deleteAd);
             return;
           }
           if (b.dataset.editPost) editPost(dashboard.posts.find((x) => x.id === Number(b.dataset.editPost)));
