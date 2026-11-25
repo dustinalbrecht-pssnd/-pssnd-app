@@ -10,15 +10,20 @@
         feed: 'ranking',
         builder: 'Bauen',
         attachments: 'Aufsaetze',
-        creators: 'Creator',
+        settings: 'Einstellungen',
         events: 'News',
         detail: 'Loadout',
       };
       const hash = location.hash.slice(1);
       const params = new URLSearchParams(location.search);
+      if (document.referrer) {
+        const referrer = new URL(document.referrer);
+        params.set('quelle', referrer.origin === location.origin ? 'internal' : referrer.hostname);
+      }
+      if (['creators', 'creator', 'streamer'].includes(hash)) params.set('streamer', '1');
       const view = hash === 'detail' && !params.has('id') ? 'feed' : hash;
       const destination = Object.hasOwn(routes, view) ? routes[view] : routes.feed;
-      location.replace(destination + '/' + location.search);
+      location.replace(destination + '/' + (params.size ? '?' + params : ''));
     </script>
   </head>
   <body>

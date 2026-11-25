@@ -1828,6 +1828,102 @@ label :is(input, textarea, select) {
   }
 }
 
+      .ad-admin-row,
+      .settings-admin-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .ad-admin-row .body {
+        flex: 1 1 180px;
+        min-width: 0;
+      }
+      .ad-admin-row img,
+      .editor-image.banner-preview {
+        display: block;
+        width: min(100%, 264px);
+        height: auto;
+        max-height: none;
+        aspect-ratio: 3 / 1;
+        object-fit: contain;
+        background: var(--bg);
+      }
+      .editor-image.banner-preview[hidden] {
+        display: none;
+      }
+      .settings-admin-row h3 {
+        margin: 4px 0;
+      }
+      #gameSettingForm fieldset {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 12px 0;
+        padding: 10px;
+      }
+      .traffic-summary {
+        display: grid;
+        grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+      .traffic-summary strong {
+        font-variant-numeric: tabular-nums;
+        font-size: clamp(26px, 6vw, 46px);
+      }
+      .traffic-summary h2,
+      .traffic-summary p {
+        margin: 0;
+      }
+      .traffic-chart {
+        display: flex;
+        align-items: flex-end;
+        height: 114px;
+        gap: 2px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .traffic-bar {
+        flex: 1;
+        height: var(--height);
+        min-height: 1px;
+        border-radius: 3px 3px 0 0;
+        background: #ffda0a;
+      }
+      .traffic-tables {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .traffic-table table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-top: 6px;
+      }
+      .traffic-table th,
+      .traffic-table td {
+        text-align: left;
+        font-weight: 400;
+        overflow-wrap: anywhere;
+        border-bottom: 1px solid var(--line);
+        padding: 8px 3px;
+      }
+      .traffic-table th:last-child,
+      .traffic-table td:last-child {
+        width: 6em;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      @media (max-width: 520px) {
+        .traffic-summary {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1910,12 +2006,14 @@ label :is(input, textarea, select) {
                 <button type="button" data-tab="weapons">Waffen</button>
                 <button type="button" data-tab="attachments">Aufsätze</button>
                 <button type="button" data-tab="gear">Ausrüstung</button>
+                <button type="button" data-tab="gamesettings">MW4-Einstellungen</button>
               </div>
               <div data-section-tabs="website" hidden>
                 <button type="button" data-tab="news">News <span id="newsBadge"></span></button>
                 <button type="button" data-tab="events">Termine</button>
                 <button type="button" data-tab="appearance">Design &amp; Texte</button>
                 <button type="button" data-tab="ads">Werbung</button>
+                <button type="button" data-tab="analytics">Controlling</button>
               </div>
               <div data-section-tabs="settings" hidden>
                 <button type="button" data-tab="settings">Betreiberangaben</button>
@@ -1960,6 +2058,8 @@ label :is(input, textarea, select) {
                   <button type="button" data-tab="weapons">Waffen bearbeiten</button>
                   <button type="button" id="quickNews">News erstellen</button>
                   <button type="button" data-tab="events">Termine bearbeiten</button>
+                  <button type="button" data-tab="gamesettings">MW4-Einstellungen pflegen</button>
+                  <button type="button" data-tab="analytics">Zugriffe ansehen</button>
                 </div>
               </section>
               <details id="activitySummary" class="panel activity-summary">
@@ -2250,15 +2350,38 @@ label :is(input, textarea, select) {
 
             <section id="adsView" class="view" hidden>
               <div class="toolbar">
-                <button type="button" class="primary" data-new-content="ads">+ Hinzufügen</button>
+                <button type="button" class="primary" data-new-content="ads">+ Werbung hinzufügen</button>
               </div>
               <p class="admin-section-copy">
-                Eigene Werbekarten anlegen. Sie erscheinen auf der Ranking-Seite und werden als Werbung
-                gekennzeichnet.
+                <strong>Bannerformat 1.200 × 400 px</strong> · Seitenverhältnis 3:1 · PNG, JPG oder WebP.
+                Diese Maße gelten für alle Bildbanner im Ranking.
               </p>
-              <input id="adsSearch" placeholder="Suchen …" />
+              <input id="adsSearch" type="search" aria-label="Werbung suchen" placeholder="Werbung suchen …" />
               <div id="adsFilters" class="toolbar"></div>
               <div id="adsList"></div>
+            </section>
+            <section id="gamesettingsView" class="view" hidden>
+              <div class="toolbar">
+                <button type="button" id="newSettingEntry" class="primary" disabled>+ Einstellung hinzufügen</button>
+                <button type="button" id="newSettingCategory" disabled>+ Kategorie hinzufügen</button>
+              </div>
+              <div class="toolbar">
+                <input id="adminSettingSearch" type="search" aria-label="Einstellungen suchen" placeholder="Einstellungen suchen …" />
+                <select id="adminSettingCategory" aria-label="Kategorie filtern"><option value="">Alle Kategorien</option></select>
+              </div>
+              <p id="adminSettingsStatus" class="muted" role="status"></p>
+              <div id="settingEntryList"></div>
+              <details class="panel"><summary>Kategorien verwalten</summary><div id="settingCategoryList"></div></details>
+            </section>
+            <section id="analyticsView" class="view" hidden>
+              <div class="toolbar">
+                <label for="analyticsDays">Zeitraum</label>
+                <select id="analyticsDays"><option value="7">Letzte 7 Tage</option><option value="30" selected>Letzte 30 Tage</option><option value="90">Letzte 90 Tage</option></select>
+                <button id="reloadAnalytics" type="button">Aktualisieren</button>
+              </div>
+              <p id="analyticsStatus" role="status" class="muted"></p>
+              <div id="analyticsData"></div>
+              <p class="muted">Gezählt werden Seitenaufrufe ab Aktivierung. Die Herkunft zeigt verweisende Domains. Länder sind verfügbar, wenn Cloudflare sie beim Zugriff ermittelt.</p>
             </section>
             <section id="eventsView" class="view" hidden>
               <form id="eventsForm">
@@ -2305,9 +2428,9 @@ label :is(input, textarea, select) {
                   ><label class=""
                     >Loadout-Baukasten · Beschreibung<input name="builderText" maxlength="300" /></label
                   ><label class=""
-                    >Creator · Überschrift<input name="creatorTitle" maxlength="300" /></label
+                    >MW4-Einstellungen · Überschrift<input name="gameSettingsTitle" maxlength="300" /></label
                   ><label class=""
-                    >Streamer · Beschreibung<input name="creatorSubtitle" maxlength="300" /></label
+                    >MW4-Einstellungen · Beschreibung<input name="gameSettingsSubtitle" maxlength="300" /></label
                   ><label class="">News · Beschreibung<input name="eventsText" maxlength="300" /></label
                   ><label class=""
                     >Support · Überschrift<input name="supportTitle" maxlength="300" /></label
@@ -2320,7 +2443,7 @@ label :is(input, textarea, select) {
                     >Kontakt für Werbeanfragen<input name="advertisingEmail" maxlength="300" /></label
                   ><label class="">Menü · Ranking<input name="navRanking" maxlength="300" /></label
                   ><label class="">Menü · Bauen<input name="navBuilder" maxlength="300" /></label
-                  ><label class="">Menü · Streamer<input name="navCreators" maxlength="300" /></label
+                  ><label class="">Menü · MW4-Einstellungen<input name="navGameSettings" maxlength="300" /></label
                   ><label class="wide"
                     >Zusätzliche Datenschutzhinweise<textarea
                       name="privacyText"
@@ -2591,12 +2714,25 @@ label :is(input, textarea, select) {
         </div>
       </form>
     </dialog>
+    <dialog id="gameSettingDialog" class="editor-dialog" aria-labelledby="gameSettingDialogTitle">
+      <h2 id="gameSettingDialogTitle"></h2>
+      <form id="gameSettingForm">
+        <div id="gameSettingFields" class="editor-fields"></div>
+        <p class="notice" id="gameSettingMessage" role="status"></p>
+        <div class="actions"><button type="submit" class="primary" id="saveGameSetting">Speichern</button>
+        <button type="button" id="cancelGameSetting">Abbrechen</button></div>
+      </form>
+      <div id="gameSettingImages" hidden><div class="actions" id="gameSettingImagePages"></div>
+        <button type="button" id="closeSettingImages">Schließen</button></div>
+    </dialog>
     <div id="status" role="status" aria-live="polite"></div>
     <script type="module">
       import { MW_IMAGES } from './assets/waffenbilder.js';
       import { mountCatalogImport } from './assets/katalog-import.js';
       import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
+      import { mountAdminSettings } from './assets/admin-einstellungen.js';
+      import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
       import {
         attachmentNames,
         currentAttachmentId,
@@ -2640,6 +2776,7 @@ label :is(input, textarea, select) {
         $('token').value = '';
         dashboard = null;
         catalogImport.reset();
+        adminSettings.reset();
         assignmentResult = '';
         publicRelease = null;
         editedForms.clear();
@@ -2886,6 +3023,7 @@ label :is(input, textarea, select) {
 
       const areaTabs = document.querySelector('.area-tabs');
       const sections = [...document.querySelectorAll('[data-section]')];
+      const adminSettings = mountAdminSettings({ request, note, esc });
 
       function showAdminView(view, focus = true) {
         const button = areaTabs.querySelector('[data-tab="' + view + '"]');
@@ -2908,6 +3046,7 @@ label :is(input, textarea, select) {
           : 'Übersicht';
         if (focus) $('adminTitle').focus();
         if (view === 'audit') loadAudit();
+        adminSettings.show(view);
         return true;
       }
 
@@ -3898,7 +4037,7 @@ label :is(input, textarea, select) {
                     ? (dashboard.weapons || []).filter((w) => (w.attachmentIds || []).includes(x.id))
                     : [];
                 return (
-                  '<article class="card content-row">' +
+                  '<article class="card content-row' + (type === 'ads' ? ' ad-admin-row' : '') + '">' +
                   (x.img ? '<img src="' + esc(x.img) + '" alt="">' : '') +
                   '<div class="body"><span class="badge">' +
                   esc(
@@ -3935,7 +4074,7 @@ label :is(input, textarea, select) {
                   (x.active === false ? '1' : '0') +
                   '">' +
                   (x.active === false ? 'Aktivieren' : 'Ausblenden') +
-                  '</button></article>'
+                  '</button>' + (type === 'ads' ? '<button type="button" class="danger" data-delete-ad="' + esc(x.id) + '">Löschen</button>' : '') + '</article>'
                 );
               })
               .join('') || '<p>Keine Einträge in dieser Auswahl.</p>';
@@ -3981,15 +4120,20 @@ label :is(input, textarea, select) {
         $('brandPreview').src = brandLogo;
         $('brandPreview').hidden = !brandLogo;
       }
-      async function compressedImage(file, maxWidth = 960, maxHeight = 480) {
+      async function compressedImage(file, maxWidth = 960, maxHeight = 480, exact = false) {
         if (
           !file ||
           !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
           file.size > 10 * 1024 * 1024
         )
           throw Error('PNG, JPG oder WebP bis 10 MB wählen');
-        const bitmap = await createImageBitmap(file),
-          scale = Math.min(1, maxWidth / bitmap.width, maxHeight / bitmap.height),
+        const bitmap = await createImageBitmap(file);
+        if (exact && (bitmap.width !== maxWidth || bitmap.height !== maxHeight)) {
+          const actual = bitmap.width + ' × ' + bitmap.height + ' px';
+          bitmap.close();
+          throw Error('Das Banner hat ' + actual + '. Benötigt werden ' + maxWidth + ' × ' + maxHeight + ' px.');
+        }
+        const scale = Math.min(1, maxWidth / bitmap.width, maxHeight / bitmap.height),
           canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(bitmap.width * scale));
         canvas.height = Math.max(1, Math.round(bitmap.height * scale));
@@ -4020,10 +4164,13 @@ label :is(input, textarea, select) {
         $('brandLogo').value = '';
         $('brandPreview').hidden = true;
       };
-      function imageEditor(img) {
+      function imageEditor(img, banner = false) {
         editorImage = img || '';
         return (
-          '<label>Eigene Grafik / Foto<input id="contentImageFile" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="contentImagePreview" class="editor-image" src="' +
+          '<label>' + (banner ? 'Bannerdatei · 1.200 × 400 px' : 'Eigene Grafik / Foto') +
+          '<input id="contentImageFile" type="file" accept="image/png,image/jpeg,image/webp"' + (banner ? ' aria-describedby="bannerImageStatus"' : '') + '></label>' +
+          (banner ? '<p id="bannerImageStatus" class="muted" role="status"></p>' : '') +
+          '<img id="contentImagePreview" class="editor-image' + (banner ? ' banner-preview' : '') + '" src="' +
           esc(editorImage) +
           '" alt="Bildvorschau" ' +
           (!editorImage ? 'hidden' : '') +
@@ -4079,7 +4226,7 @@ label :is(input, textarea, select) {
             inputField('title', 'Titel / Firma', item?.title, 'text', true) +
             areaField('text', 'Beschreibung', item?.text) +
             inputField('url', 'Ziel-Link', item?.url, 'url') +
-            imageEditor(item?.img);
+            imageEditor(item?.img, true);
         if (type === 'newsimages')
           fields =
             imageEditor(item?.img) +
@@ -4112,23 +4259,44 @@ label :is(input, textarea, select) {
         $('contentImageFile').onchange = async () => {
           const file = $('contentImageFile').files[0];
           if (!file) return;
-          editorState.busy = true;
+          const editor = editorState;
+          const job = (editor.imageJob || 0) + 1;
+          const banner = editor.type === 'ads';
+          const status = $('bannerImageStatus');
+          const isCurrent = () => editorState === editor && editor.imageJob === job;
+          editor.imageJob = job;
+          editor.busy = true;
+          if (status) status.textContent = 'Banner wird geprüft …';
           try {
-            editorImage = await compressedImage(
+            const image = await compressedImage(
               file,
-              editorState.type === 'posts' ? 300 : 960,
-              editorState.type === 'posts' ? 300 : 480,
+              banner ? BANNER_WIDTH : editor.type === 'posts' ? 300 : 960,
+              banner ? BANNER_HEIGHT : editor.type === 'posts' ? 300 : 480,
+              banner,
             );
+            if (!isCurrent()) return;
+            editorImage = image;
+            editor.imageError = '';
             $('contentImagePreview').src = editorImage;
             $('contentImagePreview').hidden = false;
+            if (status) status.textContent = 'Bannerformat geprüft.';
             note('Bild vorbereitet');
           } catch (e) {
+            if (!isCurrent()) return;
+            if (status) {
+              status.textContent = e.message;
+              editor.imageError = e.message;
+            }
             note(e.message);
           } finally {
-            editorState.busy = false;
+            if (isCurrent()) editor.busy = false;
           }
         };
         $('removeContentImage').onclick = () => {
+          editorState.imageJob = (editorState.imageJob || 0) + 1;
+          editorState.busy = false;
+          editorState.imageError = '';
+          if ($('bannerImageStatus')) $('bannerImageStatus').textContent = '';
           editorImage = '';
           $('contentImagePreview').hidden = true;
           $('contentImageFile').value = '';
@@ -4261,6 +4429,7 @@ label :is(input, textarea, select) {
       }
       async function saveContentEditor() {
         if (editorState.busy) throw Error('Bild wird noch vorbereitet');
+        if (editorState.imageError) throw Error(editorState.imageError);
         const form = $('contentEditor'),
           raw = new FormData(form),
           data = Object.fromEntries(raw),
@@ -4920,6 +5089,19 @@ label :is(input, textarea, select) {
             await load();
             note('Verfügbarkeit gespeichert');
           }
+          if (b.dataset.deleteAd) {
+            const ad = dashboard.content.find((item) => item.type === 'ads' && item.id === b.dataset.deleteAd);
+            if (!ad || b.disabled || !confirm('Werbung „' + ad.title + '“ endgültig löschen?')) return;
+            b.disabled = true;
+            try {
+              await request('/api/admin/content/ads/' + encodeURIComponent(ad.id), 'DELETE');
+              await load();
+              note('Werbung gelöscht.');
+            } finally {
+              b.disabled = false;
+            }
+            return;
+          }
           if (b.dataset.editPost) editPost(dashboard.posts.find((x) => x.id === Number(b.dataset.editPost)));
           if (b.dataset.newsImage) {
             const n = dashboard.news.find((x) => x.id === Number(b.dataset.newsImage));
@@ -5212,7 +5394,10 @@ label :is(input, textarea, select) {
       $('logout').onclick = logout;
       $('reload').onclick = () =>
         load()
-          .then(() => note('Aktualisiert'))
+          .then(() => {
+            adminSettings.show(areaTabs.querySelector('[aria-current="page"]')?.dataset.tab);
+            note('Aktualisiert');
+          })
           .catch((e) => note(e.message));
       $('postSearch').addEventListener('input', renderPosts);
       $('commentState').onchange = renderComments;
@@ -5609,7 +5794,7 @@ label :is(input, textarea, select) {
             weapons: 'Waffe',
             news: 'News',
             content: 'Katalogeintrag',
-            'creator-codes': 'Streamer-Code',
+            'creator-codes': 'Streamer-Code', 'game-settings': 'MW4-Einstellung',
             config: 'Betreiberangaben',
             'extended-config': 'Design / Regeln',
             launch: 'Startfreigabe',
