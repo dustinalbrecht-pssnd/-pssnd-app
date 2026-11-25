@@ -1,7 +1,7 @@
 import { catalogTable, planTable } from './katalog-tabelle.js';
 
 let spreadsheetPromise;
-function spreadsheet() {
+export function spreadsheet() {
   if (globalThis.XLSX?.version === '0.20.3') return Promise.resolve(globalThis.XLSX);
   if (!spreadsheetPromise) {
     spreadsheetPromise = new Promise((resolve, reject) => {

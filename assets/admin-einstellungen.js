@@ -1,5 +1,6 @@
 import { SETTING_PLATFORMS, settingPlatformLabel } from './mw4-inhalte.js';
 import { settingsImageExport } from './einstellungen-bild.js?v=mw4-katalog-20261125';
+import { mountSettingsExcel } from './einstellungen-excel.js?v=waffencheck-20261125';
 
 const PAGE_LABELS = {
   feed: 'Ranking', builder: 'Bauen', attachments: 'Aufsätze', settings: 'MW4-Einstellungen',
@@ -29,6 +30,16 @@ export function mountAdminSettings({ request, note, esc }) {
   let adminSession = 0;
   let settingsRequest = 0;
   let analyticsRequest = 0;
+
+  const excel = mountSettingsExcel({
+    request, note, esc,
+    getCatalog: () => catalog,
+    onApplied: ({ entries, removed }) => {
+      for (const { id } of entries) presetDrafts.delete(id);
+      for (const id of removed) presetDrafts.delete(id);
+      loadSettings();
+    },
+  });
 
   function sectionMessage(id, message) {
     el(id).textContent = message;
@@ -237,6 +248,7 @@ export function mountAdminSettings({ request, note, esc }) {
       const data = await request('/api/admin/game-settings');
       if (run !== settingsRequest) return;
       catalog = data;
+      excel.refresh();
       presetValues.clear();
       for (const entry of data.entries) if (entry.templateId) presetValues.set(entry.id, entry);
       favoriteIds.clear();
@@ -431,6 +443,7 @@ export function mountAdminSettings({ request, note, esc }) {
       settingsRequest += 1;
       analyticsRequest += 1;
       catalog = null;
+      excel.reset();
       publishing = false;
       presetDrafts.clear();
       presetValues.clear();

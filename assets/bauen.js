@@ -28,6 +28,7 @@ import {
   rememberSubmission,
   renderTips,
   save,
+  serverGet,
   siteConfig,
   state,
   storeCommunity,
@@ -39,7 +40,7 @@ import {
 import { navigate } from './navigation.js';
 import {
   apexConflictMessage, attachmentEdit, attachmentLanguage, attachmentLimit, attachmentName, attachmentUnavailable, knownAttachmentIds,
-  languageButtons, renderGunsmith, standardCount,
+  languageButtons, planAttachmentChange, renderGunsmith, standardCount,
 } from './aufsaetze.js';
 import { currentAttachmentId, weaponNames } from './katalog-abgleich.js';
 import { availableInMode } from './mw4-ausruestung.js';
@@ -54,7 +55,9 @@ import {
   gearSlots,
 } from './ausruestung.js';
 import { avatar, rankPlace, redrawFeed } from './ranking.js';
-import { loadoutWeaponSeasons, weaponSeason } from './season.js';
+import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
+import { distanceOptions, loadoutWeaponProfiles, WEAPON_DISTANCES, WEAPON_HINT_LENGTH, weaponProfile } from './waffenprofil.js';
+import { weaponCheck } from './waffencheck.js';
 
 function setGame(game) {
   if (!GAME[game]) return;
@@ -244,6 +247,10 @@ function importLoadout(x) {
   delete b.weaponSeasons[b.primary];
   delete b.weaponSeasons[b.secondary];
   Object.assign(b.weaponSeasons, Object.fromEntries(loadoutWeaponSeasons(x)));
+  b.weaponProfiles = { ...b.weaponProfiles };
+  delete b.weaponProfiles[b.primary];
+  delete b.weaponProfiles[b.secondary];
+  Object.assign(b.weaponProfiles, loadoutWeaponProfiles(x));
   save();
   renderBuilder();
   navigate('builder');
@@ -253,6 +260,7 @@ function importLoadout(x) {
 function payload() {
   const b = build();
   const seasons = loadoutWeaponSeasons(b);
+  const profiles = loadoutWeaponProfiles(b);
   const gear = draftGear(b.gear, state.game, state.mode);
   const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
     const w = BY[weaponId];
@@ -275,6 +283,7 @@ function payload() {
     dmzLoot: !!b.dmzLoot,
     ...gear,
     ...(seasons.length ? { weaponSeasons: Object.fromEntries(seasons) } : {}),
+    ...(Object.keys(profiles).length ? { weaponProfiles: profiles } : {}),
   };
 }
 
@@ -284,6 +293,17 @@ function renderWeaponSeasons(b) {
       field.value = weaponSeason(b, b[field.dataset.weaponSeason]) ?? '';
     }
   }
+}
+
+function updateProfileField(field, slot, key) {
+  const b = build();
+  const id = b[slot];
+  if (!id || !BY[id]) return;
+  const profile = { ...weaponProfile(b, id), [key]: field.value };
+  b.weaponProfiles ??= {};
+  if (profile.distance || profile.hint.trim()) b.weaponProfiles[id] = profile;
+  else delete b.weaponProfiles[id];
+  save();
 }
 
 function renderWeaponCards(b) {
@@ -315,6 +335,15 @@ function renderWeaponCards(b) {
             Aufsätze <span class="build-attachment-count"></span><span aria-hidden="true">→</span>
           </button>
         </div>
+        <div class="build-weapon-profile">
+          <label><span>Einsatzdistanz</span><select data-weapon-distance="${slot}" aria-label="Einsatzdistanz ${seasonFor}">
+            ${distanceOptions('Distanz wählen')}
+          </select></label>
+          <label><span>Waffenhinweis <small>optional</small></span>
+            <input data-weapon-hint="${slot}" maxlength="${WEAPON_HINT_LENGTH}" aria-label="Waffenhinweis ${seasonFor}" placeholder="z. B. Schnelles Zielen">
+          </label>
+          <button class="ghost-btn weapon-check-action" type="button" data-weapon-check="${slot}">Waffe prüfen</button>
+        </div>
       </article>
     `).join('');
   }
@@ -336,6 +365,13 @@ function renderWeaponCards(b) {
     const attach = card.querySelector('[data-attach]');
     attach.querySelector('.build-attachment-count').textContent = standardCount(parts) + '/' + attachmentLimit();
     attach.disabled = !w;
+    const distance = card.querySelector('[data-weapon-distance]');
+    const hint = card.querySelector('[data-weapon-hint]');
+    const profile = weaponProfile(b, w?.id);
+    distance.disabled = hint.disabled = !w;
+    if (distance !== document.activeElement) distance.value = profile.distance;
+    if (hint !== document.activeElement) hint.value = profile.hint;
+    card.querySelector('[data-weapon-check]').disabled = !allowed;
     const picture = w ? art(w) : '';
     if (picture !== artButton.weaponArtwork) {
       artButton.innerHTML = picture;
@@ -344,6 +380,101 @@ function renderWeaponCards(b) {
     artButton.setAttribute('aria-label', name ? label + ' ändern · ' + name : label + ' wählen');
   }
   renderWeaponSeasons(b);
+}
+
+let currentWeaponCheck;
+
+function renderWeaponCheck({ panel, target, slot, source }) {
+  const w = weapon(slot);
+  if (panel !== el('weaponCheckResult') || el('modal').hidden || w?.id !== target.weaponId ||
+      state.game !== target.game || state.mode !== target.mode || weaponProfile(build(), w.id).distance !== target.distance) return;
+  const allowed = knownAttachmentIds(w);
+  const current = storedParts(w);
+  const normalize = (part) => {
+    const id = currentAttachmentId(w.id, part?.id, allowed);
+    const option = ATTACHMENT_BY[id];
+    return option && allowed.has(id) && part.slot === option.slot && !part.custom
+      ? { slot: option.slot, id, name: option.en }
+      : undefined;
+  };
+  const resolveParts = (parts, entry) => {
+    if (!Array.isArray(parts)) return [];
+    const selected = parts.map(normalize);
+    if (selected.some((part) => !part) || new Set(selected.map(({ slot }) => slot)).size !== selected.length ||
+        standardCount(selected) > (entry.mode === 'dmz' && entry.dmzLoot ? 8 : 5) || apexConflictMessage(selected)) return [];
+    return selected;
+  };
+  const result = weaponCheck(source, target, current.map(part => normalize(part) || part),
+    resolveParts, part => Boolean(planAttachmentChange(current, part).parts));
+  const context = MODE[target.mode] + ' · ' + seasonLabel(target.season) + ' · ' + WEAPON_DISTANCES[target.distance];
+  if (!result.count) {
+    panel.innerHTML = '<p class="weapon-check-context">' + html(context) + '</p><p>Für diese Waffe und Einsatzdistanz fehlen noch vergleichbare veröffentlichte Builds.</p>';
+    return;
+  }
+  const tips = result.suggestions.map(({ part, count, current, currentCount }) => {
+    const label = CAT.find(([key]) => key === part.slot)?.[1] || 'Aufsatz';
+    const suggested = attachmentName(part);
+    const reason = result.count === 1 ? 'Ein passender Community-Build nutzt diese Option.' :
+      count > currentCount ? 'Spieler wählen diesen Aufsatz bei vergleichbaren Builds häufiger.' :
+      'Diese Alternative erhält bei vergleichbaren Builds besonders viel Zuspruch.';
+    const title = 'Probier ' + suggested + '.';
+    const slot = current ? label + ' · Ersetzt ' + attachmentName(current) : label;
+    return '<article class="weapon-check-tip"><div><small>' + html(slot) + '</small><h3>' + html(title) +
+      '</h3><p>' + html(reason) + '</p></div><button type="button" class="ghost-btn" data-apply-check-part="' +
+      html(part.id) + '">Aufsatz übernehmen</button></article>';
+  });
+  const combo = result.combination.count > 1
+    ? '<p class="fine-print">Die am stärksten unterstützte Kombination wird in ' + result.combination.count + ' dieser Builds gespielt.</p>' : '';
+  currentWeaponCheck.suggestions = result.suggestions;
+  panel.innerHTML = '<p class="weapon-check-context">' + html(context) + '</p><p class="fine-print">' +
+    (result.count === 1 ? 'Ein veröffentlichter Build passt zu deiner Auswahl.' : result.count + ' veröffentlichte Builds passen zu deiner Auswahl.') +
+    '</p>' + combo +
+    (tips.length ? tips.join('') : '<p>Für dein aktuelles Setup ergibt sich aus dieser Auswahl kein sinnvoller Aufsatzwechsel.</p>');
+}
+
+async function openWeaponCheck(slot) {
+  const w = weapon(slot);
+  if (!availableInMode(w, state.mode)) return;
+  const distance = weaponProfile(build(), w.id).distance;
+  if (!distance) {
+    toast('Wähle zuerst die Einsatzdistanz der Waffe.');
+    document.querySelector('[data-weapon-distance="' + slot + '"]')?.focus();
+    return;
+  }
+  modal(head('Waffencheck', weaponNames(w)[attachmentLanguage]) + '<div id="weaponCheckResult" aria-live="polite"><p>Passende Builds werden verglichen …</p></div>');
+  const panel = el('weaponCheckResult');
+  const target = { game: state.game, mode: state.mode, weaponId: w.id, distance };
+  currentWeaponCheck = null;
+  try {
+    const [config, published] = await Promise.all([serverGet('/api/config'), serverGet('/api/sets')]);
+    if (panel !== el('weaponCheckResult') || el('modal').hidden) return;
+    if (!Number.isSafeInteger(config.weaponCheckSeason) || config.weaponCheckSeason < 0) {
+      panel.textContent = 'Die aktive Season für den Waffencheck wird im Adminbereich festgelegt.';
+      return;
+    }
+    target.season = config.weaponCheckSeason;
+    const source = [...published.sets, ...published.creators];
+    currentWeaponCheck = { panel, target, slot, source };
+    renderWeaponCheck(currentWeaponCheck);
+  } catch {
+    if (panel === el('weaponCheckResult')) panel.textContent = 'Der Vergleich ist gerade nicht erreichbar. Versuche es gleich noch einmal.';
+  }
+}
+
+function applyWeaponCheckPart(id) {
+  const check = currentWeaponCheck;
+  const selected = check?.suggestions?.find(({ part }) => part.id === id)?.part;
+  if (!selected || check.panel !== el('weaponCheckResult') || el('modal').hidden) return;
+  const w = weapon(check.slot);
+  if (w?.id !== check.target.weaponId || state.mode !== check.target.mode ||
+      weaponProfile(build(), w.id).distance !== check.target.distance || !knownAttachmentIds(w).has(id)) return;
+  const change = planAttachmentChange(storedParts(w), selected);
+  if (change.reason) return toast(change.reason);
+  build().parts[w.id] = change.parts;
+  save();
+  renderBuilder();
+  renderWeaponCheck(check);
+  toast('Aufsatz übernommen ✓');
 }
 
 function renderBuilder() {
@@ -667,6 +798,14 @@ document.addEventListener('click', (e) => {
     attachmentEdit(button.dataset.attach);
     return;
   }
+  if (button.dataset.weaponCheck) {
+    openWeaponCheck(button.dataset.weaponCheck);
+    return;
+  }
+  if (button.dataset.applyCheckPart) {
+    applyWeaponCheckPart(button.dataset.applyCheckPart);
+    return;
+  }
   if (button.dataset.gearPick) {
     pickGear(button.dataset.gearPick);
     return;
@@ -701,6 +840,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('change', (e) => {
   if (e.target.id === 'gameSelect') setGame(e.target.value);
   if (e.target.id === 'modeSelect') setMode(e.target.value);
+  if (e.target.dataset.weaponDistance) updateProfileField(e.target, e.target.dataset.weaponDistance, 'distance');
   if (e.target.dataset.gear) {
     build().gear[e.target.dataset.gear] = e.target.value;
     save();
@@ -708,6 +848,7 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('input', (e) => {
   if (e.target.id === 'pickSearch') renderPicker();
+  if (e.target.dataset.weaponHint) updateProfileField(e.target, e.target.dataset.weaponHint, 'hint');
   const slot = e.target.dataset.weaponSeason;
   if (!slot || !e.target.validity.valid) return;
   const b = build();

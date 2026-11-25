@@ -24,6 +24,7 @@ import { renderCurrentDetail } from './loadout.js';
 import { currentParam, navigate, replaceViewParam } from './navigation.js';
 import { loadoutWeaponSeasons, seasonLabel } from './season.js';
 import { streamerFilterKey, streamerLinks } from './creator.js';
+import { weaponProfile, weaponProfileSummary } from './waffenprofil.js';
 
 function rankingLoadouts() {
   return [...feed.map((item) => ({ ...item, kind: 'sets' })), ...creators.map((item) => ({ ...item, kind: 'creators' }))];
@@ -64,6 +65,11 @@ function rankCard(x, i) {
       return '<span class="season-chip">' + slot + ' · ' + seasonLabel(season) + '</span>';
     })
     .join('');
+  const profiles = [['Primär', x.primary], ['Sekundär', x.secondary]].map(([slot, id]) => {
+    const summary = weaponProfileSummary(x, id);
+    const name = BY[id] ? weaponNames(BY[id]).de : '';
+    return summary ? '<li><strong>' + html(name || slot) + '</strong><span>' + html(slot + ' · ' + summary) + '</span></li>' : '';
+  }).join('');
   const media =
     '<div class="rank-media"><span class="rank-number">#' +
     n +
@@ -94,7 +100,8 @@ function rankCard(x, i) {
     html(by) +
     ' · ' +
     html(CLASS[w.cls]) +
-    '</span></p>' + (streamer ? streamerLinks(x) : '') +
+    '</span></p>' + (profiles ? '<ul class="rank-weapon-profiles">' + profiles + '</ul>' : '') +
+    (streamer ? streamerLinks(x) : '') +
     '</div><div class="rank-actions"><button class="like-btn" ' + (streamer ? 'data-like-creator' : 'data-like') + '="' +
     x.id +
     '" aria-pressed="' +
@@ -119,19 +126,24 @@ function rankCard(x, i) {
   );
 }
 
-function matchingWeaponSeasons(loadout, gun, season) {
+function weaponMatches(loadout, weapon, gun, distance) {
+  return Boolean(weapon) && (gun === 'all' || weapon === gun) &&
+    (distance === 'all' || weaponProfile(loadout, weapon).distance === distance);
+}
+
+function matchingWeaponSeasons(loadout, gun, season, distance) {
   return loadoutWeaponSeasons(loadout).filter(
-    ([weapon, number]) => (gun === 'all' || weapon === gun) && (season === undefined || number === season),
+    ([weapon, number]) => weaponMatches(loadout, weapon, gun, distance) && (season === undefined || number === season),
   );
 }
 
-function seasonMeta(loadouts, gun, season) {
+function seasonMeta(loadouts, gun, season, distance) {
   const topLikes = new Map();
   return loadouts.filter((loadout) => {
     const likes = Number(loadout.likes || 0);
     if (likes <= 0) return false;
     let top = false;
-    for (const [weapon] of matchingWeaponSeasons(loadout, gun, season)) {
+    for (const [weapon] of matchingWeaponSeasons(loadout, gun, season, distance)) {
       // Loadouts are already ordered by descending likes.
       if (!topLikes.has(weapon)) topLikes.set(weapon, likes);
       if (likes === topLikes.get(weapon)) top = true;
@@ -159,6 +171,7 @@ function redrawFeed() {
   const game = el('feedGame').value,
     mode = el('feedMode').value,
     gun = el('feedWeapon').value,
+    distance = el('feedDistance')?.value || 'all',
     sort = el('feedSort').value,
     seasonFilter = el('feedSeason'),
     streamer = el('feedStreamer')?.value || 'all',
@@ -172,22 +185,23 @@ function redrawFeed() {
     (x) =>
       (game === 'all' || x.game === game) &&
       (mode === 'all' || x.mode === mode) &&
-      (gun === 'all' || x.primary === gun || x.secondary === gun) &&
+      (gun === 'all' && distance === 'all' ||
+        [x.primary, x.secondary].some(weapon => weaponMatches(x, weapon, gun, distance))) &&
       (streamer === 'all' || streamerFilterKey(x) === streamer),
   );
   if (seasonFilter) seasonFilter.options[0].textContent = meta ? 'Neueste Season' : 'Alle Seasons';
   if (meta && season === undefined) {
     for (const loadout of shown) {
-      for (const [, number] of matchingWeaponSeasons(loadout, gun)) {
+      for (const [, number] of matchingWeaponSeasons(loadout, gun, undefined, distance)) {
         if (season === undefined || number > season) season = number;
       }
     }
   }
-  if (season !== undefined) shown = shown.filter((x) => matchingWeaponSeasons(x, gun, season).length > 0);
+  if (season !== undefined) shown = shown.filter((x) => matchingWeaponSeasons(x, gun, season, distance).length > 0);
   shown.sort(
     sort === 'new' ? (a, b) => Date.parse(b.created || 0) - Date.parse(a.created || 0) : compareRank,
   );
-  if (meta) shown = season === undefined ? [] : seasonMeta(shown, gun, season);
+  if (meta) shown = season === undefined ? [] : seasonMeta(shown, gun, season, distance);
   const hint = el('rankingHint');
   if (hint) {
     hint.hidden = !weekly && !meta;
@@ -221,7 +235,7 @@ function redrawFeed() {
         ? '<button type="button" class="primary-btn" id="startStreamerLoadout">Streamer-Loadout bauen →</button>'
         : '<button type="button" class="primary-btn" data-view="builder">Loadout bauen →</button>') + '</div>';
   const reset = el('resetRankFilters');
-  if (reset) reset.hidden = !onlyStreamers && mode === 'all' && gun === 'all' && sort === 'popular' &&
+  if (reset) reset.hidden = !onlyStreamers && mode === 'all' && gun === 'all' && distance === 'all' && sort === 'popular' &&
     (!seasonFilter || seasonFilter.value === 'all');
 }
 
@@ -365,7 +379,7 @@ document.addEventListener('click', (e) => {
     navigate('builder');
   }
   if (button.id === 'resetRankFilters') {
-    for (const id of ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedWeapon', 'feedSeason', 'feedSort'])
+    for (const id of ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'])
       if (el(id)) el(id).selectedIndex = 0;
     replaceViewParam('streamer', '');
     renderFeed();
@@ -375,7 +389,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('change', (e) => {
   if (e.target.id === 'feedAudience') replaceViewParam('streamer', e.target.value === 'creators' ? '1' : '');
   if (['feedAudience', 'feedGame', 'feedMode', 'feedStreamer'].includes(e.target.id)) renderFeed();
-  if (['feedWeapon', 'feedSeason', 'feedSort'].includes(e.target.id)) redrawFeed();
+  if (['feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'].includes(e.target.id)) redrawFeed();
 });
 
 export {

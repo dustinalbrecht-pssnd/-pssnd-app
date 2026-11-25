@@ -7,6 +7,7 @@ import { streamerLinks } from './creator.js';
 import { attachmentLanguage, attachmentName, languageButtons } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
 import { seasonLabel, weaponSeason } from './season.js';
+import { weaponProfileSummary } from './waffenprofil.js';
 
 function renderCurrentDetail() {
   if (currentView() !== 'detail') return;
@@ -40,6 +41,8 @@ function renderCurrentDetail() {
   const liked = Boolean((streamer ? streamerLikes : likedIds)[x.id]);
   const primarySeason = weaponSeason(x, w.id);
   const secondarySeason = weaponSeason(x, s?.id);
+  const primaryProfile = weaponProfileSummary(x, w.id);
+  const secondaryProfile = weaponProfileSummary(x, s?.id);
   content.innerHTML =
     '<div class="detail-language"><span>Sprache / Language</span>' +
     languageButtons() +
@@ -63,11 +66,12 @@ function renderCurrentDetail() {
     art(w) +
     '<strong>' +
     html(weaponNames(w)[attachmentLanguage]) +
-    '</strong></div>' +
+    '</strong>' + (primaryProfile ? '<p class="detail-weapon-profile">' + html(primaryProfile) + '</p>' : '') + '</div>' +
     '<div class="detail-two"><div><small>SEKUNDÄR</small><b>' +
     html(weaponNames(s)[attachmentLanguage] || '—') +
     (secondarySeason === undefined ? '' : ' · ' + seasonLabel(secondarySeason)) +
-    '</b></div><div><small>MODUS</small><b>' +
+    '</b>' + (secondaryProfile ? '<p class="detail-weapon-profile">' + html(secondaryProfile) + '</p>' : '') +
+    '</div><div><small>MODUS</small><b>' +
     html(MODE[x.mode]) +
     '</b></div></div>' +
     '<div class="detail-section"><span class="eyebrow">PRIMÄR · AUFSÄTZE</span><div class="detail-chips">' +

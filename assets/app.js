@@ -205,6 +205,9 @@ async function apiPost(path, payload) {
   if (payload?.weaponSeasons && siteConfig.supportsWeaponSeasons !== true) {
     throw Error('Der Community-Server speichert noch keine Waffen-Seasons. Dein Entwurf bleibt gespeichert.');
   }
+  if (payload?.weaponProfiles && siteConfig.supportsWeaponProfiles !== true) {
+    throw Error('Der Community-Server braucht das Update für Einsatzdistanz und Waffenhinweise. Dein Entwurf ist gespeichert.');
+  }
   const id = await anonId();
   const r = await fetch(API + path, {
     method: 'POST',

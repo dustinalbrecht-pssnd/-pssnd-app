@@ -249,6 +249,16 @@ function saveCatalogAttachment(id) {
   saveSlot(a.en, a.id);
 }
 
+function planAttachmentChange(current, entry, limit = attachmentLimit()) {
+  const parts = current.filter((part) => part.slot !== entry.slot);
+  if (entry.slot !== 'apex' && standardCount(parts) >= limit) {
+    return { reason: 'Alle ' + limit + ' Aufsatzplätze belegt. Entferne zuerst einen Aufsatz.' };
+  }
+  parts.push(entry);
+  const conflict = apexConflictMessage(parts);
+  return conflict ? { reason: conflict + ' Entferne zuerst die inkompatiblen Aufsätze.' } : { parts };
+}
+
 function saveSlot(value, id, custom = null) {
   const slot = picker.slot === 'secondary' ? 'secondary' : 'primary',
     w = weapon(slot),
@@ -260,21 +270,15 @@ function saveSlot(value, id, custom = null) {
     toast('Wähle einen Aufsatz aus der Liste');
     return;
   }
-  const parts = storedParts(w).filter((p) => p.slot !== activeAttachSlot);
   if (!availableInMode(w, state.mode)) return;
-  if (activeAttachSlot !== 'apex' && standardCount(parts) >= attachmentLimit()) {
-    toast('Alle ' + attachmentLimit() + ' Aufsatzplätze belegt. Entferne zuerst einen Aufsatz.');
-    return;
-  }
-  parts.push({
+  const { parts, reason } = planAttachmentChange(storedParts(w), {
     slot: activeAttachSlot,
     name,
     ...(a ? { id: a.id } : {}),
     ...(custom ? { custom: true, de: custom.de, en: custom.en } : {}),
   });
-  const conflict = apexConflictMessage(parts);
-  if (conflict) {
-    toast(conflict + ' Entferne zuerst die inkompatiblen Aufsätze.');
+  if (reason) {
+    toast(reason);
     return;
   }
   build().parts[w.id] = parts;
@@ -382,6 +386,7 @@ export {
   attachmentUnavailable,
   knownAttachmentIds,
   languageButtons,
+  planAttachmentChange,
   renderGunsmith,
   standardCount,
 };
