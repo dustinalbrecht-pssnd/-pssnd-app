@@ -12,10 +12,10 @@
       name="description"
       content="eUpdate: Community-Ranking, Loadouts, Creator und Events für Call of Duty."
     />
-    <title>eUpdate · Aufsätze</title>
+    <title>eUpdate · Bauen</title>
     <link rel="stylesheet" href="assets/eupdate.css" />
   </head>
-  <body>
+  <body class="builder-view">
     <section
       id="termsGate"
       class="terms-gate"
@@ -73,24 +73,57 @@
           ><span class="my-posts-arrow" aria-hidden="true">→</span>
         </button>
       </div>
-      <section class="view active" id="view-attachments" data-title="Aufsätze">
-        <a class="back-link" data-view="builder" href="Bauen/">← Loadout bauen</a>
-        <div class="page-heading compact">
-          <span class="eyebrow">GUNSMITH</span>
-          <h1>Aufsätze<span class="title-dot">.</span></h1>
-          <p>Tippe einen Slot an und wähle deinen Aufsatz.</p>
+      <section class="view active" id="view-builder" data-title="Bauen">
+        <div class="page-heading builder-heading">
+          <h1>Loadout bauen<span class="title-dot">.</span></h1>
+          <button id="openArsenal" class="arsenal-button" type="button">
+            <span id="arsenalCount" class="arsenal-label">Waffenübersicht</span><span class="arsenal-short">Arsenal</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
-        <div id="attachmentHero"></div>
-        <div class="section-line">
-          <h2>Aufsätze</h2>
-          <div id="gunsmithLanguage"></div>
-          <small id="attachmentCount">0 / 5</small>
+        <div class="builder-settings">
+          <label class="builder-setting">
+            <span>Spiel</span>
+            <select id="gameSelect" aria-label="Spiel wählen"></select>
+          </label>
+          <div class="builder-setting">
+            <label id="builderModeLabel" for="modeSelect">Modus</label>
+            <select id="modeSelect" aria-label="Modus wählen"></select>
+            <div id="builderModes" class="builder-mode-tabs" role="group" aria-labelledby="builderModeLabel"></div>
+          </div>
+          <div class="builder-setting builder-audience">
+            <span id="builderAudienceLabel">Veröffentlichen als</span>
+            <div class="audience-tabs" role="group" aria-labelledby="builderAudienceLabel">
+              <button type="button" data-audience="player">Spieler</button>
+              <button type="button" data-audience="streamer">Streamer</button>
+            </div>
+          </div>
         </div>
-        <p id="attachmentRule" class="fine-print"></p>
-        <div id="attachmentSlots" class="attachment-grid"></div>
-        <div class="builder-actions">
-          <button class="primary-btn" id="finishAttachments">Übernehmen <span>→</span></button
-          ><button class="ghost-btn" id="publishFromAttachments">Veröffentlichen</button>
+        <div class="section-line builder-section">
+          <h2>Waffen</h2>
+          <p id="weaponSeasonHint">Waffen-Season optional · im Ranking filterbar</p>
+        </div>
+        <div id="weaponSlots" class="build-weapons"></div>
+        <div id="dmzLootPanel" class="dmz-loot-panel" hidden></div>
+        <div class="section-line builder-section">
+          <div>
+            <h2>Ausrüstung</h2>
+            <p class="game-note" id="gameNote" hidden></p>
+          </div>
+          <div id="gearLanguage"></div>
+        </div>
+        <div id="gearSlots" class="equipment-grid"></div>
+        <div class="loadout-actions">
+          <button class="ghost-btn" id="shareLoadout" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v13m-5-5 5 5 5-5M5 17v4h14v-4" />
+            </svg>
+            Bild speichern
+          </button>
+          <button class="primary-btn" id="publishLoadout" type="button">
+            Veröffentlichen <span aria-hidden="true">→</span>
+          </button>
         </div>
       </section>
 
@@ -119,7 +152,7 @@
             <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z" /></svg></span
         >Bauen</a
       ><a data-view="settings" href="Einstellungen/"
-        ><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙</span>MW4-Einstellungen</a
+        ><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Spieleinstellungen</span></a
       ><a data-view="events" href="News/"
         ><span class="nav-icon"
           ><svg viewBox="0 0 32 32" aria-hidden="true">
