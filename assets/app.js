@@ -1,13 +1,15 @@
 import { BY, GAME, MODE, WM, art, loadWeaponCatalog } from './katalog.js';
 import { downloadRank, exportPng, image } from './bildexport.js';
-import { importLoadout, payload, postLoadout, renderBuilder } from './bauen.js';
+import { importLoadout, payload, postLoadout, renderBuilder, validateDraft } from './bauen.js';
 import { renderCreators } from './creator.js';
 import { currentParam, navigate, startNavigation } from './navigation.js';
 import { GEAR_NAMES, managedItems } from './ausruestung.js';
+import { availableInMode } from './mw4-ausruestung.js';
 import { avatar, renderFeed, setFeedStatus, updateCommunityConnection } from './ranking.js';
 import { renderCurrentDetail } from './loadout.js';
 import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
-import { renderGunsmith } from './aufsaetze.js';
+import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
+import { weaponNames } from './katalog-abgleich.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
 
@@ -69,7 +71,7 @@ function currentKey() {
 
 function candidates(slot, game = state.game) {
   const items = WM.filter(
-    (w) => w.game === game && w.active !== false && (!w.modes || w.modes.includes(state.mode)),
+    (w) => w.game === game && availableInMode(w, state.mode),
   );
   return items.filter((w) =>
     slot === 'primary' ? !['pistol', 'launcher', 'melee', 'special'].includes(w.cls) : true,
@@ -78,7 +80,9 @@ function candidates(slot, game = state.game) {
 
 function initial() {
   const list = candidates('primary'),
-    secondary = candidates('secondary').find((x) => x.cls === 'pistol') || list[1] || list[0];
+    secondaryList = candidates('secondary'),
+    secondary = secondaryList.find((w) => w.cls === 'pistol') ||
+      secondaryList.find((w) => w.id !== list[0]?.id) || list[0];
   return { primary: list[0]?.id || '', secondary: secondary?.id || '', parts: {}, gear: {} };
 }
 
@@ -89,7 +93,7 @@ function build() {
 }
 
 function weapon(slot) {
-  return BY[build()[slot]] || candidates(slot)[0];
+  return BY[build()[slot]] || null;
 }
 
 function pieces(slot) {
@@ -97,7 +101,7 @@ function pieces(slot) {
 }
 
 function storedParts(w) {
-  return build().parts?.[w.id] || [];
+  return build().parts?.[w?.id] || [];
 }
 
 function modal(content, mode = '') {
@@ -163,9 +167,9 @@ function card(x, starter = false) {
     '</div><h3>' +
     html(x.title) +
     '</h3><div class="card-sub">' +
-    html(w.name) +
+    html(weaponNames(w)[attachmentLanguage]) +
     ' + ' +
-    html(s?.name || x.secondaryText || '—') +
+    html(weaponNames(s)[attachmentLanguage] || x.secondaryText || '—') +
     '</div><p>' +
     html(x.description || x.note || 'Von ' + x.name) +
     '</p><div class="card-actions"><button data-' +
@@ -306,6 +310,7 @@ async function croppedPhoto() {
 async function submitCreator(e) {
   e.preventDefault();
   if (!confirmedPrivacy(e.target)) return;
+  if (!validateDraft()) return;
   if (!API) {
     toast('Streamer-Veröffentlichung benötigt den verbundenen Community-Server.');
     return;
@@ -337,7 +342,7 @@ async function submitCreator(e) {
         id: Date.now(),
         created: new Date().toISOString(),
         likes: 0,
-        title: weapon('primary').name + ' · ' + MODE[state.mode],
+        title: weaponNames(weapon('primary'))[attachmentLanguage] + ' · ' + MODE[state.mode],
         name: el('creatorName').value.trim().slice(0, 40),
         handle: el('creatorHandle').value.trim().slice(0, 45),
         note: el('creatorNote').value.trim().slice(0, 180),

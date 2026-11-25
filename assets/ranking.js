@@ -15,6 +15,7 @@ import {
   weeklyWinnerIds,
 } from './app.js';
 import { BY, CLASS, GAME, MODE, WM, art } from './katalog.js';
+import { weaponNames } from './katalog-abgleich.js';
 import { renderCurrentDetail } from './loadout.js';
 import { navigate } from './navigation.js';
 import { loadoutWeaponSeasons, seasonLabel } from './season.js';
@@ -200,7 +201,7 @@ function renderFeed() {
   el('feedWeapon').innerHTML =
     '<option value="all">Alle Waffen</option>' +
     WM.filter((w) => present.has(w.id))
-      .map((w) => '<option value="' + w.id + '">' + html(w.name) + ' (' + w.game.toUpperCase() + ')</option>')
+      .map((w) => '<option value="' + w.id + '">' + html(weaponNames(w).de) + ' (' + w.game.toUpperCase() + ')</option>')
       .join('');
   el('feedWeapon').value = present.has(old) ? old : 'all';
   const seasonFilter = el('feedSeason');

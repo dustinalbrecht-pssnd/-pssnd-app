@@ -4843,21 +4843,22 @@ textarea.field {
 }
 /* Original illustrated equipment, clear German labels, and bounded picker artwork. */
 .ui-art {
+  position: relative;
   display: block;
   flex: none;
   width: 100%;
   height: 100%;
-  background-repeat: no-repeat;
-  background-position: var(--art-x, 0%) var(--art-y, 0%);
   filter: drop-shadow(0 6px 5px #0005);
   pointer-events: none;
 }
-.art-equipment {
-  background-size: 600% 400%;
-}
-.art-perks,
-.art-attachments {
-  background-size: 400% 400%;
+.ui-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--art-w);
+  height: var(--art-h);
+  background: var(--art-image) var(--art-position) / var(--art-size) no-repeat;
 }
 .equipment-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5406,16 +5407,35 @@ textarea.field {
   }
 }
 
-.art-equipment {
-  background-image: url('bilder/ausruestung.png');
+.equipment-no-art {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 4px;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 600;
 }
 
-.art-perks {
-  background-image: url('bilder/extras.png');
+.build-weapon-restriction {
+  margin: 5px 0 0;
+  color: var(--gold);
+  font-size: .84rem;
 }
 
-.art-attachments {
-  background-image: url('bilder/aufsaetze.png');
+@media (min-width: 1000px) {
+  .dialog.equipment-picker:has(.choice-grid[data-wide]) {
+    width: min(940px, 100%);
+  }
+  .equipment-picker .choice-grid[data-wide] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .equipment-picker .choice-grid[data-wide] button {
+    min-height: 188px;
+    padding: 13px 9px 16px;
+  }
 }
 
 .export-preview {

@@ -1,4 +1,4 @@
-import { ATTACHMENT_BY, BY, CAT, CLASS, GAME, MODE, WM, art } from './katalog.js';
+import { ATTACHMENT_BY, BY, CAT, CLASS, GAME, MODE, art } from './katalog.js';
 import {
   API,
   BO7_MODES,
@@ -37,8 +37,12 @@ import {
   weapon,
 } from './app.js';
 import { navigate } from './navigation.js';
-import { attachmentEdit, knownAttachmentIds, languageButtons, renderGunsmith, standardCount } from './aufsaetze.js';
-import { currentAttachmentId } from './katalog-abgleich.js';
+import {
+  attachmentEdit, attachmentLanguage, attachmentName, attachmentUnavailable, knownAttachmentIds,
+  languageButtons, renderGunsmith, standardCount,
+} from './aufsaetze.js';
+import { currentAttachmentId, weaponNames } from './katalog-abgleich.js';
+import { availableInMode } from './mw4-ausruestung.js';
 import {
   GEAR_NAMES,
   availableGear,
@@ -95,9 +99,9 @@ function openArsenal() {
   arsenalMode = true;
   picker.slot = 'primary';
   picker.category = 'all';
-  const count = WM.filter((w) => w.game === state.game && w.active !== false).length;
+  const count = candidates('secondary').length;
   modal(
-    head('Waffenübersicht', GAME[state.game] + ' · ' + count + ' Waffen') +
+    head('Waffenübersicht', MODE[state.mode] + ' · ' + count + ' Waffen') +
       '<p class="arsenal-note">Waffe antippen und direkt ins Loadout übernehmen.</p>' +
       weaponPickerTools() +
       '<div id="pickResults" class="weapon-options arsenal-options"></div>',
@@ -107,9 +111,7 @@ function openArsenal() {
 }
 
 function renderPicker() {
-  const list = arsenalMode
-      ? WM.filter((w) => w.game === state.game && w.active !== false)
-      : candidates(picker.slot),
+  const list = candidates(arsenalMode ? 'secondary' : picker.slot),
     classes = [...new Set(list.map((w) => w.cls))];
   el('pickClasses').innerHTML = ['all', ...classes]
     .map(
@@ -131,7 +133,7 @@ function renderPicker() {
     found = list.filter(
       (w) =>
         (picker.category === 'all' || w.cls === picker.category) &&
-        w.name.toLocaleLowerCase('de').includes(term),
+        Object.values(weaponNames(w)).some((name) => name.toLocaleLowerCase('de').includes(term)),
     );
   el('pickResultCount').textContent =
     found.length + ' von ' + list.length + ' Waffen' + (term ? ' · Suche: ' + el('pickSearch').value : '');
@@ -155,7 +157,7 @@ function renderPicker() {
             '"><span class="weapon-picture">' +
             art(w) +
             '</span><span class="weapon-option-meta"><b class="weapon-name">' +
-            html(w.name) +
+            html(weaponNames(w)[attachmentLanguage]) +
             '</b><small>' +
             html(CLASS[w.cls]) +
             (w.announcedOnly ? ' · offiziell erwähnt' : w.limited ? ' · Beta eingeschränkt' : '') +
@@ -255,7 +257,7 @@ function payload() {
   const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
     const w = BY[weaponId];
     if (!w) return [weaponId, parts];
-    const assigned = knownAttachmentIds(w);
+    const assigned = knownAttachmentIds(w, null);
     return [weaponId, parts.map((p) => {
       const id = currentAttachmentId(weaponId, p.id, assigned);
       return id !== p.id && !p.custom && ATTACHMENT_BY[id]
@@ -319,18 +321,24 @@ function renderWeaponCards(b) {
     const w = weapon(slot);
     const card = container.querySelector('[data-build-weapon="' + slot + '"]');
     const artButton = card.querySelector('.build-weapon-art');
-    el(slot + 'WeaponName').textContent = w.name;
+    const name = weaponNames(w)[attachmentLanguage];
+    el(slot + 'WeaponName').textContent = name || 'Waffe wählen';
     const parts = storedParts(w);
     const count = standardCount(parts);
-    card.querySelector('.build-weapon-meta').textContent =
-      CLASS[w.cls] + ' · ' + count + (count === 1 ? ' Aufsatz' : ' Aufsätze') +
-      (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '');
-    const picture = art(w);
+    const meta = card.querySelector('.build-weapon-meta');
+    const allowed = availableInMode(w, state.mode);
+    meta.textContent = allowed
+      ? CLASS[w.cls] + ' · ' + count + (count === 1 ? ' Aufsatz' : ' Aufsätze') +
+        (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '')
+      : (w ? 'Gesperrt in ' : 'Wähle eine freigegebene Waffe für ') + MODE[state.mode];
+    meta.classList.toggle('build-weapon-restriction', !allowed);
+    card.querySelector('[data-attach]').disabled = !w;
+    const picture = w ? art(w) : '';
     if (picture !== artButton.weaponArtwork) {
       artButton.innerHTML = picture;
       artButton.weaponArtwork = picture;
     }
-    artButton.setAttribute('aria-label', label + ' ändern · ' + w.name);
+    artButton.setAttribute('aria-label', name ? label + ' ändern · ' + name : label + ' wählen');
   }
   renderWeaponSeasons(b);
 }
@@ -353,11 +361,11 @@ function renderBuilder() {
   el('modeSelect').innerHTML = (g === 'mw4' ? MW4_MODES : BO7_MODES)
     .map(
       (id) => '<option value="' + id + '" ' + (id === mode ? 'selected' : '') + '>' +
-        (g === 'mw4' && id === 'ranked' ? 'Ranked · Entwurf' : MODE[id]) + '</option>',
+        MODE[id] + '</option>',
     )
     .join('');
   renderWeaponCards(b);
-  const keys = gearSlots(g, mode);
+  const keys = builderGearSlots(b);
   if (el('gearLanguage')) el('gearLanguage').innerHTML = languageButtons('Sprache der Ausrüstung');
   el('gearSlots').dataset.slotCount = String(keys.length);
   el('gearSlots').innerHTML = keys
@@ -387,13 +395,13 @@ function renderBuilder() {
   const notes = {
     wz: 'Elite-Extras und Feldaufrüstungen erhältst du im Match.',
     dmz: 'Belegte Funde und Freischaltungen. Operator-Traits verwaltest du im Spiel.',
-    ranked: 'Entwurf mit Multiplayer-Ausrüstung. Eine offizielle Ranked-Auswahlliste steht noch aus.',
+    ranked: 'Die Auswahlliste für Ranked folgt den Freigaben im Adminbereich.',
   };
   const note = siteConfig[mode + 'Note'] || (g === 'mw4' ? notes[mode] : '');
   el('gameNote').textContent = note || '';
   el('gameNote').hidden = !note;
   el('arsenalCount').textContent =
-    'Alle ' + WM.filter((w) => w.game === g && w.active !== false).length + ' MW4-Waffen ansehen';
+    candidates('secondary').length + ' Waffen für ' + MODE[mode] + ' ansehen';
   el('dmzLootPanel').hidden = !(g === 'mw4' && mode === 'dmz');
   el('dmzLootPanel').innerHTML =
     '<span class="eyebrow">DMZ · HERKUNFT DER WAFFE</span><div class="mode-tabs"><button data-dmz-loot="0" class="' +
@@ -403,8 +411,14 @@ function renderBuilder() {
     '">Gefunden · bis 8</button></div>';
 }
 
+function builderGearSlots(b) {
+  const slots = gearSlots(state.game, state.mode);
+  const saved = Object.keys(GEAR_NAMES).filter((key) => b.gear?.[key] && !['Keine', 'None'].includes(b.gear[key]));
+  return [...new Set([...slots, ...saved])];
+}
+
 function pickGear(key) {
-  if (!gearSlots(state.game, state.mode).includes(key)) return;
+  if (!builderGearSlots(build()).includes(key)) return;
   const options = availableGear(key);
   const current = buildGearValue(build().gear, key, options);
   modal(
@@ -412,9 +426,9 @@ function pickGear(key) {
       GEAR_NAMES[key] + ' wählen',
       key === 'wildcard'
         ? 'Revolverheld: 8 statt 5 Aufsätze für die Primärwaffe.'
-        : 'Wähle deine Ausrüstung. Sie wird direkt übernommen.',
+        : 'Freigegebene Ausrüstung für ' + MODE[state.mode] + '. Deine Auswahl wird direkt übernommen.',
     ) +
-      '<div class="choice-grid">' +
+      '<div class="choice-grid"' + (options.length >= 8 ? ' data-wide' : '') + '>' +
       (options.includes('Keine') ? options : [...options, ''])
         .map((v) => {
           const selected = current === v;
@@ -443,11 +457,36 @@ function pickGear(key) {
 }
 
 function chooseGear(key, value) {
+  if (value && !availableGear(key).includes(value)) return;
   build().gear[key] = value;
   save();
   closeModal();
   renderBuilder();
   el('gearSlots').querySelector('[data-gear-pick="' + CSS.escape(key) + '"]')?.focus({ preventScroll: true });
+}
+
+function validateDraft() {
+  for (const slot of ['primary', 'secondary']) {
+    const w = weapon(slot);
+    if (!w || !candidates(slot).includes(w)) {
+      toast('Wähle eine freigegebene ' + (slot === 'primary' ? 'Primärwaffe' : 'Sekundärwaffe') + ' für ' + MODE[state.mode] + '.');
+      return false;
+    }
+    const allowed = knownAttachmentIds(w);
+    const blocked = storedParts(w).find((part) => attachmentUnavailable(w, part, allowed));
+    if (blocked) {
+      toast(attachmentName(blocked) + ' ist gesperrt. Ändere die Aufsätze bei ' + weaponNames(w)[attachmentLanguage] + '.');
+      return false;
+    }
+  }
+  const gear = build().gear || {};
+  for (const key of builderGearSlots(build())) {
+    if (gear[key] && !['Keine', 'None'].includes(gear[key]) && !availableGear(key).includes(gear[key])) {
+      toast('Ändere „' + GEAR_NAMES[key] + '“. Die bisherige Auswahl ist hier gesperrt.');
+      return false;
+    }
+  }
+  return true;
 }
 
 function publish() {
@@ -458,6 +497,7 @@ function publish() {
     communityBlocked();
     return;
   }
+  if (!validateDraft()) return;
   if (!['player', 'streamer'].includes(state.publisherType)) {
     toast('Wähle zuerst Spieler oder Streamer.');
     navigate('builder');
@@ -469,6 +509,8 @@ function publish() {
   }
   const w = weapon('primary'),
     s = weapon('secondary'),
+    primaryName = weaponNames(w)[attachmentLanguage],
+    secondaryName = weaponNames(s)[attachmentLanguage],
     mode = MODE[state.mode],
     local = !API;
   clearCrop();
@@ -481,13 +523,13 @@ function publish() {
       ' · ' +
       html(mode) +
       '</span><h3>' +
-      html(w.name) +
+      html(primaryName) +
       ' · ' +
       html(mode) +
       '</h3><p>' +
-      html(w.name) +
+      html(primaryName) +
       ' + ' +
-      html(s.name) +
+      html(secondaryName) +
       ' · ' +
       storedParts(w).length +
       ' Aufsätze</p></div>' +
@@ -520,6 +562,7 @@ function publish() {
 async function postLoadout(e) {
   e.preventDefault();
   if (!confirmedPrivacy(e.target, !!API)) return;
+  if (!validateDraft()) return;
   if (API && !siteConfig.legalReady) {
     toast('Betreiberangaben werden noch eingerichtet.');
     return;
@@ -528,7 +571,11 @@ async function postLoadout(e) {
     note = el('postNote').value.trim().slice(0, 180);
   if (!name) return;
   const photo = crop ? await croppedPhoto() : state.profilePhoto || '';
-  const data = { ...payload(), name, title: weapon('primary').name + ' · ' + MODE[state.mode], note, photo };
+  const data = {
+    ...payload(), name,
+    title: weaponNames(weapon('primary'))[attachmentLanguage] + ' · ' + MODE[state.mode],
+    note, photo,
+  };
   state.lastName = name;
   state.profilePhoto = photo;
   save();
@@ -593,6 +640,7 @@ document.addEventListener('click', (e) => {
   }
   if (button.dataset.weapon) {
     if (['primary', 'secondary'].includes(button.dataset.selectSlot)) picker.slot = button.dataset.selectSlot;
+    if (!candidates(picker.slot).some((w) => w.id === button.dataset.weapon)) return;
     build()[picker.slot] = button.dataset.weapon;
     save();
     closeModal();
@@ -657,4 +705,4 @@ document.addEventListener('input', (e) => {
   save();
 });
 
-export { addPart, importLoadout, payload, postLoadout, publish, renderBuilder, renderPartRows, saveParts };
+export { addPart, importLoadout, payload, postLoadout, publish, renderBuilder, renderPartRows, saveParts, validateDraft };

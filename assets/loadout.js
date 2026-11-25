@@ -3,7 +3,8 @@ import { API, communityLoaded, el, feed, html, likedIds } from './app.js';
 import { BY, CLASS, MODE, WM, art } from './katalog.js';
 import { GEAR_NAMES, gearLabel } from './ausruestung.js';
 import { avatar, badge, rankPlace } from './ranking.js';
-import { attachmentName, languageButtons } from './aufsaetze.js';
+import { attachmentLanguage, attachmentName, languageButtons } from './aufsaetze.js';
+import { weaponNames } from './katalog-abgleich.js';
 import { seasonLabel, weaponSeason } from './season.js';
 
 function renderCurrentDetail() {
@@ -52,10 +53,10 @@ function renderCurrentDetail() {
     '</span>' +
     art(w) +
     '<strong>' +
-    html(w.name) +
+    html(weaponNames(w)[attachmentLanguage]) +
     '</strong></div>' +
     '<div class="detail-two"><div><small>SEKUNDÄR</small><b>' +
-    html(s?.name || '—') +
+    html(weaponNames(s)[attachmentLanguage] || '—') +
     (secondarySeason === undefined ? '' : ' · ' + seasonLabel(secondarySeason)) +
     '</b></div><div><small>MODUS</small><b>' +
     html(MODE[x.mode]) +

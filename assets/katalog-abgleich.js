@@ -458,7 +458,17 @@ const oldGearLabels = new Map([
 ]);
 for (const [en, de] of oldGearLabels) officialGear.set(normalizedName(de), officialGear.get(normalizedName(en)));
 
-export function equipmentNames(row, value, fallback) {
+// Warzone Season 1 patch notes use these English names for the same catalog entries.
+// https://www.callofduty.com/patchnotes/2026/11/call-of-duty-mw4-warzone-season-1-patch-notes
+const warzoneNames = new Map([
+  ['Sticky Grenade', 'Semtex'],
+  ['Shock Stick', 'Shock Charge'],
+  ['Trip Wire', 'Tripwire Mine'],
+  ['Molotov Cocktail', 'Molotov'],
+]);
+for (const [base, en] of warzoneNames) officialGear.set(normalizedName(en), officialGear.get(normalizedName(base)));
+
+export function equipmentNames(row, value, fallback, mode) {
   const name = value || row?.name || '';
   const verified = officialGear.get(normalizedName(name)) || officialGear.get(normalizedName(fallback?.[0]));
   const de = row?.de?.trim();
@@ -468,13 +478,32 @@ export function equipmentNames(row, value, fallback) {
       .map(normalizedName);
     return {
       de: !de || recognized.includes(normalizedName(de)) ? verified.de : de,
-      en: !en || recognized.includes(normalizedName(en)) ? verified.en : en,
+      en: !en || recognized.includes(normalizedName(en))
+        ? (mode === 'wz' ? warzoneNames.get(verified.en) : null) || verified.en
+        : en,
     };
   }
   return {
     de: de || fallback?.[1] || name || 'Keine',
     en: en || fallback?.[0] || name || 'None',
   };
+}
+
+// The MW4 launch guides use localized labels. Catalog keys and artwork use the legacy names.
+const WEAPON_NAMES = new Map([
+  ['mw4-hyeon-burst', ['Hyeon Burst', 'Hyeon-Salve', 'Hyeon Burst']],
+  ['mw4-iso-nightshade', ['ISO Nightshade', 'ISO Nachtschatten', 'ISO Nightshade']],
+  ['mw4-wz-55-striga', ['Wz. 55 Striga', 'Wz.55 Striga', 'Wz.55 Striga']],
+  ['mw4-oris-8-6', ['Oris 8.6', 'Oris 8,6', 'Oris 8.6']],
+  ['mw4-sang-9mm', ['Sang 9mm', 'SANG 9mm', 'SANG 9mm']],
+  ['mw4-combat-knife', ['Combat Knife', 'FSS Carbon Edge 1095', 'FSS Carbon Edge 1095']],
+]);
+
+export function weaponNames(weapon) {
+  const name = weapon?.name || '';
+  const [legacy, officialDe, officialEn] = WEAPON_NAMES.get(weapon?.id) || [];
+  const display = (value, official) => value && value !== legacy ? value : name === legacy ? official : value || name;
+  return { de: display(weapon?.de, officialDe), en: display(weapon?.en, officialEn) };
 }
 
 export function attachmentNames(part) {

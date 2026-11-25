@@ -1,5 +1,6 @@
 import {
   GEAR_NAMES,
+  artworkTile,
   draftGear,
   gearEntry,
   gearLabel,
@@ -8,6 +9,7 @@ import {
 import { LOGO, build, creators, feed, head, modal, siteConfig, state, toast, weapon } from './app.js';
 import { BY, CAT, CLASS, GAME, MODE, artSource } from './katalog.js';
 import { ATTACHMENT_ART_SLOTS, attachmentLanguage, attachmentName } from './aufsaetze.js';
+import { weaponNames } from './katalog-abgleich.js';
 
 let outputFilename = '',
   outputBlob = null,
@@ -140,35 +142,15 @@ function fitExportImage(ctx, im, x, y, w, h, trim = true) {
   ctx.drawImage(im, b.x, b.y, b.w, b.h, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
 }
 
-function exportSprite(group) {
-  if (!exportSprites.has(group)) {
-    const node = document.createElement('span');
-    node.className = 'ui-art art-' + group;
-    node.style.cssText = 'position:fixed;width:0;height:0;visibility:hidden';
-    document.body.append(node);
-    const css = getComputedStyle(node).backgroundImage;
-    node.remove();
-    const match = css.match(/^url\(["']?(.*?)["']?\)$/);
-    exportSprites.set(group, image(match?.[1] || ''));
-  }
-  return exportSprites.get(group);
-}
-
 async function drawExportArt(ctx, group, index, x, y, size) {
-  const im = await exportSprite(group);
+  const tile = artworkTile(group, index);
+  if (!exportSprites.has(group)) exportSprites.set(group, image(tile.url));
+  const im = await exportSprites.get(group);
   if (!im) return;
-  const columns = group === 'equipment' ? 6 : 4;
-  ctx.drawImage(
-    im,
-    ((index % columns) * im.width) / columns,
-    (Math.floor(index / columns) * im.height) / 4,
-    im.width / columns,
-    im.height / 4,
-    x,
-    y,
-    size,
-    size,
-  );
+  const scale = size / Math.max(tile.width, tile.height);
+  const width = tile.width * scale, height = tile.height * scale;
+  ctx.drawImage(im, tile.x, tile.y, tile.width, tile.height,
+    x + (size - width) / 2, y + (size - height) / 2, width, height);
 }
 
 function exportGear(b, game, mode) {
@@ -227,7 +209,7 @@ async function exportThreePng(item = null, direct = false) {
       round(ctx, 48, 228, 984, 405, 22, '#20272d', '#414c55');
       ctx.fillStyle = accent;
       ctx.font = 'bold 25px Arial';
-      ctx.fillText(w.name, 76, 280);
+      ctx.fillText(weaponNames(w)[attachmentLanguage], 76, 280);
       const gun = await image(artSource(w));
       fitExportImage(ctx, gun, 75, 290, 930, 305);
     } else {
@@ -263,10 +245,9 @@ async function exportThreePng(item = null, direct = false) {
         );
       } else {
         const row = gearEntry(e.key, e.value, mode);
-        const visual = gearVisual(e.value);
+        const visual = gearVisual(e.value, row);
         if (row?.img) fitExportImage(ctx, await image(row.img), x + 12, y + 30, 80, 80);
         else if (visual) await drawExportArt(ctx, visual[2], visual[3], x + 12, y + 30, 80);
-        else await drawExportArt(ctx, 'attachments', e.key.startsWith('perk') ? 15 : 14, x + 12, y + 30, 80);
       }
       ctx.fillStyle = '#b9c2c9';
       ctx.font = 'bold 20px Arial';
@@ -636,10 +617,9 @@ async function exportPng(item = null, direct = false) {
         y = gearY + gearRowHeights.slice(0, r).reduce((n, h) => n + h + 14, 0);
       round(ctx, x, y, width, gearRowHeights[r], 15, '#20272d', '#414d56');
       const row = gearEntry(key, value),
-        visual = gearVisual(value);
+        visual = gearVisual(value, row);
       if (row?.img) fitExportImage(ctx, await image(row.img), x + 9, y + 17, 67, 67);
       else if (visual) await drawExportArt(ctx, visual[2], visual[3], x + 7, y + 16, 70);
-      else await drawExportArt(ctx, 'attachments', key.startsWith('perk') ? 15 : 14, x + 7, y + 16, 70);
       ctx.fillStyle = '#aeb9c0';
       ctx.font = '700 17px Arial,sans-serif';
       ctx.fillText(GEAR_NAMES[key] || key, x + 85, y + 25);

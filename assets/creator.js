@@ -16,6 +16,7 @@ import {
   toast,
 } from './app.js';
 import { BY, CLASS, GAME, MODE, WM, art } from './katalog.js';
+import { weaponNames } from './katalog-abgleich.js';
 import { navigate } from './navigation.js';
 import { importLoadout } from './bauen.js';
 
@@ -93,7 +94,7 @@ function renderCreators() {
   el('streamerWeapon').innerHTML =
     '<option value="all">Alle Waffen</option>' +
     WM.filter((w) => used.has(w.id))
-      .map((w) => '<option value="' + w.id + '">' + html(w.name) + ' · ' + w.game.toUpperCase() + '</option>')
+      .map((w) => '<option value="' + w.id + '">' + html(weaponNames(w).de) + ' · ' + w.game.toUpperCase() + '</option>')
       .join('');
   el('streamerWeapon').value = used.has(old) ? old : 'all';
   const name = el('streamerName').value,
@@ -154,9 +155,9 @@ function renderCreators() {
             '</div><div class="streamer-gun"><span>' +
             html(CLASS[w.cls]) +
             '</span><strong>' +
-            html(w.name) +
+            html(weaponNames(w).de) +
             '</strong><small>+ ' +
-            html(s?.name || 'Sekundärwaffe') +
+            html(weaponNames(s).de || 'Sekundärwaffe') +
             '</small></div>' +
             (x.note ? '<p>' + html(x.note) + '</p>' : '') +
             '<div class="social-links">' +

@@ -1,5 +1,6 @@
-import { ATTACHMENTS, ATTACHMENT_BY, ATTACHMENT_KNOWN, CAT, CLASS, VERIFIED, art } from './katalog.js';
-import { attachmentNames, currentAttachmentId, distinctAttachmentIds } from './katalog-abgleich.js';
+import { ATTACHMENTS, ATTACHMENT_BY, ATTACHMENT_KNOWN, CAT, CLASS, MODE, VERIFIED, art } from './katalog.js';
+import { attachmentNames, currentAttachmentId, distinctAttachmentIds, weaponNames } from './katalog-abgleich.js';
+import { availableInMode } from './mw4-ausruestung.js';
 import { illustratedArt } from './ausruestung.js';
 import { navigate } from './navigation.js';
 import {
@@ -31,8 +32,8 @@ function attachmentName(part) {
   return attachmentNames(entry || part)[attachmentLanguage];
 }
 
-function attachmentLimit(slot) {
-  return CAT.filter((c) => c[0] !== 'apex').length;
+function attachmentLimit() {
+  return state.mode === 'dmz' && build().dmzLoot ? 8 : 5;
 }
 
 function standardCount(parts) {
@@ -71,33 +72,34 @@ function renderGunsmith() {
   const slot = picker.slot === 'secondary' ? 'secondary' : 'primary',
     w = weapon(slot),
     parts = storedParts(w),
-    can = w.cls !== 'melee' && w.cls !== 'launcher';
+    can = availableInMode(w, state.mode) && w.cls !== 'melee' && w.cls !== 'launcher';
   el('attachmentHero').innerHTML =
     '<div class="gunsmith-stage"><div class="slot-row"><span>' +
     html(slot === 'primary' ? 'PRIMÄRWAFFE' : 'SEKUNDÄRWAFFE') +
     '</span><button data-pick="' +
     slot +
     '">Waffe ändern →</button></div><div class="gunsmith-gun">' +
-    art(w) +
+    (w ? art(w) : '') +
     '</div><div class="gunsmith-name"><strong>' +
-    html(w.name) +
+    html(weaponNames(w)[attachmentLanguage] || 'Waffe wählen') +
     '</strong><span>' +
-    html(CLASS[w.cls]) +
+    html(CLASS[w?.cls]) +
     '</span></div></div>';
   el('gunsmithLanguage').innerHTML = languageButtons();
   el('attachmentCount').textContent =
     standardCount(parts) +
     ' / ' +
-    attachmentLimit(slot) +
+    attachmentLimit() +
     (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '');
   el('attachmentRule').textContent =
-    'Die Liste zeigt die Aufsätze für deine gewählte Waffe. Pro Kategorie ist ein Aufsatz möglich.';
+    'Freigegebene Aufsätze für diese Waffe in ' + MODE[state.mode] +
+    '. Pro Kategorie kannst du einen Aufsatz wählen.';
   const known = knownAttachmentIds(w);
   const counts = new Map();
   for (const a of ATTACHMENTS) {
     if (known.has(a.id)) counts.set(a.slot, (counts.get(a.slot) || 0) + 1);
   }
-  el('attachmentSlots').innerHTML = can
+  el('attachmentSlots').innerHTML = can || parts.length
     ? CAT.filter(([key]) => state.game === 'mw4' || key !== 'apex')
         .filter(([key]) => counts.has(key) || parts.some((p) => p.slot === key))
         .map(([key, de, en]) => {
@@ -115,14 +117,17 @@ function renderGunsmith() {
             '</b><small>' +
             html(
               part
-                ? attachmentName(part) + (part.custom ? ' · eigene Angabe' : '')
+                ? attachmentName(part) + (part.custom ? ' · eigene Angabe' : '') +
+                  (attachmentUnavailable(w, part, known) ? ' · gesperrt' : '')
                 : available + ' passende Aufsätze',
             ) +
             '</small></span><span class="attach-chevron">›</span></button>'
           );
         })
-        .join('') || '<div class="empty">Für diese Waffe sind noch keine Aufsätze zugeordnet.</div>'
-    : '<div class="empty">Für diese Waffe gibt es hier keine bestätigten Gunsmith-Aufsätze.</div>';
+        .join('') || '<div class="empty">Für diese Waffe sind in diesem Modus keine Aufsätze freigegeben.</div>'
+    : '<div class="empty">' + (w && availableInMode(w, state.mode)
+      ? 'Für diese Waffe gibt es keine Gunsmith-Aufsätze.'
+      : 'Wähle eine freigegebene Waffe für diesen Modus.') + '</div>';
 }
 
 function languageButtons(label = 'Sprache für Aufsätze und Ausrüstung') {
@@ -135,27 +140,37 @@ function languageButtons(label = 'Sprache für Aufsätze und Ausrüstung') {
   );
 }
 
-function knownAttachmentIds(w) {
+function knownAttachmentIds(w, mode = state.mode) {
+  if (!w || (mode && !availableInMode(w, mode))) return new Set();
   const assigned = [
     ...(w.catalogAssigned ? w.attachmentIds || [] : ATTACHMENT_KNOWN[w.id] || []),
     ...(w.customAttachments || []).map((a) => a.id),
   ];
-  return distinctAttachmentIds(w.id, assigned.filter((id) => ATTACHMENT_BY[id]?.active !== false));
+  const distinct = distinctAttachmentIds(w.id, assigned);
+  return mode ? new Set([...distinct].filter((id) => availableInMode(ATTACHMENT_BY[id], mode))) : distinct;
+}
+
+function attachmentUnavailable(w, part, allowed = knownAttachmentIds(w)) {
+  if (!part.id || part.custom) return false;
+  const id = currentAttachmentId(w.id, part.id, knownAttachmentIds(w, null));
+  return !allowed.has(id);
 }
 
 function pickAttachment(key, query = '') {
   const w = weapon(picker.slot === 'secondary' ? 'secondary' : 'primary'),
     cat = CAT.find((c) => c[0] === key);
-  if (!cat) return;
+  if (!cat || !w) return;
   activeAttachSlot = key;
   modal(
     head(
-      (attachmentLanguage === 'en' ? cat[2] : cat[1]) + ' · ' + w.name,
+      (attachmentLanguage === 'en' ? cat[2] : cat[1]) + ' · ' + weaponNames(w)[attachmentLanguage],
       'Antippen genügt. Dein Aufsatz wird sofort übernommen.',
     ) +
       languageButtons() +
       '<label class="field-label">Aufsatz suchen<input id="attachmentSearch" class="field" type="search" placeholder="Name, Freischaltwaffe oder Stufe" autocomplete="off" value="' + html(query) + '"></label>' +
-      '<p class="fine-print" id="attachmentInfo"></p><button class="custom-attachment-entry" id="addOwnAttachment">＋ Eigenen Aufsatz hinzufügen <span>Fehlt dein Aufsatz? Trage ihn hier ein.</span></button><div id="attachmentOptions" class="attachment-options"></div>' +
+      '<p class="fine-print" id="attachmentInfo"></p>' +
+      (availableInMode(w, state.mode) ? '<button class="custom-attachment-entry" id="addOwnAttachment">＋ Eigenen Aufsatz hinzufügen <span>Fehlt dein Aufsatz? Trage ihn hier ein.</span></button>' : '') +
+      '<div id="attachmentOptions" class="attachment-options"></div>' +
       '<div class="dialog-actions"><button class="ghost-btn" data-close>Zurück</button>' +
       (storedParts(w).some((p) => p.slot === key)
         ? '<button class="ghost-btn" id="removeSlot">Aufsatz entfernen</button>'
@@ -180,7 +195,8 @@ function renderAttachmentOptions() {
   const isSelected = (a) => selected?.custom !== true && (selectedId
     ? selectedId === a.id
     : selected && [a.name, a.en, a.de, ...Object.values(attachmentNames(a))].includes(selected.name));
-  el('attachmentInfo').textContent = options.length + ' passende Aufsätze für ' + w.name;
+  el('attachmentInfo').textContent = options.length + ' freigegebene Aufsätze für ' +
+    weaponNames(w)[attachmentLanguage] + ' · ' + MODE[state.mode];
   el('attachmentOptions').innerHTML = options.length
     ? options
         .map(
@@ -200,7 +216,7 @@ function renderAttachmentOptions() {
             '</span></button>',
         )
         .join('')
-    : '<div class="empty">' + (q ? 'Keine zugeordneten Aufsätze für diese Suche.' : 'Für diese Waffe ist in dieser Kategorie kein Aufsatz zugeordnet.') + '</div>';
+    : '<div class="empty">' + (q ? 'Keine freigegebenen Aufsätze für diese Suche.' : 'Für diese Kategorie ist in diesem Modus kein Aufsatz freigegeben.') + '</div>';
 }
 
 function saveCatalogAttachment(id) {
@@ -223,8 +239,9 @@ function saveSlot(value, id, custom = null) {
     return;
   }
   const parts = storedParts(w).filter((p) => p.slot !== activeAttachSlot);
-  if (activeAttachSlot !== 'apex' && standardCount(parts) >= attachmentLimit(slot)) {
-    toast('Alle ' + attachmentLimit(slot) + ' Aufsatzplätze belegt. Entferne zuerst einen Aufsatz.');
+  if (!availableInMode(w, state.mode)) return;
+  if (activeAttachSlot !== 'apex' && standardCount(parts) >= attachmentLimit()) {
+    toast('Alle ' + attachmentLimit() + ' Aufsatzplätze belegt. Entferne zuerst einen Aufsatz.');
     return;
   }
   parts.push({
@@ -255,7 +272,7 @@ function ownAttachmentForm() {
     cat = CAT.find((c) => c[0] === activeAttachSlot),
     part = storedParts(w).find((p) => p.slot === activeAttachSlot && p.custom);
   modal(
-    head('Eigenen Aufsatz hinzufügen', w.name + ' · ' + (attachmentLanguage === 'en' ? cat[2] : cat[1])) +
+    head('Eigenen Aufsatz hinzufügen', weaponNames(w)[attachmentLanguage] + ' · ' + (attachmentLanguage === 'en' ? cat[2] : cat[1])) +
       '<form id="ownAttachmentForm" class="form-grid"><label class="wide">Name · Deutsch<input class="field" name="de" maxlength="80" required value="' +
       html(part?.de || '') +
       '" placeholder="Name wie im Spiel"></label><label class="wide">Name · Englisch (optional)<input class="field" name="en" maxlength="80" value="' +
@@ -334,6 +351,7 @@ export {
   attachmentLanguage,
   attachmentLimit,
   attachmentName,
+  attachmentUnavailable,
   knownAttachmentIds,
   languageButtons,
   renderGunsmith,

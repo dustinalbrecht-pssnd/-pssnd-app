@@ -48,9 +48,16 @@ const MW4_GEAR_BY_MODE = {
   },
 };
 
-function mw4GearSlots(mode) {
-  // Until Ranked rules are published, its draft uses the Multiplayer slots.
-  return Object.keys(MW4_GEAR_BY_MODE[mode === 'ranked' ? 'mp' : mode] || {});
+function availableInMode(item, mode) {
+  return !!item && item.active !== false && (!Array.isArray(item.modes) || item.modes.includes(mode));
+}
+
+function mw4GearSlots(mode, items = []) {
+  const defaults = MW4_GEAR_BY_MODE[mode === 'ranked' ? 'mp' : mode];
+  if (!defaults) return [];
+  return Object.keys(MW4_GEAR_BY_MODE.mp).filter((slot) =>
+    Object.hasOwn(defaults, slot) || items.some((item) => item.slot === slot && availableInMode(item, mode)),
+  );
 }
 
 const rows = new Map();
@@ -67,4 +74,4 @@ for (const [mode, slots] of Object.entries(MW4_GEAR_BY_MODE)) {
 }
 const MW4_GEAR = [...rows.values()];
 
-export { MW4_GEAR, mw4GearSlots };
+export { MW4_GEAR, availableInMode, mw4GearSlots };
