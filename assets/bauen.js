@@ -37,16 +37,17 @@ import {
   weapon,
 } from './app.js';
 import { navigate } from './navigation.js';
-import { attachmentEdit, attachmentLimit, knownAttachmentIds, languageButtons, renderGunsmith, standardCount } from './aufsaetze.js';
+import { attachmentEdit, knownAttachmentIds, languageButtons, renderGunsmith, standardCount } from './aufsaetze.js';
 import { currentAttachmentId } from './katalog-abgleich.js';
 import {
-  GEAR,
   GEAR_NAMES,
-  M4_OPTIONS,
   availableGear,
+  buildGearValue,
+  draftGear,
   gearArtwork,
   gearLabelMarkup,
   gearSecondaryMarkup,
+  gearSlots,
 } from './ausruestung.js';
 import { avatar, redrawFeed, visibleRank } from './ranking.js';
 import { loadoutWeaponSeasons, weaponSeason } from './season.js';
@@ -250,6 +251,7 @@ function importLoadout(x) {
 function payload() {
   const b = build();
   const seasons = loadoutWeaponSeasons(b);
+  const gear = draftGear(b.gear, state.game, state.mode);
   const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
     const w = BY[weaponId];
     if (!w) return [weaponId, parts];
@@ -267,32 +269,82 @@ function payload() {
     primary: b.primary,
     secondary: b.secondary,
     attachments,
-    gear: b.gear,
+    gear,
     dmzLoot: !!b.dmzLoot,
-    ...b.gear,
+    ...gear,
     ...(seasons.length ? { weaponSeasons: Object.fromEntries(seasons) } : {}),
   };
 }
 
 function renderWeaponSeasons(b) {
-  for (const field of document.querySelectorAll('[data-weapon-season]')) {
+  for (const field of document.querySelectorAll('#weaponSlots [data-weapon-season]')) {
     if (field !== document.activeElement) {
       field.value = weaponSeason(b, b[field.dataset.weaponSeason]) ?? '';
     }
   }
 }
 
+function renderWeaponCards(b) {
+  const container = el('weaponSlots');
+  const slots = [
+    ['primary', 'Primärwaffe', 'der Primärwaffe'],
+    ['secondary', 'Sekundärwaffe', 'der Sekundärwaffe'],
+  ];
+  if (!container.querySelector('[data-build-weapon]')) {
+    container.innerHTML = slots.map(([slot, label, seasonFor]) => `
+      <article class="build-weapon-card" data-build-weapon="${slot}" aria-labelledby="${slot}WeaponName">
+        <div class="build-weapon-heading">
+          <div>
+            <span class="eyebrow">${label}</span>
+            <h3 id="${slot}WeaponName"></h3>
+            <p class="build-weapon-meta"></p>
+          </div>
+          <label class="weapon-season-field">
+            <span>Waffen-Season</span>
+            <input type="number" data-weapon-season="${slot}" min="0" max="9007199254740991"
+              step="1" inputmode="numeric" aria-label="Waffen-Season ${seasonFor}"
+              aria-describedby="weaponSeasonHint" placeholder="z. B. 1">
+          </label>
+        </div>
+        <button class="build-weapon-art" type="button" data-pick="${slot}" aria-label="${label} wählen"></button>
+        <div class="build-weapon-actions">
+          <button type="button" class="ghost-btn" data-pick="${slot}">Waffe ändern</button>
+          <button type="button" class="ghost-btn" data-attach="${slot}">Aufsätze <span aria-hidden="true">→</span></button>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  for (const [slot, label] of slots) {
+    const w = weapon(slot);
+    const card = container.querySelector('[data-build-weapon="' + slot + '"]');
+    const artButton = card.querySelector('.build-weapon-art');
+    el(slot + 'WeaponName').textContent = w.name;
+    const parts = storedParts(w);
+    const count = standardCount(parts);
+    card.querySelector('.build-weapon-meta').textContent =
+      CLASS[w.cls] + ' · ' + count + (count === 1 ? ' Aufsatz' : ' Aufsätze') +
+      (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '');
+    const picture = art(w);
+    if (picture !== artButton.weaponArtwork) {
+      artButton.innerHTML = picture;
+      artButton.weaponArtwork = picture;
+    }
+    artButton.setAttribute('aria-label', label + ' ändern · ' + w.name);
+  }
+  renderWeaponSeasons(b);
+}
+
 function renderBuilder() {
   if (!el('gameSelect')) return;
-  document
-    .querySelectorAll('[data-audience]')
-    .forEach((b) => b.classList.toggle('selected', b.dataset.audience === state.publisherType));
+  for (const button of document.querySelectorAll('[data-audience]')) {
+    const selected = button.dataset.audience === state.publisherType;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', selected);
+  }
   const g = state.game,
     mode = state.mode,
-    b = build(),
-    w = weapon('primary'),
-    s = weapon('secondary');
-  renderWeaponSeasons(b);
+    b = build();
   el('gameSelect').innerHTML = Object.entries(GAME)
     .map(
       ([id, name]) => '<option value="' + id + '" ' + (id === g ? 'selected' : '') + '>' + name + '</option>',
@@ -300,51 +352,19 @@ function renderBuilder() {
     .join('');
   el('modeSelect').innerHTML = (g === 'mw4' ? MW4_MODES : BO7_MODES)
     .map(
-      (id) => '<option value="' + id + '" ' + (id === mode ? 'selected' : '') + '>' + MODE[id] + '</option>',
+      (id) => '<option value="' + id + '" ' + (id === mode ? 'selected' : '') + '>' +
+        (g === 'mw4' && id === 'ranked' ? 'Ranked · Entwurf' : MODE[id]) + '</option>',
     )
     .join('');
-  el('weaponSlots').innerHTML =
-    '<article class="build-primary"><div class="slot-row"><span>PRIMÄRWAFFE</span><button data-pick="primary">Ändern →</button></div><button class="build-gun" data-pick="primary">' +
-    art(w) +
-    '</button><div class="build-gun-meta"><div><strong>' +
-    html(w.name) +
-    '</strong><small>' +
-    html(CLASS[w.cls]) +
-    ' · ' +
-    standardCount(storedParts(w)) +
-    '/' +
-    attachmentLimit('primary') +
-    ' Aufsätze' +
-    (storedParts(w).some((p) => p.slot === 'apex') ? ' + Apex' : '') +
-    '</small></div><button data-attach="primary">Aufsätze →</button></div></article>' +
-    '<article class="build-secondary"><button class="secondary-select" data-pick="secondary"><span class="secondary-art">' +
-    art(s) +
-    '</span><span><small>SEKUNDÄRWAFFE</small><strong>' +
-    html(s.name) +
-    '</strong><em>Ändern →</em></span></button><button class="secondary-attach" data-attach="secondary">Aufsätze →</button></article>';
-  const keys =
-    mode === 'zm'
-      ? ['tactical', 'lethal', 'field', 'ammo', 'cola']
-      : [
-          'tactical',
-          'lethal',
-          'perk1',
-          'perk2',
-          'perk3',
-          ...(mode === 'mp' ? ['field'] : []),
-          ...(g !== 'mw4' ? ['wildcard'] : []),
-        ];
+  renderWeaponCards(b);
+  const keys = gearSlots(g, mode);
   if (el('gearLanguage')) el('gearLanguage').innerHTML = languageButtons('Sprache der Ausrüstung');
   el('gearSlots').dataset.slotCount = String(keys.length);
   el('gearSlots').innerHTML = keys
     .map((key) => {
-      const opts =
-          key === 'wildcard'
-            ? ['Keine', 'Revolverheld']
-            : g === 'mw4' && M4_OPTIONS[key]
-              ? availableGear(key)
-              : GEAR[key] || [],
-        value = Object.prototype.hasOwnProperty.call(b.gear || {}, key) ? b.gear[key] : opts[0];
+      const opts = availableGear(key, g, mode);
+      const value = buildGearValue(b.gear, key, opts);
+      const previous = b.gear?.[key];
       return (
         '<button class="equip-tile ' +
         (key === 'wildcard' ? 'wildcard' : '') +
@@ -357,18 +377,21 @@ function renderBuilder() {
         '</small><b>' +
         gearLabelMarkup(key, value) +
         '</b>' +
-        gearSecondaryMarkup(key, value) +
+        (previous && !value && !['Keine', 'None'].includes(previous)
+          ? '<small class="gear-original">Bisher: ' + gearLabelMarkup(key, previous) + ' · neu wählen</small>'
+          : gearSecondaryMarkup(key, value)) +
         '</button>'
       );
     })
     .join('');
-  el('gameNote').textContent =
-    mode === 'dmz'
-      ? 'DMZ: Vorabzugang ab 20. Oktober für digitale Vorbesteller. Gunsmith: 5 Aufsätze; gefundene Waffen: bis zu 8.'
-      : mode === 'ranked'
-        ? 'Ranked: zugelassene Ausrüstung im Spiel prüfen.'
-        : 'Waffe wählen, Aufsätze ergänzen und dein Loadout veröffentlichen.';
-  if (siteConfig[mode + 'Note']) el('gameNote').textContent = siteConfig[mode + 'Note'];
+  const notes = {
+    wz: 'Elite-Extras und Feldaufrüstungen erhältst du im Match.',
+    dmz: 'Belegte Funde und Freischaltungen. Operator-Traits verwaltest du im Spiel.',
+    ranked: 'Entwurf mit Multiplayer-Ausrüstung. Eine offizielle Ranked-Auswahlliste steht noch aus.',
+  };
+  const note = siteConfig[mode + 'Note'] || (g === 'mw4' ? notes[mode] : '');
+  el('gameNote').textContent = note || '';
+  el('gameNote').hidden = !note;
   el('arsenalCount').textContent =
     'Alle ' + WM.filter((w) => w.game === g && w.active !== false).length + ' MW4-Waffen ansehen';
   el('dmzLootPanel').hidden = !(g === 'mw4' && mode === 'dmz');
@@ -381,13 +404,9 @@ function renderBuilder() {
 }
 
 function pickGear(key) {
-  const options =
-    key === 'wildcard'
-      ? ['Keine', 'Revolverheld']
-      : state.game === 'mw4' && M4_OPTIONS[key]
-        ? availableGear(key)
-        : GEAR[key];
-  if (!options) return;
+  if (!gearSlots(state.game, state.mode).includes(key)) return;
+  const options = availableGear(key);
+  const current = buildGearValue(build().gear, key, options);
   modal(
     head(
       GEAR_NAMES[key] + ' wählen',
@@ -396,9 +415,9 @@ function pickGear(key) {
         : 'Wähle deine Ausrüstung. Sie wird direkt übernommen.',
     ) +
       '<div class="choice-grid">' +
-      options
+      (options.includes('Keine') ? options : [...options, ''])
         .map((v) => {
-          const selected = (build().gear[key] || options[0]) === v;
+          const selected = current === v;
           return (
             '<button type="button" data-gear-option="' +
             html(key) +
@@ -428,10 +447,11 @@ function chooseGear(key, value) {
   save();
   closeModal();
   renderBuilder();
+  el('gearSlots').querySelector('[data-gear-pick="' + CSS.escape(key) + '"]')?.focus({ preventScroll: true });
 }
 
 function publish() {
-  for (const field of document.querySelectorAll('[data-weapon-season]')) {
+  for (const field of document.querySelectorAll('#weaponSlots [data-weapon-season]')) {
     if (!field.reportValidity()) return;
   }
   if (API && siteConfig.communityReady !== true) {

@@ -1,6 +1,7 @@
 import { html, siteConfig, state } from './app.js';
 import { attachmentLanguage } from './aufsaetze.js';
 import { equipmentNames } from './katalog-abgleich.js';
+import { MW4_GEAR, mw4GearSlots } from './mw4-ausruestung.js';
 
 const GEAR = {
   tactical: ['Rauchgranate', 'Blendgranate', 'Betäubung', 'Stim', 'Herzsensor', 'Snapshot'],
@@ -14,40 +15,14 @@ const GEAR = {
 };
 
 const GEAR_NAMES = {
-  tactical: 'Taktik',
-  lethal: 'Granate',
+  tactical: 'Taktikausrüstung',
+  lethal: 'Primärausrüstung',
   perk1: 'Extra 1',
   perk2: 'Extra 2',
   perk3: 'Extra 3',
   field: 'Feldaufrüstung',
   ammo: 'Munitions-Mod',
   cola: 'Extra-Cola',
-};
-
-const M4_OPTIONS = {
-  tactical: [
-    'Flash Grenade',
-    'Smoke Grenade',
-    'Snapshot Grenade',
-    'Concussion Grenade',
-    'Heartbeat Sensor',
-    'Shock Stick',
-    'Stim',
-  ],
-  lethal: [
-    'Frag Grenade',
-    'Sticky Grenade',
-    'Drill Charge',
-    'Proximity Mine',
-    'Thermite',
-    'Trip Wire',
-    'Zip Gun',
-    'Molotov Cocktail',
-  ],
-  perk1: ['Overkill', 'Ninja', 'High Alert', 'Quick Fix', 'Ghost'],
-  perk2: ['Fast Hands', 'Hardline', 'Bomb Squad', 'Tracker'],
-  perk3: ['Scavenger', 'Lethal Reach', 'Blood Rush', 'Combat Grid', 'Battle Hardened', 'Cold-Blooded'],
-  field: ['Portable Radar', 'DDOS', 'SAM Airburst Turret', 'Smoke Wall', 'Riot Shield', 'Razor Wire Trap'],
 };
 
 const GEAR_VISUALS = [
@@ -169,19 +144,40 @@ function managedItems(type) {
     : null;
 }
 
-function availableGear(key) {
-  const items = managedItems('gear');
-  return items
-    ? items.filter((x) => x.slot === key && (!x.modes || x.modes.includes(state.mode))).map((x) => x.name)
-    : M4_OPTIONS[key] || [];
+function gearSlots(game, mode) {
+  if (game === 'mw4') return mw4GearSlots(mode);
+  if (mode === 'zm') return ['tactical', 'lethal', 'field', 'ammo', 'cola'];
+  return ['tactical', 'lethal', 'perk1', 'perk2', 'perk3', ...(mode === 'mp' ? ['field'] : []), 'wildcard'];
 }
 
-function gearEntry(key, name) {
-  return managedItems('gear')?.find((x) => x.slot === key && x.name === name);
+function availableGear(key, game = state.game, mode = state.mode) {
+  if (key === 'wildcard') return ['Keine', 'Revolverheld'];
+  if (game !== 'mw4') return GEAR[key] || [];
+  const items = managedItems('gear') ?? MW4_GEAR;
+  return [...new Set(items.filter((x) => x.slot === key && (!x.modes || x.modes.includes(mode))).map((x) => x.name))];
 }
 
-function gearLabel(key, name) {
-  return equipmentNames(gearEntry(key, name), name, gearVisual(name))[attachmentLanguage];
+function buildGearValue(gear, key, options) {
+  if (!Object.hasOwn(gear || {}, key)) return options[0] || '';
+  return options.includes(gear[key]) ? gear[key] : '';
+}
+
+function draftGear(gear, game, mode) {
+  const entries = [];
+  for (const key of gearSlots(game, mode)) {
+    const value = buildGearValue(gear, key, availableGear(key, game, mode));
+    if (value && value !== 'Keine' && value !== 'None') entries.push([key, value]);
+  }
+  return Object.fromEntries(entries);
+}
+
+function gearEntry(key, name, mode = state.mode) {
+  const matching = managedItems('gear')?.filter((x) => x.slot === key && x.name === name) || [];
+  return matching.find((x) => !x.modes || x.modes.includes(mode)) || matching[0];
+}
+
+function gearLabel(key, name, mode = state.mode) {
+  return equipmentNames(gearEntry(key, name, mode), name, gearVisual(name))[attachmentLanguage];
 }
 
 function gearArtwork(key, name) {
@@ -193,10 +189,11 @@ function gearArtwork(key, name) {
 }
 
 export {
-  GEAR,
   GEAR_NAMES,
-  M4_OPTIONS,
   availableGear,
+  buildGearValue,
+  draftGear,
+  gearSlots,
   gearArtwork,
   gearEntry,
   gearLabel,

@@ -1,11 +1,9 @@
 import {
-  GEAR,
   GEAR_NAMES,
-  M4_OPTIONS,
+  draftGear,
   gearEntry,
   gearLabel,
   gearVisual,
-  managedItems,
 } from './ausruestung.js';
 import { LOGO, build, creators, feed, head, modal, siteConfig, state, toast, weapon } from './app.js';
 import { BY, CAT, CLASS, GAME, MODE, artSource } from './katalog.js';
@@ -174,43 +172,9 @@ async function drawExportArt(ctx, group, index, x, y, size) {
 }
 
 function exportGear(b, game, mode) {
-  const keys =
-      mode === 'zm'
-        ? ['tactical', 'lethal', 'field', 'ammo', 'cola']
-        : [
-            'tactical',
-            'lethal',
-            'perk1',
-            'perk2',
-            'perk3',
-            ...(mode === 'mp' ? ['field'] : []),
-            ...(game !== 'mw4' ? ['wildcard'] : []),
-          ],
-    managed = managedItems('gear');
-  return keys
-    .map((key) => {
-      const options =
-        key === 'wildcard'
-          ? ['Keine', 'Revolverheld']
-          : game === 'mw4' && M4_OPTIONS[key]
-            ? managed
-              ? managed
-                  .filter((x) => x.slot === key && (!x.modes || x.modes.includes(mode)))
-                  .map((x) => x.name)
-              : M4_OPTIONS[key]
-            : GEAR[key] || [];
-      return {
-        key,
-        value:
-          b.gear && Object.prototype.hasOwnProperty.call(b.gear, key)
-            ? b.gear[key]
-            : Object.prototype.hasOwnProperty.call(b, key)
-              ? b[key]
-              : b.id || b.kind
-                ? ''
-                : options[0],
-      };
-    })
+  const gear = b.id || b.kind ? { ...b, ...b.gear } : draftGear(b.gear, game, mode);
+  return Object.keys(GEAR_NAMES)
+    .map((key) => ({ key, value: gear[key] }))
     .filter((x) => x.value && x.value !== 'Keine' && x.value !== 'None');
 }
 
@@ -223,7 +187,8 @@ async function exportThreePng(item = null, direct = false) {
   }
   const accent = siteConfig.accent || '#ffda0a',
     results = [],
-    gear = exportGear(b, item?.game || state.game, item?.mode || state.mode);
+    mode = item?.mode || state.mode,
+    gear = exportGear(b, item?.game || state.game, mode);
   const logo = await image(siteConfig.logo || LOGO);
   for (let page = 0; page < 3; page++) {
     const w = weapons[page] || null,
@@ -297,14 +262,18 @@ async function exportThreePng(item = null, direct = false) {
           80,
         );
       } else {
-        await drawExportArt(ctx, 'equipment', Math.max(0, i % 24), x + 12, y + 30, 80);
+        const row = gearEntry(e.key, e.value, mode);
+        const visual = gearVisual(e.value);
+        if (row?.img) fitExportImage(ctx, await image(row.img), x + 12, y + 30, 80, 80);
+        else if (visual) await drawExportArt(ctx, visual[2], visual[3], x + 12, y + 30, 80);
+        else await drawExportArt(ctx, 'attachments', e.key.startsWith('perk') ? 15 : 14, x + 12, y + 30, 80);
       }
       ctx.fillStyle = '#b9c2c9';
       ctx.font = 'bold 20px Arial';
-      ctx.fillText(w ? CAT.find((z) => z[0] === e.slot)?.[1] || e.slot : e.key, x + 102, y + 38);
+      ctx.fillText(w ? CAT.find((z) => z[0] === e.slot)?.[1] || e.slot : GEAR_NAMES[e.key], x + 102, y + 38);
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 27px Arial';
-      const label = w ? attachmentName(e) || e.name || '' : gearLabel(e.key, e.value);
+      const label = w ? attachmentName(e) || e.name || '' : gearLabel(e.key, e.value, mode);
       exportTextLines(ctx, label, 355)
         .slice(0, 3)
         .forEach((line, j) => ctx.fillText(line, x + 102, y + 76 + j * 29));

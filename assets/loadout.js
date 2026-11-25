@@ -26,7 +26,7 @@ function renderCurrentDetail() {
     gear = x.gear || {};
   const gearText = Object.entries(gear)
     .filter(([k, v]) => v && GEAR_NAMES[k])
-    .map(([k, v]) => GEAR_NAMES[k] + ': ' + gearLabel(k, v));
+    .map(([k, v]) => GEAR_NAMES[k] + ': ' + gearLabel(k, v, x.mode));
   const place = rankPlace(x.id);
   const primarySeason = weaponSeason(x, w.id);
   const secondarySeason = weaponSeason(x, s?.id);

@@ -55,6 +55,22 @@ const GEAR_NAMES = new Map([
   ["Scavenger", "Plünderer"],
   ["Tracker", "Spurenleser"],
   ["Cold-Blooded", "Kaltblütig"],
+  ["Field Medic", "Notfallsanitäter"],
+  ["Hunter", "Jäger"],
+  ["Stocked", "Beladen"],
+  ["Incognito", "Inkognito"],
+  ["Surveyor", "Gutachter"],
+  ["Mountaineer", "Bergsteiger"],
+  ["Adaptive", "Adaptiv"],
+  ["Drill Instructor", "Ausbilder"],
+  ["Deft Hands", "Flinke Hand"],
+  ["Berserker", "Berserker"],
+  ["Survivor", "Überlebenskünstlerin"],
+  ["Tempered", "Gehärtet"],
+  ["Wingman", "Flügelmann"],
+  ["Spotter Scope", "Scout-Zielfernrohr"],
+  ["Armor Box", "Panzerungskiste"],
+  ["Revive Pistol", "Wiederbelebungspistole"],
 ]);
 
 // Jeweils bisheriger und korrigierter Name, zuerst Deutsch, dann Englisch.
