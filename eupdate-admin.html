@@ -2541,6 +2541,7 @@ label :is(input, textarea, select) {
     <script type="module">
       import { MW_IMAGES } from './assets/waffenbilder.js';
       import { mountCatalogImport } from './assets/katalog-import.js';
+      import { mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
       import {
         attachmentNames,
@@ -3722,11 +3723,11 @@ label :is(input, textarea, select) {
 
       const adminModes = { wz: 'Warzone', mp: 'Multiplayer', ranked: 'Ranked', dmz: 'DMZ' },
         gearLabels = {
-          tactical: 'Taktik',
-          lethal: 'Granate',
-          perk1: 'Perk 1',
-          perk2: 'Perk 2',
-          perk3: 'Perk 3',
+          tactical: 'Taktikausrüstung',
+          lethal: 'Primärausrüstung',
+          perk1: 'Extra 1',
+          perk2: 'Extra 2',
+          perk3: 'Extra 3',
           field: 'Feldaufrüstung',
         };
       const catalogImport = mountCatalogImport({
@@ -4137,21 +4138,8 @@ label :is(input, textarea, select) {
           '</div><h3>Ausrüstung</h3><div class="grid">' +
           Object.entries(gearLabels)
             .map(([key, label]) => {
-              const vals = [
-                ...new Set([
-                  '',
-                  x.gear?.[key] || '',
-                  ...(dashboard.content || [])
-                    .filter((a) => a.type === 'gear' && a.slot === key)
-                    .map((a) => a.name),
-                ]),
-              ];
-              return selectField(
-                'gear_' + key,
-                label,
-                Object.fromEntries(vals.map((v) => [v, equipmentNames(null, v).de])),
-                x.gear?.[key] || '',
-              );
+              const saved = x.gear?.[key] || '';
+              return selectField('gear_' + key, label, { '': 'Keine', ...(saved ? { [saved]: saved } : {}) }, saved);
             })
             .join('') +
           '</div>';
@@ -4588,6 +4576,8 @@ label :is(input, textarea, select) {
       function wireLoadoutControls() {
         const form = $('contentEditor');
         if (!form.elements.primary) return;
+        const gearDrafts = new Map();
+        let gearMode = form.elements.mode.value;
         let counts = $('adminPartCounts');
         if (!counts) {
           form.elements.dmzLoot
@@ -4611,20 +4601,48 @@ label :is(input, textarea, select) {
                 continue;
               }
               const row = (dashboard.content || []).find(
-                (x) => x.type === 'gear' && x.slot === key && x.name === option.value,
+                (x) => x.type === 'gear' && x.slot === key && x.name === option.value &&
+                  x.active !== false && (!x.modes || x.modes.includes(form.elements.mode.value)),
               );
-              option.textContent = equipmentNames(row, option.value)[lang];
+              option.textContent = equipmentNames(row, option.value)[lang] +
+                (option.dataset.legacy ? (lang === 'en' ? ' · previously saved' : ' · bisher gespeichert') : '');
             }
           }
           localStorage.setItem('eupdate_admin_editor_lang', lang);
           $('adminPartsDE')?.classList.toggle('primary', lang === 'de');
           $('adminPartsEN')?.classList.toggle('primary', lang === 'en');
         }
+        function refreshGearOptions() {
+          const mode = form.elements.mode.value;
+          const keys = mw4GearSlots(mode);
+          const item = editorState.item;
+          const previous = Object.fromEntries(Object.keys(gearLabels).map((key) => [key, form.elements['gear_' + key].value]));
+          gearDrafts.set(gearMode, previous);
+          const selections = gearDrafts.get(mode) || previous;
+          gearMode = mode;
+          for (const key of Object.keys(gearLabels)) {
+            const field = form.elements['gear_' + key];
+            const saved = item.id && item.mode === mode ? item.gear?.[key] : '';
+            const available = keys.includes(key);
+            const entries = available
+              ? (dashboard.content || []).filter((row) => row.type === 'gear' && row.slot === key &&
+                  row.active !== false && (!row.modes || row.modes.includes(mode)))
+              : [];
+            const choices = { '': 'Keine', ...Object.fromEntries(entries.map((row) => [row.name, equipmentNames(row).de])) };
+            const legacy = saved && !Object.hasOwn(choices, saved);
+            if (legacy) choices[saved] = saved;
+            field.innerHTML = options(choices, selections[key]);
+            if (legacy) [...field.options].find((option) => option.value === saved).dataset.legacy = '1';
+            field.disabled = !available && !saved;
+            field.closest('label').hidden = field.disabled;
+          }
+          language(localStorage.getItem('eupdate_admin_editor_lang') === 'en' ? 'en' : 'de');
+        }
         if ($('adminPartsDE')) {
           $('adminPartsDE').onclick = () => language('de');
           $('adminPartsEN').onclick = () => language('en');
-          language(localStorage.getItem('eupdate_admin_editor_lang') === 'en' ? 'en' : 'de');
         }
+        refreshGearOptions();
         function update() {
           const limit = form.elements.mode.value === 'dmz' && form.elements.dmzLoot.checked ? 8 : 5;
           const values = [form.elements.primary.value, form.elements.secondary.value].map(
@@ -4701,27 +4719,12 @@ label :is(input, textarea, select) {
                 n.value = allowed.find((w) => w.id !== form.elements.primary.value).id;
               n.onchange();
             }
-            for (const key of Object.keys(gearLabels)) {
-              const n = form.elements['gear_' + key],
-                old = n.value,
-                list = dashboard.content.filter(
-                  (x) =>
-                    x.type === 'gear' &&
-                    x.slot === key &&
-                    x.active !== false &&
-                    (!x.modes || x.modes.includes(mode)),
-                );
-              n.innerHTML = options(
-                { '': 'Keine', ...Object.fromEntries(list.map((x) => [x.name, equipmentNames(x).de])) },
-                old,
-              );
-            }
+            refreshGearOptions();
             update();
             previews();
-            language(localStorage.getItem('eupdate_admin_editor_lang') === 'en' ? 'en' : 'de');
           };
           form.elements.mode.onchange();
-        }
+        } else form.elements.mode.onchange = refreshGearOptions;
       }
 
       $('contentDialog').addEventListener('close', () => {
