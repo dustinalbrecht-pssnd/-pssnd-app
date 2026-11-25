@@ -265,6 +265,54 @@ a {
 .mode-check input {
   width: auto;
 }
+.mode-settings {
+  min-width: 0;
+  margin: 12px 0;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.mode-settings legend {
+  padding: 0 5px;
+  color: var(--text);
+  font-weight: 700;
+}
+.mode-settings .muted {
+  margin: 8px 0 0;
+}
+.mode-switches,
+.mode-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mode-switches label,
+.mode-list span {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.mode-switches label {
+  margin: 0;
+  cursor: pointer;
+}
+.mode-switches label:has(input:checked),
+.mode-list .is-available {
+  border-color: var(--gold);
+  color: var(--text);
+}
+.mode-switches input {
+  accent-color: var(--gold);
+}
+.mode-list {
+  margin: 8px 0 0;
+}
+.custom-part .mode-settings {
+  grid-column: 1 / -1;
+  margin: 0 0 8px;
+}
 .custom-part {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
@@ -2168,6 +2216,7 @@ label :is(input, textarea, select) {
                     <option value="default">Website-Bild</option>
                   </select></label
                 >
+                <label>Modusfreigabe <select id="weaponModeFilter"></select></label>
               </div>
               <p id="weaponResults" class="list-status" role="status"></p>
               <div id="weaponsList"></div>
@@ -2178,7 +2227,7 @@ label :is(input, textarea, select) {
                   + Hinzufügen
                 </button>
               </div>
-              <p class="admin-section-copy">Aufsätze pflegen und den passenden Waffen zuordnen.</p>
+              <p class="admin-section-copy">Aufsätze passenden Waffen zuordnen und je Modus freigeben oder sperren.</p>
               <input id="attachmentsSearch" placeholder="Suchen …" />
               <div id="attachmentsFilters" class="toolbar"></div>
               <div id="attachmentsList"></div>
@@ -2188,7 +2237,7 @@ label :is(input, textarea, select) {
                 <button type="button" class="primary" data-new-content="gear">+ Hinzufügen</button>
               </div>
               <p class="admin-section-copy">
-                Eigene Bilder hochladen, Namen ändern und die passenden Spielmodi wählen.
+                Taktikausrüstung, Granaten, Extras und Feldaufrüstungen mit Namen, Bildern und Modusfreigaben pflegen.
               </p>
               <input id="gearSearch" placeholder="Suchen …" />
               <div id="gearFilters" class="toolbar"></div>
@@ -2452,11 +2501,12 @@ label :is(input, textarea, select) {
       <form id="weaponForm">
         <div class="editor-heading toolbar"><h2 id="weaponHeading">Neue Waffe</h2></div>
         <div class="grid">
-          <label>Name<input id="weaponName" maxlength="60" required /></label
-          ><label>Klasse<select id="weaponClass"></select></label>
+          <label>Katalogname<input id="weaponName" maxlength="60" required /></label>
+          <label>Klasse<select id="weaponClass"></select></label>
+          <label>Name · Deutsch (optional)<input id="weaponDe" maxlength="80" /></label>
+          <label>Name · Englisch (optional)<input id="weaponEn" maxlength="80" /></label>
         </div>
-        <label>Spielmodi</label>
-        <div id="weaponModes" class="toolbar"></div>
+        <div id="weaponModes"></div>
         <label
           >Eigene Waffengrafik<input
             id="weaponImage"
@@ -2541,7 +2591,7 @@ label :is(input, textarea, select) {
     <script type="module">
       import { MW_IMAGES } from './assets/waffenbilder.js';
       import { mountCatalogImport } from './assets/katalog-import.js';
-      import { mw4GearSlots } from './assets/mw4-ausruestung.js';
+      import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
       import {
         attachmentNames,
@@ -2550,6 +2600,7 @@ label :is(input, textarea, select) {
         equipmentNames,
         isRetiredAttachment,
         weaponAssignmentChange,
+        weaponNames,
       } from './assets/katalog-abgleich.js';
 
       let base = '',
@@ -3369,17 +3420,6 @@ label :is(input, textarea, select) {
         Object.entries(weaponSlots)
           .map(([k, v]) => '<option value="' + k + '">' + v + '</option>')
           .join('');
-      $('weaponModes').innerHTML = Object.entries({
-        wz: 'Warzone',
-        mp: 'Multiplayer',
-        ranked: 'Ranked',
-        dmz: 'DMZ',
-      })
-        .map(
-          ([k, v]) =>
-            '<label class="mode-check"><input type="checkbox" value="' + k + '" checked>' + v + '</label>',
-        )
-        .join('');
       const builtInWeaponImages = new Map(
         Object.entries(MW_IMAGES).map(([name, image]) => [
           name === 'Krait P68'
@@ -3487,11 +3527,13 @@ label :is(input, textarea, select) {
         const search = $('weaponSearch').value.trim().toLowerCase();
         const classFilter = $('weaponClassFilter').value;
         const imageFilter = $('weaponImageFilter').value;
+        const modeFilter = $('weaponModeFilter').value;
         const rows = list.filter((weapon) => {
-          const matchesName = weapon.name.toLowerCase().includes(search);
+          const matchesName = [weapon.name, ...Object.values(weaponNames(weapon))]
+            .some((name) => name.toLowerCase().includes(search));
           const matchesClass = classFilter === 'all' || weapon.cls === classFilter;
           const matchesImage = imageFilter === 'all' || weaponImageSource(weapon).kind === imageFilter;
-          return matchesName && matchesClass && matchesImage;
+          return matchesName && matchesClass && matchesImage && matchesModeFilter(weapon, modeFilter);
         });
         $('weaponResults').textContent = rows.length + ' von ' + list.length + ' Waffen';
         $('weaponsList').innerHTML =
@@ -3500,6 +3542,7 @@ label :is(input, textarea, select) {
               const { src, kind } = weaponImageSource(weapon);
               const image = naturalWeaponImage(weapon, src);
               const active = weapon.active !== false;
+              const { de, en } = weaponNames(weapon);
               return (
                 '<article class="card weapon-card"><div class="weapon-thumb">' +
                 '<span class="weapon-placeholder">' +
@@ -3515,16 +3558,17 @@ label :is(input, textarea, select) {
                     '" alt="">'
                   : '') +
                 '</div><div class="weapon-info"><h3>' +
-                esc(weapon.name) +
+                esc(de) +
                 '</h3><p>' +
                 esc(weaponClasses[weapon.cls] || weapon.cls) +
                 ' · ' +
                 (active ? 'Aktiv' : 'Ausgeblendet') +
+                (de === en ? '' : ' · ' + esc(en)) +
                 '</p><small class="image-state" data-image-kind="' +
                 kind +
                 '">' +
                 weaponImageLabels[kind] +
-                '</small></div><div class="weapon-actions">' +
+                '</small>' + modeList(weapon) + '</div><div class="weapon-actions">' +
                 '<button type="button" data-edit-weapon="' +
                 esc(weapon.id) +
                 '">Bearbeiten</button>' +
@@ -3635,7 +3679,8 @@ label :is(input, textarea, select) {
           esc(a.de || '') +
           '"><input data-part="en" maxlength="80" placeholder="English" value="' +
           esc(a.en || '') +
-          '"><button type="button" data-remove-part>Entfernen</button>';
+          '"><button type="button" data-remove-part>Entfernen</button>' +
+          modeFields(a.modes, false);
         $('customParts').append(row);
       }
       function editWeapon(w) {
@@ -3643,13 +3688,15 @@ label :is(input, textarea, select) {
         weaponImageData = w?.img || '';
         assignedParts = new Set(w?.attachmentIds || []);
         $('weaponName').value = w?.name || '';
+        const { de, en } = weaponNames(w);
+        $('weaponDe').value = de !== w?.name ? de : '';
+        $('weaponEn').value = en !== w?.name ? en : '';
         $('weaponClass').value = w?.cls || 'ar';
         $('weaponImage').value = '';
         renderWeaponPreview();
         $('weaponHeading').textContent = w ? 'Waffe bearbeiten' : 'Neue Waffe';
         $('weaponID').textContent = w ? 'Die Waffen-ID bleibt auch beim Umbenennen erhalten: ' + w.id : '';
-        for (const input of $('weaponModes').querySelectorAll('input'))
-          input.checked = (w?.modes || ['wz', 'mp', 'ranked', 'dmz']).includes(input.value);
+        $('weaponModes').innerHTML = modeFields(w?.modes);
         $('customParts').innerHTML = '';
         for (const a of w?.customAttachments || []) addCustomPart(a);
         $('attachmentSearch').value = '';
@@ -3776,12 +3823,12 @@ label :is(input, textarea, select) {
         '</textarea></label>';
       const selectField = (key, label, values, value) =>
         '<label>' + label + '<select name="' + key + '">' + options(values, value) + '</select></label>';
-      const modeFields = (modes) =>
-        '<label>Spielmodi</label><div class="toolbar">' +
+      const modeFields = (modes, hint = true) =>
+        '<fieldset class="mode-settings"><legend>Freigabe je Modus</legend><div class="mode-switches">' +
         Object.entries(adminModes)
           .map(
             ([k, v]) =>
-              '<label class="editor-label"><input name="modes" type="checkbox" value="' +
+              '<label class="mode-check"><input name="modes" type="checkbox" value="' +
               k +
               '" ' +
               ((modes || Object.keys(adminModes)).includes(k) ? 'checked' : '') +
@@ -3790,11 +3837,31 @@ label :is(input, textarea, select) {
               '</label>',
           )
           .join('') +
-        '</div>';
+        '</div>' + (hint ? '<p class="muted">Entferne den Haken, um den Eintrag in diesem Modus zu sperren.</p>' : '') +
+        '</fieldset>';
+      const modeList = (item) => '<div class="mode-list" aria-label="Modusfreigaben">' +
+        Object.entries(adminModes).map(([mode, label]) => {
+          const available = availableInMode(item, mode);
+          return '<span class="' + (available ? 'is-available' : '') + '" aria-label="' +
+            label + (available ? ' freigegeben' : ' gesperrt') + '">' +
+            (available ? '✓ ' : '– ') + label + '</span>';
+        }).join('') + '</div>';
+      const modeFilterOptions = '<option value="all">Alle Modusfreigaben</option>' +
+        '<optgroup label="Freigegeben">' + options(adminModes, '') + '</optgroup>' +
+        '<optgroup label="Gesperrt">' +
+        options(Object.fromEntries(Object.entries(adminModes).map(([mode, label]) => ['!' + mode, label])), '') +
+        '</optgroup>';
+      function matchesModeFilter(item, filter) {
+        if (filter === 'all') return true;
+        return filter.startsWith('!') ? !availableInMode(item, filter.slice(1)) : availableInMode(item, filter);
+      }
+      $('weaponModeFilter').innerHTML = modeFilterOptions;
+      $('weaponModeFilter').onchange = renderWeapons;
       function renderManagedContent() {
         for (const type of ['attachments', 'gear', 'ads']) {
           const q = $(type + 'Search').value.toLowerCase(),
-            filter = $(type + 'Filter')?.value || 'all';
+            filter = $(type + 'Filter')?.value || 'all',
+            modeFilter = $(type + 'ModeFilter')?.value || 'all';
           let rows =
             type === 'attachments'
               ? (dashboard.attachments || []).filter((part) => !isRetiredAttachment(part.id))
@@ -3803,6 +3870,7 @@ label :is(input, textarea, select) {
             .map((x) => ({ x, ...(type === 'gear' ? equipmentNames(x) : attachmentNames(x)) }))
             .filter(({ x, de, en }) =>
               (filter === 'all' || x.slot === filter || x.mode === filter) &&
+              matchesModeFilter(x, modeFilter) &&
               [x.name, de, en, x.title, x.text].join(' ').toLowerCase().includes(q),
             );
           $(type + 'List').innerHTML =
@@ -3837,6 +3905,7 @@ label :is(input, textarea, select) {
                       esc(wid.map((w) => w.name).join(', ') || 'Noch keiner Waffe zugeordnet') +
                       '</p>'
                     : '') +
+                  (type === 'ads' ? '' : modeList(x)) +
                   '</div><button type="button" data-edit-content="' +
                   type +
                   ':' +
@@ -3865,8 +3934,10 @@ label :is(input, textarea, select) {
             'Kategorien' +
             '</option>' +
             options(type === 'attachments' ? weaponSlots : type === 'gear' ? gearLabels : adminModes, 'all') +
-            '</select>';
+            '</select><select id="' + type + 'ModeFilter" aria-label="Modusfreigabe" style="width:auto">' +
+            modeFilterOptions + '</select>';
           $(type + 'Filter').onchange = renderManagedContent;
+          $(type + 'ModeFilter').onchange = renderManagedContent;
         }
       }
       function renderAppearance() {
@@ -3956,18 +4027,19 @@ label :is(input, textarea, select) {
             selectField('slot', 'Kategorie', weaponSlots, item?.slot || 'optic') +
             inputField('unlock', 'Freischaltwaffe · nur Information', item?.unlock) +
             inputField('level', 'Freischaltstufe', item?.level) +
-            '</div><label>Passende Waffen</label><p class="muted">Wähle die Waffen, auf denen dieser Aufsatz tatsächlich nutzbar ist.</p><input id="editorWeaponSearch" placeholder="Waffe suchen …"><div class="editor-checkboxes">' +
+            '</div>' + modeFields(item?.modes) +
+            '<label>Passende Waffen</label><p class="muted">Wähle die Waffen, auf denen dieser Aufsatz tatsächlich nutzbar ist.</p><input id="editorWeaponSearch" placeholder="Waffe suchen …"><div class="editor-checkboxes">' +
             (dashboard.weapons || [])
               .map(
                 (w) =>
                   '<label data-weapon-name="' +
-                  esc(w.name.toLowerCase()) +
+                  esc([w.name, ...Object.values(weaponNames(w))].join(' ').toLowerCase()) +
                   '"><input type="checkbox" name="weaponIds" value="' +
                   esc(w.id) +
                   '" ' +
                   ((w.attachmentIds || []).includes(item?.id) ? 'checked' : '') +
                   '>' +
-                  esc(w.name) +
+                  esc(weaponNames(w).de) +
                   ' · ' +
                   esc(weaponClasses[w.cls]) +
                   '</label>',
@@ -4045,26 +4117,26 @@ label :is(input, textarea, select) {
           $('contentImageFile').value = '';
         };
       }
-      function postPartsFields(id, parts) {
+      function postPartsFields(id, parts, mode) {
         const w = (dashboard.weapons || []).find((w) => w.id === id);
         if (!w) return '';
-        const active = (dashboard.attachments || []).filter((a) => a.active !== false);
-        const assigned = distinctAttachmentIds(id, (w.attachmentIds || []).filter((id) => active.some((a) => a.id === id)));
+        const assigned = distinctAttachmentIds(id, w.attachmentIds || []);
         const catalog = [
-          ...active.filter((a) => assigned.has(a.id)),
+          ...(dashboard.attachments || []).filter((a) => assigned.has(a.id)),
           ...(w.customAttachments || []),
-        ];
+        ].filter((part) => availableInMode(part, mode));
         const lang = localStorage.getItem('eupdate_admin_editor_lang') === 'en' ? 'en' : 'de';
         return Object.entries(weaponSlots)
           .map(([slot, label]) => {
             const selected = (parts || []).find((a) => a.slot === slot),
               list = catalog.filter((a) => a.slot === slot),
               selectedId = currentAttachmentId(w.id, selected?.id, assigned),
-              match = list.find((a) => selectedId ? a.id === selectedId : selected && [a.en, a.de, ...Object.values(attachmentNames(a))].includes(selected.name));
+              match = !selected?.custom && list.find((a) => selectedId ? a.id === selectedId :
+                selected && [a.en, a.de, ...Object.values(attachmentNames(a))].includes(selected.name));
             let opts = '<option value="">Kein Aufsatz</option>';
             if (selected && !match) {
               const { de, en } = attachmentNames(selected);
-              opts += '<option value="' + esc(selectedId || selected.name) + '" data-de="' + esc(de + ' (bestehend)') +
+              opts += '<option value="' + esc(selected.id || selected.name) + '" data-de="' + esc(de + ' (bestehend)') +
                 '" data-en="' + esc(en + ' (bestehend)') + '" selected>' + esc((lang === 'en' ? en : de) + ' (bestehend)') + '</option>';
             }
             opts += list
@@ -4132,9 +4204,9 @@ label :is(input, textarea, select) {
           '<label class="editor-label"><input name="dmzLoot" type="checkbox" ' +
           (x.dmzLoot ? 'checked' : '') +
           '>DMZ-Fundwaffe · bis zu 8 Aufsätze (nur DMZ)</label><p class="notice">Aufsätze: Standardmäßig maximal 5 pro Waffe. Im DMZ-Modus mit aktivierter Fundwaffen-Option bis zu 8. Der Worker prüft diese Grenze beim Speichern.</p><h3>Primärwaffe · Aufsätze</h3><div id="editPrimaryParts" class="grid">' +
-          postPartsFields(x.primary, (x.attachments || x.parts || {})[x.primary]) +
+          postPartsFields(x.primary, (x.attachments || x.parts || {})[x.primary], x.mode) +
           '</div><h3>Sekundärwaffe · Aufsätze</h3><div id="editSecondaryParts" class="grid">' +
-          postPartsFields(x.secondary, (x.attachments || x.parts || {})[x.secondary]) +
+          postPartsFields(x.secondary, (x.attachments || x.parts || {})[x.secondary], x.mode) +
           '</div><h3>Ausrüstung</h3><div class="grid">' +
           Object.entries(gearLabels)
             .map(([key, label]) => {
@@ -4148,7 +4220,10 @@ label :is(input, textarea, select) {
           const weapon = form.elements[slot];
           const season = form.elements[slot + 'Season'];
           weapon.onchange = () => {
-            $(partsId).innerHTML = postPartsFields(weapon.value, []);
+            const mode = form.elements.mode.value;
+            const existing = x.mode === mode && weapon.value === x[slot] ?
+              (x.attachments || x.parts || {})[weapon.value] : [];
+            $(partsId).innerHTML = postPartsFields(weapon.value, existing, mode);
             if (season) season.value = seasons.get(weapon.value) ?? '';
           };
           if (season) {
@@ -4199,11 +4274,10 @@ label :is(input, textarea, select) {
             const original = (item.attachments || item.parts || {})[n.dataset.postWeapon]?.find(
               (a) => a.slot === n.dataset.postSlot,
             );
-            data.attachments[n.dataset.postWeapon].push(
-              a
-                ? { slot: a.slot, id: a.id, name: a.en }
-                : original || { slot: n.dataset.postSlot, name: n.value },
-            );
+            const selected = original?.id || original?.name;
+            const saved = item.mode === data.mode && selected === n.value;
+            data.attachments[n.dataset.postWeapon].push(saved ? original : a ?
+              { slot: a.slot, id: a.id, name: a.en } : { slot: n.dataset.postSlot, name: n.value });
           }
           data.rightsAccepted = raw.has('rightsAccepted');
           data.kind = raw.get('kind') || item.kind;
@@ -4223,7 +4297,10 @@ label :is(input, textarea, select) {
         } else {
           data.active = type === 'newsimages' ? true : raw.has('active');
           data.img = editorImage;
-          if (type === 'gear') data.modes = raw.getAll('modes');
+          if (['gear', 'attachments'].includes(type)) {
+            if (!serverHealth?.features?.includes('mode-availability')) throw Error('Aktualisiere zuerst den Cloudflare Worker für die Modusfreigaben.');
+            data.modes = raw.getAll('modes');
+          }
           if (type === 'attachments') data.weaponIds = raw.getAll('weaponIds');
           await request(
             '/api/admin/content/' + type + (item ? '/' + item.id : ''),
@@ -4296,20 +4373,13 @@ label :is(input, textarea, select) {
           note('Loadouts erstellen benötigt einen aktualisierten Server');
           return;
         }
-        const weapons = dashboard.weapons.filter((w) => w.active !== false);
-        const primary = weapons.find((w) => !['pistol', 'launcher', 'melee'].includes(w.cls)),
-          secondary = weapons.find((w) => w.id !== primary?.id);
-        if (!primary || !secondary) {
-          note('Zuerst mindestens zwei Waffen im Katalog anlegen');
-          return;
-        }
         editPost({
           kind: 'sets',
           name: '',
           title: '',
           mode: 'mp',
-          primary: primary.id,
-          secondary: secondary.id,
+          primary: '',
+          secondary: '',
           attachments: {},
           gear: {},
         });
@@ -4602,9 +4672,9 @@ label :is(input, textarea, select) {
               }
               const row = (dashboard.content || []).find(
                 (x) => x.type === 'gear' && x.slot === key && x.name === option.value &&
-                  x.active !== false && (!x.modes || x.modes.includes(form.elements.mode.value)),
+                  availableInMode(x, form.elements.mode.value),
               );
-              option.textContent = equipmentNames(row, option.value)[lang] +
+              option.textContent = equipmentNames(row, option.value, undefined, form.elements.mode.value)[lang] +
                 (option.dataset.legacy ? (lang === 'en' ? ' · previously saved' : ' · bisher gespeichert') : '');
             }
           }
@@ -4614,7 +4684,8 @@ label :is(input, textarea, select) {
         }
         function refreshGearOptions() {
           const mode = form.elements.mode.value;
-          const keys = mw4GearSlots(mode);
+          const catalogGear = (dashboard.content || []).filter((row) => row.type === 'gear');
+          const keys = mw4GearSlots(mode, catalogGear);
           const item = editorState.item;
           const previous = Object.fromEntries(Object.keys(gearLabels).map((key) => [key, form.elements['gear_' + key].value]));
           gearDrafts.set(gearMode, previous);
@@ -4625,8 +4696,7 @@ label :is(input, textarea, select) {
             const saved = item.id && item.mode === mode ? item.gear?.[key] : '';
             const available = keys.includes(key);
             const entries = available
-              ? (dashboard.content || []).filter((row) => row.type === 'gear' && row.slot === key &&
-                  row.active !== false && (!row.modes || row.modes.includes(mode)))
+              ? catalogGear.filter((row) => row.slot === key && availableInMode(row, mode))
               : [];
             const choices = { '': 'Keine', ...Object.fromEntries(entries.map((row) => [row.name, equipmentNames(row).de])) };
             const legacy = saved && !Object.hasOwn(choices, saved);
@@ -4701,30 +4771,32 @@ label :is(input, textarea, select) {
         update();
         previews();
         wireAdminPortrait();
-        if (!editorState.item.id) {
-          form.elements.mode.onchange = () => {
-            const mode = form.elements.mode.value,
-              valid = dashboard.weapons.filter(
-                (w) => w.active !== false && (!w.modes || w.modes.includes(mode)),
-              );
-            for (const key of ['primary', 'secondary']) {
-              const n = form.elements[key],
-                old = n.value,
-                allowed =
-                  key === 'primary'
-                    ? valid.filter((w) => !['pistol', 'launcher', 'melee'].includes(w.cls))
-                    : valid;
-              n.innerHTML = options(Object.fromEntries(allowed.map((w) => [w.id, w.name])), old);
-              if (key === 'secondary' && n.value === form.elements.primary.value && allowed.length > 1)
-                n.value = allowed.find((w) => w.id !== form.elements.primary.value).id;
-              n.onchange();
-            }
-            refreshGearOptions();
-            update();
-            previews();
-          };
-          form.elements.mode.onchange();
-        } else form.elements.mode.onchange = refreshGearOptions;
+        form.elements.mode.onchange = () => {
+          const mode = form.elements.mode.value;
+          const item = editorState.item;
+          const valid = dashboard.weapons.filter((w) => availableInMode(w, mode));
+          for (const key of ['primary', 'secondary']) {
+            const field = form.elements[key];
+            const allowed = key === 'primary'
+              ? valid.filter((w) => !['pistol', 'launcher', 'melee', 'special'].includes(w.cls))
+              : valid;
+            const choices = Object.fromEntries(allowed.map((w) => [w.id, weaponNames(w).de]));
+            const saved = item.id && item.mode === mode && dashboard.weapons.find((w) => w.id === item[key]);
+            if (saved && !Object.hasOwn(choices, saved.id)) choices[saved.id] = saved.name + ' · bisher gespeichert';
+            const preferred = field.value || saved?.id;
+            const automatic = allowed.find((w) => key !== 'secondary' || w.id !== form.elements.primary.value);
+            field.innerHTML = options({ '': 'Waffe wählen', ...choices }, Object.hasOwn(choices, preferred)
+              ? preferred : item.id ? '' : automatic?.id);
+            field.required = true;
+            if (!item.id && key === 'secondary' && field.value === form.elements.primary.value)
+              field.value = automatic?.id || '';
+            field.onchange();
+          }
+          refreshGearOptions();
+          update();
+          previews();
+        };
+        form.elements.mode.onchange();
       }
 
       $('contentDialog').addEventListener('close', () => {
@@ -5255,9 +5327,11 @@ label :is(input, textarea, select) {
             note('Design und Texte gespeichert');
           } else if (form.id === 'weaponForm') {
             if (imageBusy) throw Error('Die Grafik wird noch vorbereitet');
+            if (!serverHealth?.features?.includes('mode-availability')) throw Error('Aktualisiere zuerst den Cloudflare Worker für die Modusfreigaben.');
             const customAttachments = [...$('customParts').children].map((row) =>
               Object.fromEntries([
                 ['id', row.dataset.partId],
+                ['modes', [...row.querySelectorAll('input[name="modes"]:checked')].map((input) => input.value)],
                 ...['slot', 'de', 'en'].map((k) => [k, row.querySelector('[data-part="' + k + '"]').value]),
               ]),
             );
@@ -5266,6 +5340,8 @@ label :is(input, textarea, select) {
               editingWeapon ? 'PUT' : 'POST',
               {
                 name: $('weaponName').value,
+                de: $('weaponDe').value,
+                en: $('weaponEn').value,
                 cls: $('weaponClass').value,
                 modes: [...$('weaponModes').querySelectorAll('input:checked')].map((n) => n.value),
                 img: weaponImageData,
