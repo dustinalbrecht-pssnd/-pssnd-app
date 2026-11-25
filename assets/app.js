@@ -1282,17 +1282,17 @@ const likeBusy = new Set(),
 let commentsContext = null,
   previousModalFocus = null;
 
-function arrangeDesktopHeader() {
+function arrangeHeader() {
   const bar = document.querySelector('.topbar'),
     access = document.querySelector('.my-posts-access'),
     main = document.querySelector('main');
   if (!access) return;
-  if (matchMedia('(min-width:900px)').matches) {
+  if (document.body.classList.contains('builder-view') || matchMedia('(min-width:900px)').matches) {
     if (access.parentElement !== bar) bar.insertBefore(access, bar.querySelector('.support-top'));
   } else if (access.parentElement !== main) main.insertBefore(access, main.firstElementChild);
 }
 
-window.addEventListener('resize', arrangeDesktopHeader);
+window.addEventListener('resize', arrangeHeader);
 
 function existingVisitorHeaders() {
   try {
@@ -1886,6 +1886,8 @@ document.addEventListener('keydown', (e) => {
 });
 
 function activateView(view) {
+  document.body.classList.toggle('builder-view', view === 'builder');
+  arrangeHeader();
   if (view === 'feed') renderFeed();
   if (view === 'builder') renderBuilder();
   if (view === 'attachments') {
@@ -1900,7 +1902,6 @@ function activateView(view) {
 
 function start() {
   checkTermsGate();
-  arrangeDesktopHeader();
   updateSupportHeart();
   if (!API) el('supportCount').textContent = state.liked ? '1' : '0';
   startNavigation(activateView);

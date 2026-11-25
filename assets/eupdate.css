@@ -880,21 +880,6 @@ p {
   font-size: 11px;
   line-height: 1.55;
 }
-.builder-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 18px;
-}
-.builder-actions .primary-btn {
-  flex: 1;
-}
-.builder-actions .ghost-btn {
-  flex: 1;
-}
-.builder-actions .text-action {
-  min-width: 130px;
-}
 .gunsmith-stage {
   padding: 16px;
 }
@@ -1704,12 +1689,6 @@ p {
   }
   .attachment-tile {
     min-height: 69px;
-  }
-  .builder-actions {
-    flex-direction: column;
-  }
-  .builder-actions button {
-    width: 100%;
   }
   .detail-stage {
     min-height: 270px;
@@ -5929,175 +5908,7 @@ main,
   }
 }
 
-#view-builder > .builder-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding-block: clamp(16px, 2.6vw, 26px);
-}
-#view-builder .builder-heading h1 {
-  margin: 0;
-  font-size: clamp(29px, 4.7vw, 46px);
-}
-.builder-heading .arsenal-button {
-  width: auto;
-  min-height: 44px;
-  flex: none;
-  gap: 10px;
-  margin: 0;
-  padding: 9px 13px;
-  font-size: 14px;
-}
-.builder-settings {
-  margin-block: 0 18px;
-}
-.builder-settings .audience-tabs {
-  gap: 6px;
-  margin-top: 5px;
-}
-.builder-settings .audience-tabs button {
-  min-height: 44px;
-  padding: 8px 12px;
-  font-size: 14px;
-}
-.builder-section {
-  align-items: center;
-  margin: 22px 0 10px;
-}
-.builder-section h2 {
-  margin: 0;
-  font-size: clamp(20px, 2.4vw, 25px);
-}
-.builder-section p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
-.builder-section .attachment-language {
-  margin: 0;
-}
-.build-weapon-card {
-  display: grid;
-  grid-template-rows: 1fr auto auto;
-  gap: 12px;
-  min-width: 0;
-  padding: clamp(12px, 1.8vw, 18px);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--surface);
-  box-shadow: 0 12px 30px #0003;
-}
-.build-weapon-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(108px, 30%);
-  align-items: start;
-  gap: 10px;
-}
-.build-weapon-heading .eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.07em;
-}
-.build-weapon-heading h3 {
-  margin: 3px 0 4px;
-  font-size: clamp(21px, 3vw, 29px);
-  line-height: 1.1;
-}
-.build-weapon-meta {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
-}
-.weapon-season-field {
-  align-content: start;
-  gap: 4px;
-  color: var(--gold);
-  font-size: 12px;
-}
-.weapon-season-field input {
-  border-color: color-mix(in srgb, var(--gold) 47%, var(--line));
-  font-size: 16px;
-}
-.weapon-season-field input:invalid {
-  border-color: var(--gold);
-  box-shadow: inset 0 0 0 1px var(--gold);
-}
-.build-weapon-art {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  min-width: 0;
-  min-height: 126px;
-  height: clamp(126px, 18vw, 210px);
-  padding: 9px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: radial-gradient(ellipse at 48% 78%, #64531c50, transparent 72%), #171b1d;
-}
-.build-weapon-art img,
-.build-weapon-art svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  object-fit: contain;
-  filter: drop-shadow(0 14px 11px #000a);
-}
-.build-weapon-art:hover {
-  border-color: var(--line);
-}
-.build-weapon-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px;
-}
-.build-weapon-actions button {
-  min-height: 44px;
-  padding: 8px 6px;
-  font-size: 13px;
-}
-.build-weapon-actions button[data-attach] {
-  border-color: #8e7a30;
-  color: var(--gold);
-}
-#view-builder .equipment-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
-}
-#view-builder .equip-tile {
-  min-height: 132px;
-  padding: 10px 8px 12px;
-}
-@media (min-width: 720px) {
-  .builder-settings {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-    gap: 16px;
-  }
-  .builder-settings .builder-audience {
-    padding-inline-start: 16px;
-    border-inline-start: 1px solid var(--line);
-    border-radius: 0;
-  }
-  .build-weapons {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 520px) {
-  #view-builder > .builder-heading {
-    flex-wrap: wrap;
-    justify-content: start;
-  }
-  .builder-settings {
-    gap: 10px;
-    padding: 11px;
-  }
-  .builder-section {
-    flex-wrap: wrap;
-  }
-  #view-builder .equipment-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .bottom-nav {
     padding: 5px;
   }
@@ -6153,5 +5964,626 @@ main,
   .bottom-nav svg {
     width: 23px;
     height: 23px;
+  }
+}
+
+/* Baukasten */
+.builder-view {
+  --builder-edge: max(clamp(14px, 2.5vw, 36px), calc((100% - 1392px) / 2));
+  --builder-nav-width: 148px;
+  --builder-nav-gap: 36px;
+  --builder-control: color-mix(in srgb, var(--bg) 74%, var(--surface));
+  --builder-outline: color-mix(in srgb, var(--line) 72%, transparent);
+  --builder-accent-line: color-mix(in srgb, var(--gold) 32%, transparent);
+  --builder-accent-fill: color-mix(in srgb, var(--gold) 12%, var(--builder-control));
+  background: radial-gradient(ellipse at 72% 1%, color-mix(in srgb, var(--gold) 4%, transparent), transparent 44%), var(--bg);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.builder-view .topbar {
+  width: 100%;
+  max-width: none;
+  height: calc(72px + env(safe-area-inset-top));
+  padding-inline: var(--builder-edge);
+  gap: 10px;
+  border-color: var(--builder-outline);
+  background: var(--builder-control);
+}
+.builder-view .topbar .brand {
+  min-width: 0;
+  font-size: 23px;
+  letter-spacing: -.04em;
+}
+.builder-view .brand small,
+.builder-view .topbar .my-posts-button small,
+.builder-view .topbar .my-posts-arrow {
+  display: none;
+}
+.builder-view .logo-disc {
+  width: 40px;
+  height: 40px;
+}
+.builder-view .topbar .my-posts-access {
+  flex: none;
+  margin: 0 0 0 auto;
+}
+.builder-view .topbar .my-posts-button,
+.builder-view .support-top {
+  min-height: 38px;
+  padding: 0 13px;
+  gap: 7px;
+  border: 1px solid var(--builder-outline);
+  border-radius: 9px;
+  background: var(--surface);
+  white-space: nowrap;
+}
+.builder-view .topbar .my-posts-button {
+  color: var(--text);
+}
+.builder-view .support-top.liked {
+  border-color: var(--builder-accent-line);
+  background: var(--builder-accent-fill);
+}
+.builder-view .topbar .my-posts-button strong,
+.builder-view .support-top small {
+  font-size: 13px;
+}
+.builder-view .topbar .my-posts-button svg {
+  width: 16px;
+  height: 16px;
+}
+.builder-view > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 27px var(--builder-edge) calc(92px + env(safe-area-inset-bottom));
+}
+.builder-view .legal-footer {
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 0;
+}
+
+.builder-view .bottom-nav {
+  padding: 6px;
+  border: 1px solid var(--builder-outline);
+  border-radius: 14px;
+  background: var(--builder-control);
+}
+.builder-view .bottom-nav a {
+  min-height: 47px;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 11px;
+}
+.builder-view .bottom-nav a.active {
+  border-color: var(--builder-accent-line);
+  background: var(--builder-accent-fill);
+}
+.builder-view .bottom-nav a.active::before {
+  content: none;
+}
+.builder-view .bottom-nav .nav-icon,
+.builder-view .bottom-nav .nav-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+#view-builder {
+  max-width: none;
+}
+#view-builder > .builder-heading {
+  isolation: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 21px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: none;
+}
+#view-builder > .builder-heading::before {
+  content: none;
+}
+#view-builder .builder-heading h1 {
+  margin: 0;
+  font-size: clamp(27px, 4vw, 46px);
+  font-weight: 780;
+  line-height: 1.1;
+  letter-spacing: -.052em;
+}
+.builder-heading .arsenal-button {
+  width: auto;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  gap: 8px;
+  border-color: var(--builder-outline);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.builder-heading .arsenal-short,
+#view-builder .builder-mode-tabs {
+  display: none;
+}
+
+#view-builder .builder-settings {
+  grid-template-columns: minmax(170px, .93fr) minmax(0, 2.1fr) minmax(160px, 1fr);
+  gap: 16px;
+  padding: 12px 13px;
+  border-color: var(--builder-outline);
+  border-radius: 13px;
+}
+#view-builder .builder-setting {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 5px;
+}
+#view-builder .builder-setting > :is(span, label) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 680;
+  line-height: 1.35;
+}
+#view-builder .builder-setting select,
+#view-builder .builder-mode-tabs,
+#view-builder .audience-tabs,
+#view-builder .builder-section .attachment-language {
+  min-width: 0;
+  min-height: 37px;
+  margin: 0;
+  border: 1px solid var(--builder-outline);
+  border-radius: 8px;
+  background: var(--builder-control);
+  color: var(--text);
+}
+#view-builder .builder-setting select {
+  padding: 0 9px;
+  font-size: 13px;
+  font-weight: 650;
+}
+#view-builder .builder-mode-tabs,
+#view-builder .audience-tabs,
+#view-builder .builder-section .attachment-language {
+  gap: 3px;
+  padding: 3px;
+}
+#view-builder :is(.builder-mode-tabs, .audience-tabs) {
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+#view-builder :is(.builder-mode-tabs, .audience-tabs, .builder-section .attachment-language) button {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 28px;
+  padding: 2px 5px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 680;
+}
+#view-builder :is(.builder-mode-tabs, .audience-tabs, .builder-section .attachment-language) button[aria-pressed='true'] {
+  border-color: var(--builder-accent-line);
+  background: var(--builder-accent-fill);
+  color: var(--gold);
+}
+#view-builder .builder-section .attachment-language {
+  flex-wrap: nowrap;
+  min-height: 31px;
+}
+#view-builder .builder-section .attachment-language button {
+  width: 35px;
+  min-height: 23px;
+  font-size: 11px;
+}
+#view-builder .builder-section .language-flag {
+  display: none;
+}
+
+#view-builder .builder-section {
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 10px;
+}
+#view-builder .builder-section h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -.028em;
+}
+#view-builder .builder-section p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+#view-builder #weaponSeasonHint {
+  text-align: right;
+}
+.build-weapons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.build-weapon-card {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px 14px 14px;
+  border: 1px solid var(--builder-outline);
+  border-radius: 16px;
+  background: linear-gradient(153deg, var(--surface2), var(--surface) 51%);
+  box-shadow: 0 10px 28px #0004;
+}
+.build-weapon-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  align-items: center;
+  gap: 12px;
+  padding-inline: 2px;
+}
+.build-weapon-heading .eyebrow {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 740;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+.build-weapon-heading h3 {
+  margin: 2px 0;
+  font-size: clamp(21px, 3vw, 29px);
+  line-height: 1.05;
+  letter-spacing: -.043em;
+  overflow-wrap: anywhere;
+}
+.build-weapon-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.build-weapon-meta.build-weapon-restriction {
+  color: var(--gold);
+}
+.weapon-season-field {
+  gap: 5px;
+  color: var(--gold);
+  font-size: 11px;
+}
+.weapon-season-field input {
+  min-height: 36px;
+  padding: 0 9px;
+  border-color: var(--builder-accent-line);
+  border-radius: 8px;
+  background: var(--builder-control);
+  font-size: 15px;
+}
+.weapon-season-field input:invalid {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+.weapon-season-field input::-webkit-inner-spin-button {
+  opacity: 1;
+}
+.build-weapon-art {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 168px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 24%, transparent);
+  border-radius: 11px;
+  background:
+    radial-gradient(ellipse at 50% 75%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 65%),
+    linear-gradient(125deg, var(--surface2), var(--builder-control));
+}
+.build-weapon-art::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: linear-gradient(var(--text) 1px, transparent 1px), linear-gradient(90deg, var(--text) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at 50% 35%, #000 3%, transparent 74%);
+  opacity: .11;
+  content: '';
+}
+.build-weapon-art :is(img, svg) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 7px 16px;
+  object-fit: contain;
+  filter: drop-shadow(0 11px 9px #0009);
+}
+.build-weapon-art:hover {
+  border-color: var(--builder-accent-line);
+}
+.build-weapon-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.build-weapon-actions button,
+#view-builder :is(.loadout-actions, .builder-actions) button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 5px 8px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+.build-weapon-actions button {
+  border-color: var(--builder-outline);
+  background: var(--surface);
+}
+.build-weapon-actions button[data-attach] {
+  border-color: var(--builder-accent-line);
+  background: var(--builder-accent-fill);
+}
+.build-weapon-actions button[data-attach] > [aria-hidden],
+.build-attachment-count {
+  color: var(--gold);
+}
+.build-attachment-count {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--gold) 11%, transparent);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#view-builder .equipment-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 157px), 1fr));
+  gap: 9px;
+}
+#view-builder .equip-tile {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 82px;
+  padding: 8px 9px;
+  border-color: var(--builder-outline);
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 20% 50%, color-mix(in srgb, var(--gold) 6%, transparent), transparent 67%), var(--surface);
+  color: var(--text);
+  text-align: left;
+}
+#view-builder .equip-tile:hover {
+  border-color: var(--gold);
+}
+#view-builder .equip-tile > .equip-icon {
+  flex: none;
+  width: 58px;
+  height: 58px;
+  margin: 0;
+  background: none;
+}
+#view-builder .equip-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+#view-builder .equip-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.2;
+}
+#view-builder .equip-copy b {
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#view-builder .equip-copy .gear-original {
+  color: var(--gold);
+}
+#view-builder :is(.loadout-actions, .builder-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid var(--builder-outline);
+}
+#view-builder :is(.loadout-actions, .builder-actions) button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 38px;
+  padding-inline: 12px;
+  font-weight: 750;
+}
+#view-builder :is(.loadout-actions, .builder-actions) svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (min-width: 1120px) {
+  .builder-view > main {
+    width: calc(100% - 2 * var(--builder-edge) - var(--builder-nav-width) - var(--builder-nav-gap));
+    margin-inline-start: calc(var(--builder-edge) + var(--builder-nav-width) + var(--builder-nav-gap));
+    padding: 27px 0 20px;
+  }
+  .builder-view .bottom-nav {
+    inset: calc(102px + env(safe-area-inset-top)) auto auto var(--builder-edge);
+    width: var(--builder-nav-width);
+  }
+  .builder-view .bottom-nav a {
+    gap: 10px;
+    min-height: 44px;
+    padding-inline: 10px;
+    font-size: 13px;
+  }
+}
+@media (min-width: 821px) {
+  #view-builder .builder-mode-tabs {
+    display: grid;
+  }
+  #view-builder .builder-setting:has(.builder-mode-tabs:not(:empty)) #modeSelect {
+    display: none;
+  }
+}
+@media (max-width: 820px) {
+  #view-builder .builder-settings {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px;
+  }
+  #view-builder .builder-audience {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 8px;
+  }
+  #view-builder .builder-audience > span {
+    flex: none;
+    white-space: nowrap;
+  }
+  #view-builder .audience-tabs {
+    display: grid;
+    flex: 1;
+  }
+}
+@media (max-width: 640px) {
+  .builder-view .topbar {
+    height: calc(60px + env(safe-area-inset-top));
+    gap: 6px;
+  }
+  .builder-view .topbar .brand {
+    gap: 7px;
+    font-size: 19px;
+  }
+  .builder-view .logo-disc {
+    width: 32px;
+    height: 32px;
+  }
+  .builder-view .topbar .my-posts-button,
+  .builder-view .support-top {
+    min-height: 34px;
+    padding-inline: 7px;
+    font-size: 12px;
+  }
+  .builder-view .topbar .my-posts-button strong {
+    font-size: 11px;
+  }
+  .builder-view .support-top small {
+    display: none;
+  }
+  .builder-view > main {
+    padding-top: 19px;
+  }
+  .builder-view .legal-footer {
+    justify-content: center;
+  }
+  #view-builder > .builder-heading {
+    margin-bottom: 15px;
+  }
+  #view-builder .builder-heading h1 {
+    font-size: clamp(25px, 8.4vw, 34px);
+  }
+  .builder-heading .arsenal-button {
+    min-height: 34px;
+    padding-inline: 7px;
+    gap: 4px;
+    font-size: 11px;
+  }
+  .builder-heading .arsenal-label {
+    display: none;
+  }
+  .builder-heading .arsenal-short {
+    display: inline;
+  }
+  #view-builder .builder-section {
+    margin-top: 17px;
+  }
+  #view-builder .builder-section h2 {
+    font-size: 19px;
+  }
+  #view-builder .builder-section p {
+    font-size: 10px;
+  }
+  .build-weapons {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .build-weapon-card {
+    padding: 9px;
+    border-radius: 12px;
+  }
+  .build-weapon-heading {
+    grid-template-columns: minmax(0, 1fr) 96px;
+  }
+  .weapon-season-field input {
+    min-height: 34px;
+  }
+  .build-weapon-art {
+    height: 118px;
+    border-radius: 9px;
+  }
+  .build-weapon-art :is(img, svg) {
+    padding: 4px 12px;
+  }
+  #view-builder .equipment-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+  }
+  #view-builder .equip-tile {
+    grid-column: span 3;
+    gap: 6px;
+    min-height: 61px;
+    padding: 5px 6px;
+    border-radius: 9px;
+  }
+  #view-builder .equip-tile > .equip-icon {
+    width: 40px;
+    height: 40px;
+  }
+  #view-builder .equipment-grid:has([data-gear-pick='perk1']):has([data-gear-pick='perk2']):has([data-gear-pick='perk3']) [data-gear-pick^='perk'] {
+    grid-column: span 2;
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+  }
+  #view-builder .equipment-grid > [data-gear-pick='field']:last-child {
+    grid-column: 1 / -1;
+  }
+  #view-builder .equip-copy b {
+    font-size: 12px;
+  }
+  #view-builder .equip-copy small {
+    font-size: 10px;
+  }
+  #view-builder :is(.loadout-actions, .builder-actions) {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  #view-builder :is(.loadout-actions, .builder-actions) button {
+    min-height: 44px;
   }
 }

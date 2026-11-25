@@ -38,7 +38,7 @@ import {
 } from './app.js';
 import { navigate } from './navigation.js';
 import {
-  attachmentEdit, attachmentLanguage, attachmentName, attachmentUnavailable, knownAttachmentIds,
+  attachmentEdit, attachmentLanguage, attachmentLimit, attachmentName, attachmentUnavailable, knownAttachmentIds,
   languageButtons, renderGunsmith, standardCount,
 } from './aufsaetze.js';
 import { currentAttachmentId, weaponNames } from './katalog-abgleich.js';
@@ -311,7 +311,9 @@ function renderWeaponCards(b) {
         <button class="build-weapon-art" type="button" data-pick="${slot}" aria-label="${label} wählen"></button>
         <div class="build-weapon-actions">
           <button type="button" class="ghost-btn" data-pick="${slot}">Waffe ändern</button>
-          <button type="button" class="ghost-btn" data-attach="${slot}">Aufsätze <span aria-hidden="true">→</span></button>
+          <button type="button" class="ghost-btn" data-attach="${slot}">
+            Aufsätze <span class="build-attachment-count"></span><span aria-hidden="true">→</span>
+          </button>
         </div>
       </article>
     `).join('');
@@ -324,15 +326,15 @@ function renderWeaponCards(b) {
     const name = weaponNames(w)[attachmentLanguage];
     el(slot + 'WeaponName').textContent = name || 'Waffe wählen';
     const parts = storedParts(w);
-    const count = standardCount(parts);
     const meta = card.querySelector('.build-weapon-meta');
     const allowed = availableInMode(w, state.mode);
     meta.textContent = allowed
-      ? CLASS[w.cls] + ' · ' + count + (count === 1 ? ' Aufsatz' : ' Aufsätze') +
-        (parts.some((p) => p.slot === 'apex') ? ' + Apex' : '')
+      ? CLASS[w.cls].split(' · ').at(-1) + (parts.some((p) => p.slot === 'apex') ? ' · Apex' : '')
       : (w ? 'Gesperrt in ' : 'Wähle eine freigegebene Waffe für ') + MODE[state.mode];
     meta.classList.toggle('build-weapon-restriction', !allowed);
-    card.querySelector('[data-attach]').disabled = !w;
+    const attach = card.querySelector('[data-attach]');
+    attach.querySelector('.build-attachment-count').textContent = standardCount(parts) + '/' + attachmentLimit();
+    attach.disabled = !w;
     const picture = w ? art(w) : '';
     if (picture !== artButton.weaponArtwork) {
       artButton.innerHTML = picture;
@@ -358,12 +360,25 @@ function renderBuilder() {
       ([id, name]) => '<option value="' + id + '" ' + (id === g ? 'selected' : '') + '>' + name + '</option>',
     )
     .join('');
-  el('modeSelect').innerHTML = (g === 'mw4' ? MW4_MODES : BO7_MODES)
+  const modes = g === 'mw4' ? MW4_MODES : BO7_MODES;
+  el('modeSelect').innerHTML = modes
     .map(
       (id) => '<option value="' + id + '" ' + (id === mode ? 'selected' : '') + '>' +
         MODE[id] + '</option>',
     )
     .join('');
+  const modeButtons = el('builderModes');
+  if (modeButtons) {
+    const existingModes = [...modeButtons.children].map((button) => button.dataset.mode);
+    if (existingModes.join() !== modes.join()) {
+      modeButtons.innerHTML = modes.map((id) =>
+        '<button type="button" data-mode="' + html(id) + '">' + html(MODE[id]) + '</button>',
+      ).join('');
+    }
+    for (const button of modeButtons.children) {
+      button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+    }
+  }
   renderWeaponCards(b);
   const keys = builderGearSlots(b);
   if (el('gearLanguage')) el('gearLanguage').innerHTML = languageButtons('Sprache der Ausrüstung');
@@ -373,23 +388,16 @@ function renderBuilder() {
       const opts = availableGear(key, g, mode);
       const value = buildGearValue(b.gear, key, opts);
       const previous = b.gear?.[key];
-      return (
-        '<button class="equip-tile ' +
-        (key === 'wildcard' ? 'wildcard' : '') +
-        '" data-gear-pick="' +
-        key +
-        '"><span class="equip-icon">' +
-        gearArtwork(key, value) +
-        '</span><small>' +
-        html(GEAR_NAMES[key]) +
-        '</small><b>' +
-        gearLabelMarkup(key, value) +
-        '</b>' +
-        (previous && !value && !['Keine', 'None'].includes(previous)
-          ? '<small class="gear-original">Bisher: ' + gearLabelMarkup(key, previous) + ' · neu wählen</small>'
-          : gearSecondaryMarkup(key, value)) +
-        '</button>'
-      );
+      const unavailable = previous && !value && !['Keine', 'None'].includes(previous);
+      return `
+        <button type="button" class="equip-tile${key === 'wildcard' ? ' wildcard' : ''}" data-gear-pick="${html(key)}">
+          <span class="equip-icon">${gearArtwork(key, value)}</span>
+          <span class="equip-copy">
+            <small>${html(key === 'tactical' ? 'Taktik' : GEAR_NAMES[key])}</small>
+            <b>${gearLabelMarkup(key, value)}</b>
+            ${unavailable ? '<small class="gear-original">Bisher: ' + gearLabelMarkup(key, previous) + ' · neu wählen</small>' : ''}
+          </span>
+        </button>`;
     })
     .join('');
   const notes = {
@@ -400,8 +408,7 @@ function renderBuilder() {
   const note = siteConfig[mode + 'Note'] || (g === 'mw4' ? notes[mode] : '');
   el('gameNote').textContent = note || '';
   el('gameNote').hidden = !note;
-  el('arsenalCount').textContent =
-    candidates('secondary').length + ' Waffen für ' + MODE[mode] + ' ansehen';
+  el('openArsenal').title = candidates('secondary').length + ' Waffen für ' + MODE[mode] + ' ansehen';
   el('dmzLootPanel').hidden = !(g === 'mw4' && mode === 'dmz');
   el('dmzLootPanel').innerHTML =
     '<span class="eyebrow">DMZ · HERKUNFT DER WAFFE</span><div class="mode-tabs"><button data-dmz-loot="0" class="' +
