@@ -106,13 +106,19 @@
               <option value="all">Alle Waffen</option>
             </select></label
           ><label
+            >Waffen-Season<select id="feedSeason">
+              <option value="all">Alle Seasons</option>
+            </select></label
+          ><label
             >Sortieren<select id="feedSort">
               <option value="popular">Beliebteste</option>
               <option value="week">Loadout der Woche</option>
+              <option value="meta">META der Season</option>
               <option value="new">Neueste</option>
             </select></label
           >
         </div>
+        <p id="rankingHint" class="ranking-hint" aria-live="polite" hidden></p>
         <div id="communityConnection" class="community-connection" role="status" hidden></div>
         <div id="appAdvertising" class="ad-grid"></div>
         <div class="ranking-status-row">
