@@ -1969,6 +1969,41 @@ label :is(input, textarea, select) {
       .custom-settings > .toolbar:first-of-type {
         margin-top: 14px;
       }
+      .weapon-check-admin {
+        margin-bottom: 14px;
+      }
+      .weapon-check-admin form {
+        display: grid;
+        justify-items: start;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .mw4-excel-preview {
+        display: grid;
+        gap: 6px;
+        max-height: 45vh;
+        overflow: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .mw4-excel-preview li {
+        display: grid;
+        grid-template-columns: minmax(0, 4fr) minmax(0, 2fr) auto minmax(0, 2fr);
+        align-items: baseline;
+        gap: 8px;
+        padding: 9px;
+        overflow-wrap: anywhere;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .mw4-excel-preview small {
+        display: block;
+        color: var(--muted);
+      }
+      .mw4-excel-preview li > b {
+        color: var(--gold, #ffda0a);
+      }
       .traffic-summary {
         display: grid;
         grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
@@ -2276,6 +2311,16 @@ label :is(input, textarea, select) {
               </form>
             </section>
             <section class="view" id="postsView" hidden="">
+              <details class="panel weapon-check-admin">
+                <summary>Waffencheck · Aktive Season</summary>
+                <form id="weaponCheckForm">
+                  <label>Aktive Season
+                    <input name="weaponCheckSeason" type="number" min="0" max="9007199254740991" step="1" inputmode="numeric" placeholder="z. B. 1">
+                  </label>
+                  <p class="muted">Der Waffencheck gleicht veröffentlichte Builds dieser Waffen-Season ab.</p>
+                  <button type="submit" class="primary">Season speichern</button>
+                </form>
+              </details>
               <div class="toolbar">
                 <button type="button" class="primary" id="newAdminLoadout">+ Loadout erstellen</button>
                 <select id="postKind" aria-label="Beitragsart" style="width: auto">
@@ -2478,6 +2523,8 @@ label :is(input, textarea, select) {
                   <div class="mw4-settings-actions">
                     <button type="submit" class="primary" id="mw4PublishValues" disabled>Werte veröffentlichen</button>
                     <button type="button" id="mw4DownloadValues" disabled>Veröffentlichte Werte als Bild ↓</button>
+                    <button type="button" id="mw4ExcelExport" disabled>Excel-Vorlage ↓</button>
+                    <button type="button" id="mw4ExcelImport" disabled>Excel importieren</button>
                   </div>
                   <p id="mw4PublishStatus" role="status" hidden></p>
                   <p id="mw4MenuStatus" class="muted" role="status"></p>
@@ -2857,6 +2904,19 @@ label :is(input, textarea, select) {
         <button type="button" id="confirmDeleteAd" class="danger">Endgültig löschen</button>
       </div>
     </dialog>
+    <dialog id="mw4ExcelDialog" class="editor-dialog" aria-labelledby="mw4ExcelTitle">
+      <h2 id="mw4ExcelTitle">MW4-Einstellungen aus Excel</h2>
+      <p class="muted">Leere Werte werden übersprungen. „Leeren“ in der Spalte „Aktion“ entfernt einen veröffentlichten Wert.</p>
+      <label>Ausgefüllte Excel-Datei
+        <input id="mw4ExcelFile" type="file" accept=".xlsx">
+      </label>
+      <p class="notice" id="mw4ExcelStatus" role="status"></p>
+      <ul class="mw4-excel-preview" id="mw4ExcelPreview" aria-label="Vorschau mit altem und neuem Wert"></ul>
+      <div class="actions">
+        <button type="button" class="primary" id="mw4ExcelConfirm" disabled>Änderungen veröffentlichen</button>
+        <button type="button" id="mw4ExcelCancel">Abbrechen</button>
+      </div>
+    </dialog>
     <dialog id="gameSettingDialog" class="editor-dialog" aria-labelledby="gameSettingDialogTitle">
       <h2 id="gameSettingDialogTitle"></h2>
       <form id="gameSettingForm">
@@ -2871,10 +2931,11 @@ label :is(input, textarea, select) {
     <div id="status" role="status" aria-live="polite"></div>
     <script type="module">
       import { MW_IMAGES } from './assets/waffenbilder.js';
-      import { mountCatalogImport } from './assets/katalog-import.js';
+      import { mountCatalogImport } from './assets/katalog-import.js?v=waffencheck-20261125';
       import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
-      import { mountAdminSettings } from './assets/admin-einstellungen.js?v=mw4-katalog-20261125';
+      import { distanceOptions, loadoutWeaponProfiles, WEAPON_HINT_LENGTH } from './assets/waffenprofil.js';
+      import { mountAdminSettings } from './assets/admin-einstellungen.js?v=waffencheck-20261125';
       import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
       import {
         attachmentNames,
@@ -2991,6 +3052,7 @@ label :is(input, textarea, select) {
         'appearanceForm',
         'termsForm',
         'commentSettingsForm',
+        'weaponCheckForm',
       ]);
       const editedForms = new Set();
       let publicRelease = null;
@@ -3088,6 +3150,9 @@ label :is(input, textarea, select) {
           if (!editedForms.has('appearanceForm')) renderAppearance();
           if (!editedForms.has('commentSettingsForm')) renderCommentSettings();
           if (!editedForms.has('termsForm')) renderTermsAdmin();
+          if (!editedForms.has('weaponCheckForm')) {
+            $('weaponCheckForm').elements.weaponCheckSeason.value = dashboard.config.weaponCheckSeason ?? '';
+          }
           if (!$('newsAutomation').matches(':focus') && !editedForms.has('newsAutomation'))
             $('newsAutomation').checked = dashboard.config.autoNews !== false;
           renderCodes();
@@ -4565,7 +4630,9 @@ label :is(input, textarea, select) {
         $('saveContent').textContent = 'Änderungen speichern';
         const names = Object.fromEntries((dashboard.weapons || []).map((w) => [w.id, w.name]));
         const seasons = new Map(loadoutWeaponSeasons(x));
+        const profiles = loadoutWeaponProfiles(x);
         const editSeasons = serverHealth?.features?.includes('weapon-seasons');
+        const editProfiles = serverHealth?.features?.includes('weapon-profiles');
         $('editorTitle').textContent =
           (x.kind === 'creators' ? 'Streamer' : 'Loadout') + ' #' + x.id + ' bearbeiten';
         $('editorFields').innerHTML =
@@ -4591,6 +4658,12 @@ label :is(input, textarea, select) {
               (weaponSeason(x, x.secondary) ?? '') +
               '"></label>'
             : '') +
+          (editProfiles ? [['primary', 'Primärwaffe'], ['secondary', 'Sekundärwaffe']].map(([slot, label]) => {
+            const profile = profiles[x[slot]];
+            return '<label>Einsatzdistanz · ' + label + '<select name="' + slot + 'Distance">' +
+              distanceOptions('Distanz wählen', profile?.distance) + '</select></label><label>Waffenhinweis · ' + label +
+              '<input name="' + slot + 'Hint" maxlength="' + WEAPON_HINT_LENGTH + '" value="' + esc(profile?.hint) + '"></label>';
+          }).join('') : '') +
           '</div>' +
           areaField('note', 'Beschreibung', x.note) +
           (x.kind === 'creators'
@@ -4619,13 +4692,26 @@ label :is(input, textarea, select) {
         for (const [slot, partsId] of [['primary', 'editPrimaryParts'], ['secondary', 'editSecondaryParts']]) {
           const weapon = form.elements[slot];
           const season = form.elements[slot + 'Season'];
+          const distance = form.elements[slot + 'Distance'];
+          const hint = form.elements[slot + 'Hint'];
           weapon.onchange = () => {
             const mode = form.elements.mode.value;
             const existing = x.mode === mode && weapon.value === x[slot] ?
               (x.attachments || x.parts || {})[weapon.value] : [];
             $(partsId).innerHTML = postPartsFields(weapon.value, existing, mode);
             if (season) season.value = seasons.get(weapon.value) ?? '';
+            if (distance) {
+              distance.value = profiles[weapon.value]?.distance || '';
+              hint.value = profiles[weapon.value]?.hint || '';
+            }
           };
+          if (distance) {
+            const rememberProfile = () => {
+              profiles[weapon.value] = { distance: distance.value, hint: hint.value };
+            };
+            distance.onchange = rememberProfile;
+            hint.oninput = rememberProfile;
+          }
           if (season) {
             season.oninput = () => {
               if (!season.validity.valid) return;
@@ -4657,6 +4743,15 @@ label :is(input, textarea, select) {
               const value = raw.get(slot + 'Season');
               if (value !== '') data.weaponSeasons[data[slot]] = Number(value);
               delete data[slot + 'Season'];
+            }
+          }
+          if (raw.has('primaryDistance')) {
+            data.weaponProfiles = Object.fromEntries(['primary', 'secondary'].map(slot => [
+              data[slot], { distance: raw.get(slot + 'Distance'), hint: raw.get(slot + 'Hint').trim() },
+            ]));
+            for (const slot of ['primary', 'secondary']) {
+              delete data[slot + 'Distance'];
+              delete data[slot + 'Hint'];
             }
           }
           data.photo = editorImage;
@@ -5516,6 +5611,8 @@ label :is(input, textarea, select) {
           missing = [];
         const builder = features.includes('admin-loadout-builder'),
           feedback = features.includes('private-feedback');
+        const weaponCheck = features.includes('weapon-check');
+        $('weaponCheckForm').querySelector('button').disabled = !weaponCheck;
         $('newAdminLoadout').disabled = !builder;
         $('newAdminLoadout').title = builder ? '' : 'Loadouts erstellen benötigt einen aktualisierten Server';
         for (const button of document.querySelectorAll('[data-tab="feedback"]')) {
@@ -5529,6 +5626,7 @@ label :is(input, textarea, select) {
         if (!audit) missing.push('Protokoll und Bestätigung beim App-Start');
         if (!builder) missing.push('Loadouts direkt im Admin erstellen');
         if (!feedback) missing.push('privates Feedback');
+        if (!weaponCheck) missing.push('Waffencheck und Excel-Import der MW4-Einstellungen');
         const panel = $('serverCompatibility');
         panel.hidden = !missing.length;
         panel.textContent = missing.length
@@ -5715,6 +5813,11 @@ label :is(input, textarea, select) {
           if (form.id === 'termsForm') {
             await request('/api/admin/extended-config', 'PUT', { termsText: data.termsText });
             note('Bedingungen gespeichert. Community bis zur erneuten Startfreigabe geschlossen.');
+          } else if (form.id === 'weaponCheckForm') {
+            if (!serverHealth?.features?.includes('weapon-check')) throw Error('Für den Waffencheck zuerst den Worker aktualisieren.');
+            const season = form.elements.weaponCheckSeason;
+            await request('/api/admin/extended-config', 'PUT', { weaponCheckSeason: season.value === '' ? null : season.valueAsNumber });
+            note('Season für den Waffencheck gespeichert.');
           } else if (form.id === 'launchForm') {
             await saveLaunch(form);
             return;
