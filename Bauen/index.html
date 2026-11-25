@@ -15,7 +15,7 @@
     <title>eUpdate · Bauen</title>
     <link rel="stylesheet" href="assets/eupdate.css" />
   </head>
-  <body>
+  <body class="builder-view">
     <section
       id="termsGate"
       class="terms-gate"
@@ -77,15 +77,21 @@
         <div class="page-heading builder-heading">
           <h1>Loadout bauen<span class="title-dot">.</span></h1>
           <button id="openArsenal" class="arsenal-button" type="button">
-            <span id="arsenalCount">Alle Waffen ansehen</span><span aria-hidden="true">→</span>
+            <span id="arsenalCount" class="arsenal-label">Waffenübersicht</span><span class="arsenal-short">Arsenal</span>
+            <span aria-hidden="true">→</span>
           </button>
         </div>
         <div class="builder-settings">
-          <div class="build-config">
-            <label>Spiel<select id="gameSelect" aria-label="Spiel wählen"></select></label
-            ><label>Modus<select id="modeSelect" aria-label="Modus wählen"></select></label>
+          <label class="builder-setting">
+            <span>Spiel</span>
+            <select id="gameSelect" aria-label="Spiel wählen"></select>
+          </label>
+          <div class="builder-setting">
+            <label id="builderModeLabel" for="modeSelect">Modus</label>
+            <select id="modeSelect" aria-label="Modus wählen"></select>
+            <div id="builderModes" class="builder-mode-tabs" role="group" aria-labelledby="builderModeLabel"></div>
           </div>
-          <div class="builder-audience">
+          <div class="builder-setting builder-audience">
             <span id="builderAudienceLabel">Veröffentlichen als</span>
             <div class="audience-tabs" role="group" aria-labelledby="builderAudienceLabel">
               <button type="button" data-audience="player">Spieler</button>
@@ -94,10 +100,8 @@
           </div>
         </div>
         <div class="section-line builder-section">
-          <div>
-            <h2>Waffen</h2>
-            <p id="weaponSeasonHint">Die Season ist optional und dient als Filter im Ranking.</p>
-          </div>
+          <h2>Waffen</h2>
+          <p id="weaponSeasonHint">Waffen-Season optional · im Ranking filterbar</p>
         </div>
         <div id="weaponSlots" class="build-weapons"></div>
         <div id="dmzLootPanel" class="dmz-loot-panel" hidden></div>
@@ -110,9 +114,15 @@
         </div>
         <div id="gearSlots" class="equipment-grid"></div>
         <div class="builder-actions">
-          <button class="primary-btn" id="nextAttachments">Weiter zu Aufsätzen <span>→</span></button
-          ><button class="ghost-btn" id="publishLoadout">Jetzt veröffentlichen</button
-          ><button class="text-action" id="shareLoadout">Bild speichern ↓</button>
+          <button class="ghost-btn" id="shareLoadout" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v13m-5-5 5 5 5-5M5 17v4h14v-4" />
+            </svg>
+            Bild speichern
+          </button>
+          <button class="primary-btn" id="publishLoadout" type="button">
+            Veröffentlichen <span aria-hidden="true">→</span>
+          </button>
         </div>
       </section>
 
