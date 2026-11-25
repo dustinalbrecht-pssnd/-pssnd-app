@@ -1,5 +1,5 @@
 import { SETTING_PLATFORMS, settingPlatformLabel } from './mw4-inhalte.js';
-import { settingsImageExport } from './einstellungen-bild.js';
+import { settingsImageExport } from './einstellungen-bild.js?v=mw4-katalog-20261125';
 
 const PAGE_LABELS = {
   feed: 'Ranking', builder: 'Bauen', attachments: 'Aufsätze', settings: 'MW4-Einstellungen',
@@ -15,14 +15,192 @@ export function mountAdminSettings({ request, note, esc }) {
   const form = el('gameSettingForm');
   const dialog = el('gameSettingDialog');
   const fields = el('gameSettingFields');
+  const presetMenu = el('mw4PresetCategory');
+  const presetSearch = el('mw4PresetSearch');
+  const presetFields = el('mw4PresetFields');
+  const presetDrafts = new Map();
+  const presetValues = new Map();
+  const favoriteIds = new Set();
+  const pendingFavorites = new Set();
   let catalog = null;
   let editor = null;
   let saving = false;
+  let publishing = false;
+  let adminSession = 0;
   let settingsRequest = 0;
   let analyticsRequest = 0;
 
   function sectionMessage(id, message) {
     el(id).textContent = message;
+  }
+
+  function selectedMenu() {
+    return catalog?.templates?.find(({ id }) => id === presetMenu.value);
+  }
+
+  function menuChanges(menu) {
+    return menu.sections.flatMap(({ fields }) => fields
+      .filter(({ id }) => presetDrafts.has(id))
+      .map(({ id }) => ({ id, value: presetDrafts.get(id) })));
+  }
+
+  function menuEntries(menu) {
+    if (menu) return menu.sections.flatMap(({ fields }) => fields.map(({ id }) => presetValues.get(id)).filter(Boolean));
+    return presetMenu.value === 'favorites' ? [...presetValues.values()].filter(({ id }) => favoriteIds.has(id)) : [];
+  }
+
+  function publishMessage(message, error = false) {
+    el('mw4PublishStatus').dataset.error = error;
+    el('mw4PublishStatus').hidden = !message;
+    sectionMessage('mw4PublishStatus', message);
+  }
+
+  function updateMenuActions() {
+    const menu = selectedMenu();
+    el('mw4PublishValues').disabled = publishing || !menu || !menuChanges(menu).length;
+    el('mw4DownloadValues').disabled = publishing || !menuEntries(menu).length;
+  }
+
+  function filterPresetFields() {
+    const query = presetSearch.value.trim().toLocaleLowerCase('de');
+    let visible = 0;
+    for (const section of presetFields.children) {
+      let matches = 0;
+      for (const row of section.querySelectorAll('[data-search]')) {
+        row.hidden = !row.dataset.search.includes(query);
+        if (!row.hidden) matches += 1;
+      }
+      section.hidden = matches === 0;
+      visible += matches;
+    }
+    const empty = presetMenu.value === 'favorites' && !query && !favoriteIds.size
+      ? 'Markiere ein Feld im Spielmenü mit dem Stern, um es hier wiederzufinden.' : 'Keine Felder gefunden.';
+    sectionMessage('mw4MenuStatus', visible ? `${visible} ${visible === 1 ? 'Feld' : 'Felder'}` : empty);
+  }
+
+  function presetControl(field) {
+    const value = presetDrafts.get(field.id) ?? presetValues.get(field.id)?.value ?? '';
+    const attributes = `data-mw4-setting="${esc(field.id)}"`;
+    if (field.kind === 'select') {
+      return `<select ${attributes}><option value="">Kein Wert eingetragen</option>${field.options.map(option =>
+        `<option value="${esc(option)}"${option === value ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    }
+    const hint = field.kind === 'keybind' ? 'Taste / alternative Taste' : field.step ? '0,05er-Schritte' :
+      field.min !== undefined ? `${field.min}–${field.max}` : 'Wert aus dem Spiel';
+    return `<input ${attributes} ${field.kind === 'number' ? 'inputmode="decimal"' : ''} maxlength="160" placeholder="${hint}" value="${esc(value)}">`;
+  }
+
+  function favoriteButton({ id, de }) {
+    const selected = favoriteIds.has(id);
+    return `<button type="button" class="mw4-favorite" data-mw4-favorite="${esc(id)}" aria-label="${esc(de + ' als Favorit')}"
+      aria-pressed="${selected}" ${pendingFavorites.has(id) ? 'disabled' : ''}>${selected ? '★' : '☆'}</button>`;
+  }
+
+  function favoritesList() {
+    return catalog.templates.map(({ de, sections }) => {
+      const rows = sections.flatMap(({ name, fields }) => fields.filter(({ id }) => favoriteIds.has(id)).map((field) => {
+        const query = [de, name, field.de, field.en].join(' ').toLocaleLowerCase('de');
+        const value = presetValues.get(field.id)?.value;
+        return `<div class="mw4-quick-row" data-search="${esc(query)}">
+          <div><button type="button" data-open-mw4-field="${esc(field.id)}">${esc(field.de)} →</button>
+          <small>${esc(value ? name + ' · ' + value : name)}</small></div>${favoriteButton(field)}</div>`;
+      }));
+      return rows.length ? `<section><h3>${esc(de)}</h3>${rows.join('')}</section>` : '';
+    }).join('');
+  }
+
+  function renderPresetFields() {
+    const menu = selectedMenu();
+    const quick = presetMenu.value === 'favorites';
+    presetFields.innerHTML = menu ? menu.sections.map(({ name, fields }) => `<section>
+      <h3>${esc(name)}</h3><div class="mw4-fields-grid">${fields.map(field => {
+        const search = [name, field.de, field.en].join(' ').toLocaleLowerCase('de');
+        return `<div class="mw4-field" data-search="${esc(search)}"><label><span>${esc(field.de)}
+          ${field.de === field.en ? '' : `<small lang="en">${esc(field.en)}</small>`}</span>${presetControl(field)}</label>
+          ${favoriteButton(field)}</div>`;
+      }).join('')}</div></section>`).join('') : quick ? favoritesList() : '';
+    el('mw4AccountMenu').hidden = menu?.id !== 'account-network';
+    if (menu || quick) filterPresetFields();
+    updateMenuActions();
+  }
+
+  function renderPresetMenus() {
+    const menus = catalog.templates || [];
+    const previous = presetMenu.value;
+    presetMenu.innerHTML = !menus.length ? '' : '<option value="favorites">Schnelleinstellungen</option>' +
+      menus.map(({ id, de }) => `<option value="${esc(id)}">${esc(de)}</option>`).join('');
+    presetMenu.value = previous === 'favorites' || menus.some(({ id }) => id === previous) ? previous : menus[0]?.id ?? '';
+    presetMenu.disabled = publishing || !menus.length;
+    presetSearch.disabled = publishing || !menus.length;
+    renderPresetFields();
+    if (!menus.length) sectionMessage('mw4MenuStatus', 'Der MW4-Katalog ist nach dem Worker-Update verfügbar.');
+  }
+
+  async function toggleFavorite(id, button) {
+    const session = adminSession;
+    pendingFavorites.add(id);
+    button.disabled = true;
+    try {
+      const { favorite } = await request('/api/admin/game-settings/favorites', 'PUT', { id, favorite: !favoriteIds.has(id) });
+      if (session !== adminSession) return;
+      if (favorite) favoriteIds.add(id);
+      else favoriteIds.delete(id);
+    } catch (error) {
+      if (session === adminSession) publishMessage(error.message, true);
+    } finally {
+      if (session === adminSession) {
+        pendingFavorites.delete(id);
+        renderPresetFields();
+      }
+    }
+  }
+
+  function jumpToPreset(id) {
+    const menu = catalog.templates.find(({ sections }) => sections.some(({ fields }) => fields.some(field => field.id === id)));
+    if (!menu) return;
+    presetMenu.value = menu.id;
+    presetSearch.value = '';
+    renderPresetFields();
+    const input = presetFields.querySelector(`[data-mw4-setting="${CSS.escape(id)}"]`);
+    input?.scrollIntoView({ block: 'center' });
+    input?.focus({ preventScroll: true });
+  }
+
+  async function publishPreset(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const menu = selectedMenu();
+    if (!menu || publishing) return;
+    const changes = menuChanges(menu);
+    if (!changes.length) return;
+    publishing = true;
+    const session = adminSession;
+    presetMenu.disabled = true;
+    presetSearch.disabled = true;
+    presetFields.inert = true;
+    updateMenuActions();
+    publishMessage('Werte werden veröffentlicht …');
+    try {
+      const { entries, removed } = await request('/api/admin/game-settings/values/' + encodeURIComponent(menu.id), 'PUT', { changes });
+      if (session !== adminSession) return;
+      settingsRequest += 1;
+      for (const { id } of changes) presetDrafts.delete(id);
+      for (const id of removed) presetValues.delete(id);
+      for (const entry of entries) presetValues.set(entry.id, entry);
+      if (entries.length && !catalog.categories.some(({ id }) => id === menu.id)) {
+        catalog.categories.push({ id: menu.id, de: menu.de, en: menu.en });
+      }
+      renderSettings();
+      publishMessage('Änderungen veröffentlicht.');
+    } catch (error) {
+      if (session === adminSession) publishMessage(error.message, true);
+    } finally {
+      if (session === adminSession) {
+        publishing = false;
+        presetFields.inert = false;
+        renderPresetMenus();
+      }
+    }
   }
 
   function renderSettings() {
@@ -39,7 +217,7 @@ export function mountAdminSettings({ request, note, esc }) {
       <div class="actions"><button type="button" data-edit-setting="categories:${esc(category.id)}">Bearbeiten</button>
       <button type="button" class="danger" data-delete-setting="categories:${esc(category.id)}">Löschen</button></div>
       </article>`).join('') || '<p class="muted">Lege eine Kategorie an, um Einstellungen einzutragen.</p>';
-    const entries = catalog.entries.filter((entry) => (!select.value || entry.categoryId === select.value) &&
+    const entries = catalog.entries.filter((entry) => !entry.templateId && (!select.value || entry.categoryId === select.value) &&
       [entry.de, entry.en, categories.get(entry.categoryId)?.de].join(' ').toLocaleLowerCase('de').includes(query));
     el('settingEntryList').innerHTML = entries.map((entry) => `<article class="card settings-admin-row">
       <div><span class="badge">${entry.active ? 'Öffentlich' : 'Entwurf'}</span>
@@ -54,14 +232,23 @@ export function mountAdminSettings({ request, note, esc }) {
   async function loadSettings() {
     const run = ++settingsRequest;
     sectionMessage('adminSettingsStatus', 'Einstellungen werden geladen …');
+    sectionMessage('mw4MenuStatus', 'Spielmenüs werden geladen …');
     try {
       const data = await request('/api/admin/game-settings');
       if (run !== settingsRequest) return;
       catalog = data;
+      presetValues.clear();
+      for (const entry of data.entries) if (entry.templateId) presetValues.set(entry.id, entry);
+      favoriteIds.clear();
+      for (const id of data.favoriteIds || []) favoriteIds.add(id);
       el('newSettingCategory').disabled = false;
+      renderPresetMenus();
       renderSettings();
     } catch (error) {
-      if (run === settingsRequest) sectionMessage('adminSettingsStatus', error.message);
+      if (run === settingsRequest) {
+        sectionMessage('adminSettingsStatus', error.message);
+        sectionMessage('mw4MenuStatus', error.message);
+      }
     }
   }
 
@@ -81,6 +268,7 @@ export function mountAdminSettings({ request, note, esc }) {
       </div>` + (category ? '' : `<fieldset><legend>Plattformen</legend><p class="muted">Leere Auswahl gilt für alle Plattformen.</p>
       <div class="editor-checkboxes">${Object.entries(SETTING_PLATFORMS).map(([key, label]) =>
         `<label><input type="checkbox" name="platforms" value="${key}" ${item?.platforms.includes(key) ? 'checked' : ''}>${esc(label)}</label>`).join('')}</div></fieldset>
+      <label>Wert im Spiel<input name="value" maxlength="160" value="${esc(item?.value)}"></label>
       ${area('values', 'Verfügbare Werte', 750)}${area('recommendation', 'Empfehlung', 300)}${area('description', 'Beschreibung', 950)}
       <label class="editor-label"><input type="checkbox" name="active" ${item?.active ? 'checked' : ''}>Öffentlich sichtbar</label>`);
     sectionMessage('gameSettingMessage', '');
@@ -133,15 +321,15 @@ export function mountAdminSettings({ request, note, esc }) {
     }
   }
 
-  function openImageExport(item) {
-    const output = settingsImageExport([item], catalog.categories);
+  function openImageExport(entries) {
+    const output = settingsImageExport(entries, catalog.categories);
     const download = (i) => output.download(i).catch((err) => note(err.message));
     if (output.count === 1) {
       download(0);
       return;
     }
     form.hidden = true;
-    el('gameSettingDialogTitle').textContent = 'Einstellung als Bild';
+    el('gameSettingDialogTitle').textContent = 'Einstellungen als Bild';
     const links = el('gameSettingImagePages');
     links.replaceChildren(...Array.from({ length: output.count }, (_, index) => {
       const button = document.createElement('button');
@@ -184,6 +372,30 @@ export function mountAdminSettings({ request, note, esc }) {
     }
   }
 
+  el('mw4SettingsForm').addEventListener('submit', publishPreset);
+  presetMenu.addEventListener('change', () => {
+    presetSearch.value = '';
+    publishMessage('');
+    renderPresetFields();
+  });
+  presetSearch.addEventListener('input', filterPresetFields);
+  presetFields.addEventListener('input', (event) => {
+    const id = event.target.dataset.mw4Setting;
+    if (!id || publishing) return;
+    const value = event.target.value.trim();
+    if (value === (presetValues.get(id)?.value ?? '')) presetDrafts.delete(id);
+    else presetDrafts.set(id, value);
+    publishMessage('');
+    updateMenuActions();
+  });
+  presetFields.addEventListener('click', (event) => {
+    const button = event.target.closest('button');
+    if (button?.dataset.mw4Favorite && !pendingFavorites.has(button.dataset.mw4Favorite)) {
+      toggleFavorite(button.dataset.mw4Favorite, button);
+    }
+    if (button?.dataset.openMw4Field) jumpToPreset(button.dataset.openMw4Field);
+  });
+  el('mw4DownloadValues').addEventListener('click', () => openImageExport(menuEntries(selectedMenu())));
   el('adminSettingSearch').addEventListener('input', renderSettings);
   el('adminSettingCategory').addEventListener('change', renderSettings);
   el('analyticsDays').addEventListener('change', loadAnalytics);
@@ -205,7 +417,7 @@ export function mountAdminSettings({ request, note, esc }) {
     if (button.dataset.deleteSetting) removeSetting(...button.dataset.deleteSetting.split(':'), button);
     if (button.dataset.downloadSetting) {
       const item = findItem('entries', button.dataset.downloadSetting);
-      if (item) openImageExport(item);
+      if (item) openImageExport([item]);
     }
   });
 
@@ -215,9 +427,24 @@ export function mountAdminSettings({ request, note, esc }) {
       if (view === 'analytics') loadAnalytics();
     },
     reset() {
+      adminSession += 1;
       settingsRequest += 1;
       analyticsRequest += 1;
       catalog = null;
+      publishing = false;
+      presetDrafts.clear();
+      presetValues.clear();
+      favoriteIds.clear();
+      pendingFavorites.clear();
+      presetMenu.replaceChildren();
+      presetMenu.disabled = true;
+      presetSearch.value = '';
+      presetSearch.disabled = true;
+      presetFields.inert = false;
+      presetFields.replaceChildren();
+      el('mw4AccountMenu').hidden = true;
+      publishMessage('');
+      updateMenuActions();
       el('settingCategoryList').replaceChildren();
       el('settingEntryList').replaceChildren();
       el('analyticsData').replaceChildren();

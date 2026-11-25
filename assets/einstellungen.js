@@ -1,6 +1,6 @@
 import { el, head, html, modal, serverGet, toast } from './app.js';
 import { SETTING_PLATFORMS, settingPlatformLabel } from './mw4-inhalte.js';
-import { settingsImageExport } from './einstellungen-bild.js';
+import { settingsImageExport } from './einstellungen-bild.js?v=mw4-katalog-20261125';
 
 let catalog;
 let filteredEntries = [];
@@ -19,7 +19,8 @@ export async function showGameSettings() {
   loading = (async () => {
     try {
       catalog = await serverGet('/api/game-settings');
-      el('settingsCategory').insertAdjacentHTML('beforeend', catalog.categories.map(
+      const favorites = catalog.entries.some((entry) => entry.favorite) ? '<option value="favorites">Schnelleinstellungen</option>' : '';
+      el('settingsCategory').insertAdjacentHTML('beforeend', favorites + catalog.categories.map(
         ({ id, de }) => '<option value="' + html(id) + '">' + html(de) + '</option>',
       ).join(''));
       el('settingsPlatform').insertAdjacentHTML('beforeend', Object.entries(SETTING_PLATFORMS).map(
@@ -37,6 +38,7 @@ export async function showGameSettings() {
 
 function settingCard(entry) {
   const fields = [
+    ['Wert im Spiel', entry.value],
     ['Verfügbare Werte', entry.values],
     ['Empfehlung', entry.recommendation],
   ];
@@ -52,19 +54,43 @@ function settingCard(entry) {
   </article>`;
 }
 
+function settingsValueSections(entries) {
+  const sections = new Map();
+  for (const entry of entries) {
+    if (!entry.templateId) continue;
+    if (!sections.has(entry.section)) sections.set(entry.section, []);
+    sections.get(entry.section).push(entry);
+  }
+  if (!sections.size) return '';
+  return `<div class="settings-section-grid">${Array.from(sections, ([name, rows]) => `<section class="settings-value-panel">
+    <h3>${html(name)}</h3><dl>${rows.map(entry => `<div class="setting-value-row">
+      <dt>${html(entry.de)}
+        ${entry.en !== entry.de ? `<small lang="en">${html(entry.en)}</small>` : ''}
+        ${entry.platforms.length ? `<small>${html(settingPlatformLabel(entry.platforms))}</small>` : ''}</dt>
+      <dd>${html(entry.value)}</dd>
+    </div>`).join('')}</dl></section>`).join('')}</div>`;
+}
+
 function renderGameSettings() {
   if (!catalog || !el('gameSettingsList')) return;
   const query = el('settingsSearch').value.trim().toLocaleLowerCase('de');
   const categoryId = el('settingsCategory').value;
+  const favoritesOnly = categoryId === 'favorites';
   const platform = el('settingsPlatform').value;
   filteredEntries = [];
-  const groups = catalog.categories.filter(({ id }) => !categoryId || id === categoryId).map((category) => {
+  const groups = catalog.categories.filter(({ id }) => !categoryId || favoritesOnly || id === categoryId).map((category) => {
     const entries = catalog.entries.filter((entry) => entry.categoryId === category.id &&
+      (!favoritesOnly || entry.favorite) &&
       (!platform || !entry.platforms.length || entry.platforms.includes(platform)) &&
-      [category.de, category.en, entry.de, entry.en, entry.values, entry.recommendation, entry.description]
+      [category.de, category.en, entry.section, entry.de, entry.en, entry.value, entry.values, entry.recommendation, entry.description]
         .join(' ').toLocaleLowerCase('de').includes(query));
+    if (!entries.length) return '';
     filteredEntries.push(...entries);
-    return entries.length ? '<section class="game-settings-group"><h2>' + html(category.de) + '</h2>' + entries.map(settingCard).join('') + '</section>' : '';
+    return `<section class="game-settings-group"><div class="game-settings-group-heading">
+      <h2>${html(category.de)}</h2><button type="button" class="ghost-btn" data-save-setting-category="${html(category.id)}"
+        aria-label="${html(category.de)} als Bild speichern">Bild speichern ↓</button></div>
+      ${settingsValueSections(entries)}${entries.filter(entry => !entry.templateId).map(settingCard).join('')}
+    </section>`;
   });
   el('gameSettingsList').innerHTML = groups.join('');
   el('saveGameSettings').disabled = !filteredEntries.length;
@@ -93,10 +119,10 @@ document.addEventListener('click', (event) => {
   if (!button) return;
   if (button.id === 'retryGameSettings') showGameSettings();
   if (button.dataset.settingsPage !== undefined) downloadSettings(Number(button.dataset.settingsPage));
-  if (button.id !== 'saveGameSettings' && !button.dataset.saveSetting) return;
-  const entries = button.dataset.saveSetting
-    ? filteredEntries.filter(({ id }) => id === button.dataset.saveSetting)
-    : filteredEntries;
+  const { saveSetting, saveSettingCategory } = button.dataset;
+  if (button.id !== 'saveGameSettings' && !saveSetting && !saveSettingCategory) return;
+  const entries = filteredEntries.filter(({ id, categoryId }) =>
+    (!saveSetting || id === saveSetting) && (!saveSettingCategory || categoryId === saveSettingCategory));
   if (!entries.length) return;
   exportJob = settingsImageExport(entries, catalog.categories);
   if (exportJob.count === 1) {

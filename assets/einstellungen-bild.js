@@ -3,7 +3,7 @@ import { settingPlatformLabel } from './mw4-inhalte.js';
 const WIDTH = 1080;
 const PADDING = 56;
 const MAX_HEIGHT = 1600;
-const CARD_PADDING = 24;
+const CARD_PADDING = 18;
 
 function settingLines(ctx, value, width) {
   return String(value).split('\n').flatMap((paragraph) => {
@@ -43,11 +43,13 @@ export function settingsImageExport(entries, categories) {
   const ctx = canvas.getContext('2d');
   const rows = entries.map((entry) => {
     const category = categories.find(({ id }) => entry.categoryId === id);
-    const title = [category?.de, settingPlatformLabel(entry.platforms)].filter(Boolean).join('  ·  ');
+    const title = [category?.de, entry.section, entry.platforms.length ? settingPlatformLabel(entry.platforms) : '']
+      .filter(Boolean).join('  ·  ');
     const fields = [
-      [title, 19, 600, colors.accent],
-      [entry.de, 33, 700, colors.text],
-      [entry.en && entry.en !== entry.de ? entry.en : '', 22, 500, colors.muted],
+      [title, 18, 600, colors.muted],
+      [entry.de, 29, 700, colors.text],
+      [entry.en && entry.en !== entry.de ? entry.en : '', 19, 500, colors.muted],
+      [entry.value, 27, 700, colors.accent],
       [entry.values ? 'Werte  ·  ' + entry.values : '', 23, 500, colors.text],
       [entry.recommendation ? 'Empfehlung  ·  ' + entry.recommendation : '', 23, 700, colors.accent],
       [entry.description, 21, 500, colors.muted],

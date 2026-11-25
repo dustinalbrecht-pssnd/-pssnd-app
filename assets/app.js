@@ -9,7 +9,7 @@ import { renderCurrentDetail } from './loadout.js';
 import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
 import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
-import { showGameSettings } from './einstellungen.js';
+import { showGameSettings } from './einstellungen.js?v=mw4-katalog-20261125';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
 
@@ -1152,8 +1152,8 @@ function applySiteContent() {
     const button = document.querySelector('.bottom-nav [data-view="' + view + '"]');
     if (!button) continue;
     const configuredLabel = c[key];
-    const label = view === 'settings' && (!configuredLabel || configuredLabel === 'MW4-Einstellungen')
-      ? 'Spieleinstellungen'
+    const label = view === 'settings' && (!configuredLabel || ['MW4-Einstellungen', 'Spieleinstellungen'].includes(configuredLabel))
+      ? 'Einstellungen'
       : configuredLabel;
     if (label) {
       const labelNode = button.querySelector('.settings-nav-label') ||
