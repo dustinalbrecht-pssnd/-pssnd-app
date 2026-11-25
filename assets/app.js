@@ -1150,9 +1150,15 @@ function applySiteContent() {
     settings: 'navGameSettings',
   })) {
     const button = document.querySelector('.bottom-nav [data-view="' + view + '"]');
-    if (button && c[key]) {
-      const nodes = [...button.childNodes].filter((n) => n.nodeType === 3);
-      if (nodes.length) nodes[nodes.length - 1].textContent = c[key];
+    if (!button) continue;
+    const configuredLabel = c[key];
+    const label = view === 'settings' && (!configuredLabel || configuredLabel === 'MW4-Einstellungen')
+      ? 'Spieleinstellungen'
+      : configuredLabel;
+    if (label) {
+      const labelNode = button.querySelector('.settings-nav-label') ||
+        [...button.childNodes].filter((node) => node.nodeType === 3).at(-1);
+      if (labelNode && labelNode.textContent !== label) labelNode.textContent = label;
     }
   }
   const copy = [
