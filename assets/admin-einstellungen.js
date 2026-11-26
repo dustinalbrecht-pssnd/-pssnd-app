@@ -1,6 +1,6 @@
 import { SETTING_PLATFORMS, settingPlatformLabel } from './mw4-inhalte.js';
-import { settingsImageExport } from './einstellungen-bild.js?v=mw4-katalog-20261125';
-import { mountSettingsExcel } from './einstellungen-excel.js?v=mw4-spielmenue-20261126';
+import { settingsImageExport } from './einstellungen-bild.js?v=mw4-community-20261126';
+import { mountSettingsExcel } from './einstellungen-excel.js?v=mw4-community-20261126';
 
 const PAGE_LABELS = {
   feed: 'Ranking', builder: 'Bauen', attachments: 'Aufsätze', settings: 'MW4-Einstellungen',
@@ -21,12 +21,11 @@ export function mountAdminSettings({ request, note, esc }) {
   const presetFields = el('mw4PresetFields');
   const presetDrafts = new Map();
   const presetValues = new Map();
-  const favoriteIds = new Set();
-  const pendingFavorites = new Set();
   let catalog = null;
   let editor = null;
   let saving = false;
   let publishing = false;
+  let downloading = false;
   let adminSession = 0;
   let settingsRequest = 0;
   let analyticsRequest = 0;
@@ -56,8 +55,7 @@ export function mountAdminSettings({ request, note, esc }) {
   }
 
   function menuEntries(menu) {
-    if (menu) return menu.sections.flatMap(({ fields }) => fields.map(({ id }) => presetValues.get(id)).filter(Boolean));
-    return presetMenu.value === 'favorites' ? [...presetValues.values()].filter(({ id }) => favoriteIds.has(id)) : [];
+    return menu?.sections.flatMap(({ fields }) => fields.map(({ id }) => presetValues.get(id)).filter(Boolean)) || [];
   }
 
   function publishMessage(message, error = false) {
@@ -69,7 +67,7 @@ export function mountAdminSettings({ request, note, esc }) {
   function updateMenuActions() {
     const menu = selectedMenu();
     el('mw4PublishValues').disabled = publishing || !menu || !menuChanges(menu).length;
-    el('mw4DownloadValues').disabled = publishing || !menuEntries(menu).length;
+    el('mw4DownloadValues').disabled = publishing || downloading || !menuEntries(menu).length;
   }
 
   function filterPresetFields() {
@@ -84,9 +82,7 @@ export function mountAdminSettings({ request, note, esc }) {
       section.hidden = matches === 0;
       visible += matches;
     }
-    const empty = presetMenu.value === 'favorites' && !query && !favoriteIds.size
-      ? 'Markiere ein Feld im Spielmenü mit dem Stern, um es hier wiederzufinden.' : 'Keine Felder gefunden.';
-    sectionMessage('mw4MenuStatus', visible ? `${visible} ${visible === 1 ? 'Feld' : 'Felder'}` : empty);
+    sectionMessage('mw4MenuStatus', visible ? `${visible} ${visible === 1 ? 'Feld' : 'Felder'}` : 'Keine Felder gefunden.');
   }
 
   function presetControl(field) {
@@ -102,80 +98,27 @@ export function mountAdminSettings({ request, note, esc }) {
     return `<input ${attributes} ${field.kind === 'number' ? 'inputmode="decimal"' : ''} maxlength="160" placeholder="${hint}" value="${esc(value)}">`;
   }
 
-  function favoriteButton({ id, de }) {
-    const selected = favoriteIds.has(id);
-    return `<button type="button" class="mw4-favorite" data-mw4-favorite="${esc(id)}" aria-label="${esc(de + ' als Favorit')}"
-      aria-pressed="${selected}" ${pendingFavorites.has(id) ? 'disabled' : ''}>${selected ? '★' : '☆'}</button>`;
-  }
-
-  function favoritesList() {
-    return catalog.templates.map(({ de, sections }) => {
-      const rows = sections.flatMap(({ name, fields }) => fields.filter(({ id }) => favoriteIds.has(id)).map((field) => {
-        const query = [de, name, field.de, field.en].join(' ').toLocaleLowerCase('de');
-        const value = presetValues.get(field.id)?.value;
-        return `<div class="mw4-quick-row" data-search="${esc(query)}">
-          <div><button type="button" data-open-mw4-field="${esc(field.id)}">${esc(field.de)} →</button>
-          <small>${esc(value ? name + ' · ' + value : name)}</small></div>${favoriteButton(field)}</div>`;
-      }));
-      return rows.length ? `<section><h3>${esc(de)}</h3>${rows.join('')}</section>` : '';
-    }).join('');
-  }
-
   function renderPresetFields() {
     const menu = selectedMenu();
-    const quick = presetMenu.value === 'favorites';
     presetFields.innerHTML = menu ? menu.sections.map(({ name, tab, fields }) => `<section>
       <h3>${esc(tab && tab !== name ? tab + ' › ' + name : name)}</h3><div class="mw4-fields-grid">${fields.map(field => {
         const search = [tab, name, field.de, field.en].join(' ').toLocaleLowerCase('de');
-        return `<div class="mw4-field" data-search="${esc(search)}"><label><span>${esc(field.de)}
-          ${field.de === field.en ? '' : `<small lang="en">${esc(field.en)}</small>`}</span>${presetControl(field)}</label>
-          ${favoriteButton(field)}</div>`;
-      }).join('')}</div></section>`).join('') : quick ? favoritesList() : '';
-    el('mw4AccountMenu').hidden = menu?.id !== 'account-network';
-    if (menu || quick) filterPresetFields();
+        return `<label data-search="${esc(search)}"><span>${esc(field.de)}
+          ${field.de === field.en ? '' : `<small lang="en">${esc(field.en)}</small>`}</span>${presetControl(field)}</label>`;
+      }).join('')}</div></section>`).join('') : '';
+    if (menu) filterPresetFields();
     updateMenuActions();
   }
 
   function renderPresetMenus() {
     const menus = catalog.templates || [];
     const previous = presetMenu.value;
-    presetMenu.innerHTML = !menus.length ? '' : '<option value="favorites">Schnelleinstellungen</option>' +
-      menus.map(({ id, de }) => `<option value="${esc(id)}">${esc(de)}</option>`).join('');
-    presetMenu.value = previous === 'favorites' || menus.some(({ id }) => id === previous) ? previous : menus[0]?.id ?? '';
+    presetMenu.innerHTML = menus.map(({ id, de }) => `<option value="${esc(id)}">${esc(de)}</option>`).join('');
+    presetMenu.value = menus.some(({ id }) => id === previous) ? previous : menus[0]?.id ?? '';
     presetMenu.disabled = publishing || !menus.length;
     presetSearch.disabled = publishing || !menus.length;
     renderPresetFields();
     if (!menus.length) sectionMessage('mw4MenuStatus', 'Der MW4-Katalog ist nach dem Worker-Update verfügbar.');
-  }
-
-  async function toggleFavorite(id, button) {
-    const session = adminSession;
-    pendingFavorites.add(id);
-    button.disabled = true;
-    try {
-      const { favorite } = await request('/api/admin/game-settings/favorites', 'PUT', { id, favorite: !favoriteIds.has(id) });
-      if (session !== adminSession) return;
-      if (favorite) favoriteIds.add(id);
-      else favoriteIds.delete(id);
-    } catch (error) {
-      if (session === adminSession) publishMessage(error.message, true);
-    } finally {
-      if (session === adminSession) {
-        pendingFavorites.delete(id);
-        renderPresetFields();
-      }
-    }
-  }
-
-  function jumpToPreset(id) {
-    const menu = catalog.templates.find(({ sections }) => sections.some(({ fields }) => fields.some(field => field.id === id)));
-    if (!menu) return;
-    presetMenu.value = menu.id;
-    presetSearch.value = '';
-    renderPresetFields();
-    const input = presetFields.querySelector(`[data-mw4-setting="${CSS.escape(id)}"]`);
-    input?.scrollIntoView({ block: 'center' });
-    input?.focus({ preventScroll: true });
   }
 
   async function publishPreset(event) {
@@ -235,7 +178,6 @@ export function mountAdminSettings({ request, note, esc }) {
       <div><span class="badge">${entry.active ? 'Öffentlich' : 'Entwurf'}</span>
       <h3>${esc(entry.de)}</h3><small>${esc([entry.en, categories.get(entry.categoryId)?.de, settingPlatformLabel(entry.platforms)].filter(Boolean).join(' · '))}</small></div>
       <div class="actions"><button type="button" data-edit-setting="entries:${esc(entry.id)}">Bearbeiten</button>
-      <button type="button" data-download-setting="${esc(entry.id)}">Bild ↓</button>
       <button type="button" class="danger" data-delete-setting="entries:${esc(entry.id)}">Löschen</button></div>
       </article>`).join('') || '<p class="muted">Keine Einstellungen in dieser Auswahl.</p>';
     sectionMessage('adminSettingsStatus', entries.length + (entries.length === 1 ? ' Einstellung' : ' Einstellungen'));
@@ -248,12 +190,15 @@ export function mountAdminSettings({ request, note, esc }) {
     try {
       const data = await request('/api/admin/game-settings');
       if (run !== settingsRequest) return;
-      catalog = data;
+      catalog = {
+        ...data,
+        categories: data.categories.filter(({ id }) => id !== 'account-network'),
+        entries: data.entries.filter(({ categoryId }) => categoryId !== 'account-network'),
+        templates: data.templates?.filter(({ id }) => id !== 'account-network'),
+      };
       excel.refresh();
       presetValues.clear();
-      for (const entry of data.entries) if (entry.templateId) presetValues.set(entry.id, entry);
-      favoriteIds.clear();
-      for (const id of data.favoriteIds || []) favoriteIds.add(id);
+      for (const entry of catalog.entries) if (entry.templateId) presetValues.set(entry.id, entry);
       el('newSettingCategory').disabled = false;
       renderPresetMenus();
       renderSettings();
@@ -268,8 +213,6 @@ export function mountAdminSettings({ request, note, esc }) {
   function openEditor(type, item) {
     if (saving) return;
     editor = { type, id: item?.id };
-    form.hidden = false;
-    el('gameSettingImages').hidden = true;
     const category = type === 'categories';
     el('gameSettingDialogTitle').textContent = (category ? 'Kategorie' : 'Einstellung') + (item ? ' bearbeiten' : ' hinzufügen');
     const text = (name, label) => `<label>${label}<input name="${name}" maxlength="100" value="${esc(item?.[name])}" required></label>`;
@@ -334,25 +277,22 @@ export function mountAdminSettings({ request, note, esc }) {
     }
   }
 
-  function openImageExport(entries) {
-    const output = settingsImageExport(entries, catalog.categories);
-    const download = (i) => output.download(i).catch((err) => note(err.message));
-    if (output.count === 1) {
-      download(0);
-      return;
+  async function downloadPresetMenu() {
+    const entries = menuEntries(selectedMenu());
+    if (downloading || !entries.length) return;
+    const session = adminSession;
+    downloading = true;
+    updateMenuActions();
+    try {
+      await settingsImageExport(entries, catalog.templates).download();
+    } catch (error) {
+      if (session === adminSession) note(error.message);
+    } finally {
+      if (session === adminSession) {
+        downloading = false;
+        updateMenuActions();
+      }
     }
-    form.hidden = true;
-    el('gameSettingDialogTitle').textContent = 'Einstellungen als Bild';
-    const links = el('gameSettingImagePages');
-    links.replaceChildren(...Array.from({ length: output.count }, (_, index) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = 'Bild ' + (index + 1) + ' speichern ↓';
-      button.addEventListener('click', () => download(index));
-      return button;
-    }));
-    el('gameSettingImages').hidden = false;
-    dialog.showModal();
   }
 
   function rowTable(title, data, label, column) {
@@ -401,14 +341,7 @@ export function mountAdminSettings({ request, note, esc }) {
     publishMessage('');
     updateMenuActions();
   });
-  presetFields.addEventListener('click', (event) => {
-    const button = event.target.closest('button');
-    if (button?.dataset.mw4Favorite && !pendingFavorites.has(button.dataset.mw4Favorite)) {
-      toggleFavorite(button.dataset.mw4Favorite, button);
-    }
-    if (button?.dataset.openMw4Field) jumpToPreset(button.dataset.openMw4Field);
-  });
-  el('mw4DownloadValues').addEventListener('click', () => openImageExport(menuEntries(selectedMenu())));
+  el('mw4DownloadValues').addEventListener('click', downloadPresetMenu);
   el('adminSettingSearch').addEventListener('input', renderSettings);
   el('adminSettingCategory').addEventListener('change', renderSettings);
   el('analyticsDays').addEventListener('change', loadAnalytics);
@@ -416,7 +349,6 @@ export function mountAdminSettings({ request, note, esc }) {
   el('newSettingCategory').addEventListener('click', () => openEditor('categories'));
   el('newSettingEntry').addEventListener('click', () => openEditor('entries'));
   el('cancelGameSetting').addEventListener('click', () => { if (!saving) dialog.close(); });
-  el('closeSettingImages').addEventListener('click', () => dialog.close());
   form.addEventListener('submit', saveSetting);
   dialog.addEventListener('cancel', (event) => { if (saving) event.preventDefault(); });
   el('gamesettingsView').addEventListener('click', (event) => {
@@ -428,10 +360,6 @@ export function mountAdminSettings({ request, note, esc }) {
       if (item) openEditor(type, item);
     }
     if (button.dataset.deleteSetting) removeSetting(...button.dataset.deleteSetting.split(':'), button);
-    if (button.dataset.downloadSetting) {
-      const item = findItem('entries', button.dataset.downloadSetting);
-      if (item) openImageExport([item]);
-    }
   });
 
   return {
@@ -446,17 +374,15 @@ export function mountAdminSettings({ request, note, esc }) {
       catalog = null;
       excel.reset();
       publishing = false;
+      downloading = false;
       presetDrafts.clear();
       presetValues.clear();
-      favoriteIds.clear();
-      pendingFavorites.clear();
       presetMenu.replaceChildren();
       presetMenu.disabled = true;
       presetSearch.value = '';
       presetSearch.disabled = true;
       presetFields.inert = false;
       presetFields.replaceChildren();
-      el('mw4AccountMenu').hidden = true;
       publishMessage('');
       updateMenuActions();
       el('settingCategoryList').replaceChildren();

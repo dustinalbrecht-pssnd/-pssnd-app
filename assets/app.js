@@ -9,7 +9,7 @@ import { renderCurrentDetail } from './loadout.js';
 import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
 import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
-import { showGameSettings } from './einstellungen.js?v=mw4-spielmenue-20261126';
+import { applyGameSettingsCopy, showGameSettings } from './einstellungen.js?v=mw4-community-20261126';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
@@ -1169,7 +1169,6 @@ function applySiteContent() {
   const copy = [
     ['#rankingTitle', 'rankingTitle'],
     ['#rankingSubtitle', 'rankingSubtitle'],
-    ['#gameSettingsHeading', 'gameSettingsTitle'],
     ['#view-builder .page-heading h1', 'builderTitle'],
     ['#view-builder .page-heading p', 'builderText'],
     ['#view-events .page-heading p', 'eventsText'],
@@ -1181,11 +1180,7 @@ function applySiteContent() {
       const n = document.querySelector(selector);
       if (n) n.textContent = c[key];
     }
-  const settingsIntro = el('gameSettingsIntro');
-  if (settingsIntro) {
-    settingsIntro.textContent = c.gameSettingsSubtitle || '';
-    settingsIntro.hidden = !settingsIntro.textContent;
-  }
+  applyGameSettingsCopy(c);
   const newsFootnote = document.querySelector('.live-footnote');
   if (newsFootnote)
     newsFootnote.textContent =

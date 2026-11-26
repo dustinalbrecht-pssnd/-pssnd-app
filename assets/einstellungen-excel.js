@@ -7,7 +7,7 @@ function templateRows(catalog) {
   const saved = new Map(catalog.entries.map(({ id, value }) => [id, value]));
   return [HEADERS, ...catalog.templates.flatMap(category => category.sections.flatMap(section =>
     section.fields.map(field => [
-      category.de, field.de, saved.get(field.id) ?? '', '',
+      category.id === 'accessibility' ? 'Interface' : category.de, field.de, saved.get(field.id) ?? '', '',
       field.options?.join(' / ') || (field.step ? 'Zahl in 0,05er-Schritten' :
         field.min !== undefined ? field.min + ' bis ' + field.max : field.kind === 'number' ? 'Zahl' : ''),
       section.name, field.en, field.id, section.tab || '',
@@ -30,6 +30,7 @@ async function exportSettings(catalog) {
     ['Trage die gewünschten Werte in die Spalte „Wert“ ein. Die Feld-ID dient der Zuordnung.'],
     ['Eine leere Zelle in „Wert“ überspringt das Feld. Trage „Leeren“ in „Aktion“ ein, um einen Wert zu entfernen.'],
     ['Der Import zeigt eine Vorschau. Die Änderungen werden nach deiner Bestätigung veröffentlicht.'],
+    ['Persönliche Hardware geben Spieler auf der Einstellungsseite im jeweiligen Gerätefeld ein.'],
   ]);
   instructions['!cols'] = [{ wch: 112 }];
   parser.utils.book_append_sheet(workbook, instructions, 'Anleitung');
