@@ -8,15 +8,15 @@
     <meta name="eupdate-version" content="2026-11-25.16.13.0">
     <meta name="referrer" content="no-referrer">
     <title>eUpdateGaming – MW4 Spieleinstellungen</title>
-    <meta name="description" content="Finde MW4-Einstellungen für Controller, Maus, Grafik und Audio. Sieh dir Werte für Empfindlichkeit und Totzonen an und lade die Presets als Bild herunter.">
+    <meta name="description" content="MW4-Einstellungen für Controller, Tastatur und Maus, Grafik, Audio und Interface. Mit einfachen Erklärungen, eigenem Setup und Bildexport auf Deutsch und Englisch.">
     <link rel="canonical" href="https://eupdategaming.com/Einstellungen/">
     <meta property="og:site_name" content="eUpdateGaming">
     <meta property="og:type" content="website">
     <meta property="og:title" content="eUpdateGaming – MW4 Spieleinstellungen">
-    <meta property="og:description" content="Finde MW4-Einstellungen für Controller, Maus, Grafik und Audio. Sieh dir Werte für Empfindlichkeit und Totzonen an und lade die Presets als Bild herunter.">
+    <meta property="og:description" content="MW4-Einstellungen für Controller, Tastatur und Maus, Grafik, Audio und Interface. Mit einfachen Erklärungen, eigenem Setup und Bildexport auf Deutsch und Englisch.">
     <meta property="og:url" content="https://eupdategaming.com/Einstellungen/">
     <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
-    <link rel="stylesheet" href="assets/einstellungen-menue.css?v=20261126">
+    <link rel="stylesheet" id="gameSettingsStyles" href="assets/einstellungen-menue.css?v=mw4-community-20261126">
   </head>
   <body>
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -56,27 +56,52 @@
         </button>
         <button type="button" class="erase-data-button" data-open-data-erasure="">Meine Daten löschen</button>
       </div>
-      <section class="view active" id="view-settings" data-title="Einstellungen">
-        <div class="page-heading rank-heading">
-          <div><h1 id="gameSettingsHeading">MW4-Einstellungen<span class="title-dot">.</span></h1>
-          <p id="gameSettingsIntro" hidden=""></p></div>
-          <button type="button" class="primary-btn settings-save" id="saveGameSettings" aria-label="Auswahl als Bild speichern" disabled="">
-            <span class="settings-save-wide">Auswahl als Bild speichern ↓</span><span class="settings-save-short" aria-hidden="true">Bild speichern</span>
-          </button>
+      <section class="view active" id="view-settings" data-title="Einstellungen" lang="de" aria-labelledby="gameSettingsHeading">
+        <header class="settings-hero">
+          <div class="settings-hero-copy">
+            <h1 id="gameSettingsHeading">MW4-Einstellungen</h1>
+            <p id="gameSettingsIntro">Finde passende Werte für dein Setup. Öffne eine Einstellung, um zu sehen, was sie im Spiel verändert.</p>
+          </div>
+          <div class="settings-hero-actions">
+            <div id="settingsLanguage" class="settings-language" role="group" aria-label="Sprache der Einstellungen">
+              <button type="button" data-settings-language="de" aria-label="Deutsch" lang="de" aria-pressed="true">DE</button>
+              <button type="button" data-settings-language="en" aria-label="English" lang="en" aria-pressed="false">EN</button>
+            </div>
+            <button type="button" class="settings-export-button" id="saveGameSettings" aria-haspopup="dialog" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>
+              <span id="settingsExportLabel">Bildexport</span>
+            </button>
+          </div>
+        </header>
+        <nav id="settingsMenuNav" class="settings-menu-nav" aria-label="Einstellungsbereiche"></nav>
+        <div class="settings-toolbar">
+          <label class="settings-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></svg>
+            <span class="settings-sr-only" id="settingsSearchLabel">Einstellung suchen</span>
+            <input type="search" id="settingsSearch" placeholder="Einstellung suchen …" autocomplete="off">
+          </label>
+          <label class="settings-show-options"><input id="settingsShowEmpty" type="checkbox"><span id="settingsEmptyLabel">Leere Werte anzeigen</span></label>
         </div>
-        <nav id="settingsMenuNav" class="settings-menu-nav" aria-label="Spielmenüs"></nav>
-        <div id="settingsTabs" class="settings-menu-tabs" role="group" aria-label="Untermenüs" hidden=""></div>
-        <div class="settings-tools">
-          <label class="settings-search-label">Einstellung suchen<input type="search" class="field" id="settingsSearch" placeholder="Deutsch / Englisch"></label>
-          <label class="settings-platform-label">Plattform<select class="field" id="settingsPlatform"><option value="">Alle</option></select></label>
-          <label class="settings-show-options"><input id="settingsShowEmpty" type="checkbox">Auch leere Einstellungen</label>
-        </div>
+        <div id="settingsTabs" class="settings-menu-tabs" role="group" aria-label="Untermenüs" hidden></div>
+        <aside id="settingsContext" class="settings-context" hidden></aside>
         <div class="settings-view-heading">
-          <h2 id="settingsViewTitle">Controller</h2>
-          <button type="button" class="ghost-btn" id="saveSettingsMenu" disabled="">Spielmenü als Bild</button>
+          <h2 id="settingsViewTitle" hidden></h2>
+          <p role="status" id="gameSettingsStatus"></p>
         </div>
-        <p class="fine-print" role="status" id="gameSettingsStatus"></p>
         <div id="gameSettingsList"></div>
+        <dialog class="settings-export-dialog" id="settingsExportDialog" aria-labelledby="settingsExportHeading" aria-describedby="settingsExportIntro">
+          <form id="settingsExportForm">
+            <h2 id="settingsExportHeading">Bildexport</h2>
+            <p id="settingsExportIntro">Wähle, welche Einstellungen auf die Bilder kommen.</p>
+            <label for="settingsExportScope" id="settingsScopeLabel">Umfang</label>
+            <select id="settingsExportScope"></select>
+            <p id="settingsExportStatus" role="status"></p>
+            <div class="settings-dialog-actions">
+              <button type="button" id="cancelSettingsExport">Schließen</button>
+              <button type="submit" class="settings-export-button" id="confirmSettingsExport">Einstellungen herunterladen</button>
+            </div>
+          </form>
+        </dialog>
       </section>
 
       <div id="advertisingContact" class="fine-print"></div>
