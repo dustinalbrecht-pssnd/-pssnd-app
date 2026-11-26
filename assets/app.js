@@ -12,6 +12,7 @@ import { weaponNames } from './katalog-abgleich.js';
 import { showGameSettings } from './einstellungen.js?v=mw4-katalog-20261125';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
+import { applyPageSeo, SEO_PAGES } from './seo.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
 
@@ -674,6 +675,9 @@ function communityBlocked() {
 function privacyMarkup() {
   const c = siteConfig,
     email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.controllerEmail) ? c.controllerEmail : '';
+  if (c.privacyTextFull === true && c.privacyText) {
+    return '<div class="legal-text"><p style="white-space: pre-line">' + html(c.privacyText) + '</p></div>';
+  }
   return (
     '<div class="legal-text">' +
     (!c.legalReady
@@ -701,7 +705,7 @@ function privacyMarkup() {
     '<h3>5. Meldungen problematischer Inhalte</h3><p>Über „Inhalt melden“ kannst du Loadouts und Kommentare melden. Wir speichern den Inhalt-Verweis, deine Begründung, Namen, E-Mail-Adresse, Zeitpunkt und Bearbeitungsentscheidung. Name, E-Mail und Meldung erscheinen nicht öffentlich. Zweck ist die Prüfung und Bearbeitung von Hinweisen, der Schutz Betroffener und die Kontaktmöglichkeit bei Rückfragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; soweit eine gesetzliche Pflicht besteht, zusätzlich Art. 6 Abs. 1 lit. c DSGVO. Die Angaben sind für die Bearbeitung des eingebauten Meldeformulars erforderlich. Alternativ kannst du den Betreiber direkt kontaktieren. Die App bestätigt den Eingang sofort. Unter „Meine Meldungen“ kannst du mit dem auf deinem Gerät gespeicherten Empfangsschlüssel den Stand und die Begründung abrufen. E-Mails werden nicht automatisch versendet. Bei Rückfragen oder Einwänden gegen eine Entscheidung nutze den Betreiberkontakt.</p>' +
     '<h3>6. Likes und Missbrauchsschutz</h3><p>Erst bei einer ausdrücklich ausgelösten Serveraktion wird eine zufällige Kennung auf deinem Gerät gespeichert. Der Server speichert einen mit geheimem Zusatz gebildeten Hash davon, um deine Like-Auswahl wiederzufinden und doppelte Likes zu verhindern. Ein erneuter Klick entfernt deinen Like und den zugehörigen Datenbankeintrag. Für Tageslimits wird aus IP-Adresse, Datum und geheimem Zusatz ein kurzlebiger Hash gebildet. Die App-Datenbank speichert keine vollständige IP-Adresse; Hostinganbieter können IP-Adressen in eigenen Protokollen verarbeiten. Grundlage ist Art. 6 Abs. 1 lit. f DSGVO für die gewünschte Like-Funktion und den Schutz vor Missbrauch. Die Rangliste verwendet Like-Zahlen, kein personenbezogenes Profiling. Ohne Konto ist der Missbrauchsschutz begrenzt.</p>' +
     '<h3>7. Speicherfristen und Löschung</h3><p>Nicht freigegebene und ausgeblendete Loadouts werden nach 30 Tagen, öffentliche Loadouts nach 365 Tagen bei der nächsten automatischen Bereinigung gelöscht. Ihre Like-Einträge und Kommentare werden mitgelöscht. Nicht freigegebene oder ausgeblendete Kommentare werden nach 7 Tagen, alle Kommentare spätestens nach 90 Tagen bei der nächsten Bereinigung entfernt. Meldungen werden 90 Tage nach Abschluss, spätestens 180 Tage nach Eingang bereinigt. Private Moderationsmitteilungen speichern nur Beitragsbezug, Löschschlüssel-Hash, Status, Begründung und Zeitpunkt. Sie werden nach 180 Tagen bei der nächsten Bereinigung gelöscht; ein entfernter Inhalt wird darin nicht erneut gespeichert. Support-Likes werden nach 365 Tagen entfernt. Tageslimit-Hashes verfallen nach 24 Stunden und werden bei der nächsten Bereinigung gelöscht. Die Bereinigung läuft über den eingerichteten regelmäßigen Cloudflare-Cron. Du und der Administrator können Inhalte vorher löschen. Lokale Daten bleiben bis zu deiner Löschung oder dem Entfernen der Browserdaten. Anbieterprotokolle und Datenbank-Sicherungskopien können bis zum Ablauf der jeweiligen Anbieterfristen fortbestehen.</p>' +
-    '<h3>8. Daten auf deinem Gerät</h3><p>LocalStorage enthält nach Nutzung der jeweiligen Funktionen Loadout-Entwürfe, lokal vorbereitete Bilder, Like-Auswahl sowie private Lösch- und Empfangsschlüssel. Neue öffentliche Nachrichten- und Katalogdaten bleiben im Arbeitsspeicher dieses Tabs. Ältere Cache-Daten aus Vorversionen kannst du über „Lokale Daten löschen“ entfernen. Für eigene Kommentare wird außerdem eine lokale Kopie mit Status gespeichert. Das ermöglicht dir Speichern, Wiederfinden und Löschen ohne Konto. Technisch notwendige Speicherung für ausdrücklich gewünschte Funktionen erfolgt gemäß § 25 Abs. 2 Nr. 2 TDDDG. Es gibt keine Analyse-Cookies, Werbetracker oder automatisch geladenen Social-Media-Einbettungen. „Lokale Daten löschen“ entfernt die eUpdate-Daten dieses Browsers. Lösche öffentliche Beiträge und Kommentare vorher: Nach Verlust der Löschschlüssel musst du den Betreiber für eine Löschung kontaktieren.</p>' +
+    '<h3>8. Daten auf deinem Gerät</h3><p>LocalStorage enthält nach Nutzung der jeweiligen Funktionen Loadout-Entwürfe, lokal vorbereitete Bilder, Like-Auswahl sowie private Lösch- und Empfangsschlüssel. Neue öffentliche Nachrichten- und Katalogdaten bleiben im Arbeitsspeicher dieses Tabs. Ältere Cache-Daten aus Vorversionen kannst du über „Meine Daten löschen“ entfernen. Für eigene Kommentare wird außerdem eine lokale Kopie mit Status gespeichert. Das ermöglicht dir Speichern, Wiederfinden und Löschen ohne Konto. Technisch notwendige Speicherung für ausdrücklich gewünschte Funktionen erfolgt gemäß § 25 Abs. 2 Nr. 2 TDDDG. Es gibt keine Analyse-Cookies, Werbetracker oder automatisch geladenen Social-Media-Einbettungen. „Meine Daten löschen“ entfernt anhand der vorhandenen Schlüssel und Gerätekennung deine zuordenbaren gespeicherten Beiträge, Kommentare, Meldungen, Likes, Feedback und Protokolleinträge. Anschließend entfernt die Funktion die eUpdate-Daten aus dem Browser. Für Daten aus anderen Browsern nutze den dortigen Speicher oder wende dich an den Betreiber.</p>' +
     '<h3>9. News, externe Links und Unterstützung</h3><p>Der eingerichtete Server prüft offizielle Call-of-Duty-Quellen regelmäßig über den eingerichteten Cloudflare-Cron, sofern die Automatik aktiviert ist. Nutzerkennungen und Profilfotos werden dabei nicht an die Quelle übertragen. Quellen-, Social-Media-, Werbe- und PayPal-Links öffnen externe Seiten erst nach deinem Klick. Dann gelten die Hinweise der jeweiligen Anbieter. Für eine Zahlung ist PayPal zuständig; eUpdate verarbeitet hier keine Zahlungsdaten.</p>' +
     '<h3>Protokoll und Nutzungsbedingungen</h3><p>Beim ausdrücklichen Bestätigen der Nutzungsbedingungen speichern wir deren Fassung und Zeitpunkt auf deinem Gerät. Bei Serververbindung wird die Bestätigung im geschützten Betriebsprotokoll erfasst. Dieses enthält wesentliche Community- und Verwaltungsaktionen mit Zeitpunkt, Vorgangsart, Beitragsbezug, Ergebnis, gegebenenfalls pseudonymer technischer Kennung und den bestätigten Fassungen. Es enthält keine vollständigen IP-Adressen, Passwörter, Freigabecodes, Löschschlüssel oder Kopien gelöschter Beiträge und Fotos. Normales Lesen und jeder einzelne Seitenaufruf werden darin nicht protokolliert. Zweck ist die Nachvollziehbarkeit von Bestätigungen, Moderation und technischen Vorgängen sowie die Bearbeitung zuordenbarer Anfragen; Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse besteht in einem sicheren, nachvollziehbaren Community-Betrieb. Einwilligungsnachweise dienen zusätzlich dem Nachweis nach Art. 7 Abs. 1 DSGVO. Nur der angemeldete Administrator hat Zugriff. Protokolleinträge werden spätestens bei der nächsten Bereinigung nach 180 Tagen gelöscht. Bedingungen werden als Fassungen gespeichert und nach Ablauf dieser Frist entfernt, sofern sie weder aktuell sind noch von verbleibenden Einträgen benötigt werden. Exportierte Kopien sind vom Betreiber entsprechend zu löschen. Du kannst der Verarbeitung aus Gründen deiner besonderen Situation widersprechen. Ohne gespeicherten Löschschlüssel ist eine sichere Zuordnung möglicherweise nicht mehr möglich.</p>' +
     '<h3>10. Deine Rechte</h3><p>Du hast unter den gesetzlichen Voraussetzungen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit sowie Widerspruch gegen Verarbeitung auf Grundlage berechtigter Interessen. Freiwillige Einwilligungen kannst du jederzeit widerrufen, ohne dass die Rechtmäßigkeit der bisherigen Verarbeitung berührt wird. Nutze den oben genannten Kontakt. Zur Zuordnung können Beitragsnummer und Löschschlüssel helfen; übersende keinen Admin-Schlüssel. Du kannst dich bei einer Datenschutzaufsichtsbehörde beschweren, etwa der LDI Nordrhein-Westfalen. Die aktuellen Kontaktdaten findest du auf deren verlinkter Webseite.</p>' +
@@ -709,7 +713,7 @@ function privacyMarkup() {
   );
 }
 
-const PRIVACY_TEMPLATE_VERSION = '2026-11-25-traffic-1';
+const PRIVACY_TEMPLATE_VERSION = '2026-11-25-erasure-1';
 
 function noticeVersion() {
   return siteConfig.privacyNoticeVersion || PRIVACY_TEMPLATE_VERSION;
@@ -795,7 +799,7 @@ function privacy() {
   modal(
     head('Datenschutz', 'Stand: ' + (siteConfig.privacyVersion || '10.10.2026')) +
       privacyMarkup() +
-      '<button class="ghost-btn" id="clearLocal">Lokale Daten löschen</button>',
+      '<button type="button" class="ghost-btn" data-open-data-erasure>Meine Daten löschen</button>',
   );
 }
 
@@ -1109,15 +1113,8 @@ document.addEventListener('click', (e) => {
   }
   if (n.dataset.deleteLocal) deleteLocalOwn(n.dataset.deleteLocal);
   if (n.dataset.deleteOwn) deleteOwn(n.dataset.deleteOwn);
-  if (
-    n.id === 'clearLocal' &&
-    confirm(
-      'Lokale Entwürfe, Bilder, Likes und Löschschlüssel entfernen? Öffentliche Beiträge werden dadurch nicht gelöscht.',
-    )
-  ) {
-    for (const k of Object.keys(localStorage)) if (k.startsWith('eupdate_')) localStorage.removeItem(k);
-    location.reload();
-  }
+  if (n.hasAttribute('data-open-data-erasure')) openDataErasure();
+  if (n.hasAttribute('data-confirm-data-erasure')) eraseOwnData(n);
 });
 
 let adminTipPlatform = 'all';
@@ -1143,8 +1140,13 @@ function applySiteContent() {
     img.src = LOGO;
     img.classList.remove('custom-logo');
   }
-  const routeTitle = document.querySelector('main > .view.active')?.dataset.title;
-  if (routeTitle) document.title = (c.appName || 'eUpdate') + ' · ' + routeTitle;
+  const activeView = document.querySelector('main > .view.active');
+  const viewKey = activeView?.id.replace(/^view-/, '');
+  if (Object.hasOwn(SEO_PAGES, viewKey)) {
+    if (c.seoPages) applyPageSeo(document, viewKey, c);
+  } else if (activeView?.dataset.title) {
+    document.title = (c.appName || 'eUpdate') + ' · ' + activeView.dataset.title;
+  }
   if (!communityCopyReady) return;
   if (c.appName) document.querySelector('.brand > span:last-child').firstChild.textContent = c.appName;
   for (const [view, key] of Object.entries({
@@ -1289,7 +1291,7 @@ function arrangeHeader() {
     access = document.querySelector('.my-posts-access'),
     main = document.querySelector('main');
   if (!access) return;
-  if (document.body.classList.contains('builder-view') || matchMedia('(min-width:900px)').matches) {
+  if (matchMedia('(min-width:900px)').matches) {
     if (access.parentElement !== bar) bar.insertBefore(access, bar.querySelector('.support-top'));
   } else if (access.parentElement !== main) main.insertBefore(access, main.firstElementChild);
 }
@@ -1337,6 +1339,66 @@ function writeLocalList(key, list) {
     toast(
       'Gerätespeicher voll. Löschschlüssel konnten nicht gespeichert werden. Bitte bei Bedarf den Betreiber kontaktieren.',
     );
+  }
+}
+
+function openDataErasure() {
+  const contact = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(siteConfig.controllerEmail || '')
+    ? 'oder kontaktiere den Betreiber unter ' + html(siteConfig.controllerEmail) + '.'
+    : 'oder kontaktiere den Betreiber über das Impressum.';
+  modal(head('Meine Daten löschen', 'Die Löschung ist endgültig.') +
+    '<p>eUpdate löscht anhand der Schlüssel dieses Browsers deine gespeicherten Loadouts, Kommentare, ' +
+    'Meldungen und dein privates Feedback. Auch Likes und zuordenbare Protokolleinträge werden entfernt. ' +
+    'Anschließend löscht die App ihre gespeicherten Entwürfe und Einstellungen aus diesem Browser.</p>' +
+    '<p>Verwende für Einträge aus einem anderen Browser dort dieselbe Funktion ' + contact + '</p>' +
+    '<p id="dataErasureStatus" role="status"></p><div class="dialog-actions">' +
+    '<button type="button" class="ghost-btn" data-close>Abbrechen</button>' +
+    '<button type="button" class="danger-btn" data-confirm-data-erasure>Endgültig löschen</button></div>');
+}
+
+let dataErasureInProgress = false;
+async function eraseOwnData(button) {
+  if (dataErasureInProgress || button.disabled) return;
+  dataErasureInProgress = true;
+  button.disabled = true;
+  const status = el('dataErasureStatus');
+  status.textContent = 'Deine Daten werden gelöscht …';
+  try {
+    const items = [
+      ...readLocalList(OWNER_KEY).filter(item => ['sets', 'creators'].includes(item?.kind)),
+      ...readLocalList(COMMENTS_KEY).map(item => ({ ...item, kind: 'comments' })),
+      ...readLocalList(REPORTS_KEY).map(item => ({ ...item, kind: 'reports' })),
+      ...readLocalList(FEEDBACK_KEY).map(item => ({ ...item, kind: 'feedback' })),
+    ].filter(item => Number.isSafeInteger(item?.id) && item.id > 0 &&
+        typeof item.key === 'string' && /^[a-z0-9_-]{32,128}$/i.test(item.key))
+      .map(({ kind, id, key }) => ({ kind, id, key }));
+    const visitor = existingVisitorHeaders();
+    if (API && (items.length || Object.keys(visitor).length)) {
+      for (let offset = 0; offset < Math.max(1, items.length); offset += 1000) {
+        const signal = typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(25000) : undefined;
+        const response = await fetch(API + '/api/own/erase', {
+          method: 'POST', credentials: 'omit', signal,
+          headers: { 'content-type': 'application/json', ...(offset === 0 ? visitor : {}) },
+          body: JSON.stringify({ confirmed: true, items: items.slice(offset, offset + 1000) }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.ok !== true) throw Error(response.status === 404
+          ? 'Die Serverfunktion zum Löschen wird noch eingerichtet.' : (result.error || 'Die Löschung konnte nicht bestätigt werden.'));
+      }
+    }
+    for (const storage of [localStorage, sessionStorage]) {
+      for (const key of Object.keys(storage)) if (key.startsWith('eupdate_')) storage.removeItem(key);
+    }
+    sessionStorage.setItem('eupdate_data_erasure_done', '1');
+    location.reload();
+  } catch (error) {
+    const message = error.name === 'TimeoutError' ? 'Der Server hat zu lange gebraucht. Versuche es erneut.' :
+      error instanceof TypeError ? 'Der Server ist gerade nicht erreichbar. Versuche es erneut.' : error.message;
+    if (status.isConnected) status.textContent = message;
+    else toast(message);
+    button.disabled = false;
+  } finally {
+    dataErasureInProgress = false;
   }
 }
 
@@ -1912,6 +1974,12 @@ function start() {
   patchStatus();
   refresh();
   loadSiteConfig();
+  try {
+    if (sessionStorage.getItem('eupdate_data_erasure_done') === '1') {
+      sessionStorage.removeItem('eupdate_data_erasure_done');
+      toast('Deine zugeordneten Daten wurden gelöscht.');
+    }
+  } catch {}
   setInterval(tick, 1000);
   setInterval(() => {
     checkLive();
