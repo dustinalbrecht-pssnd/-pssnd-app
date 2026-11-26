@@ -1,7 +1,7 @@
 import { spreadsheet } from './katalog-import.js?v=waffencheck-20261125';
 
 const SHEET = 'MW4-Einstellungen';
-const HEADERS = ['Spielmenü', 'Einstellung (DE)', 'Wert', 'Aktion', 'Mögliche Werte', 'Abschnitt', 'Einstellung (EN)', 'Feld-ID'];
+const HEADERS = ['Spielmenü', 'Einstellung (DE)', 'Wert', 'Aktion', 'Mögliche Werte', 'Abschnitt', 'Einstellung (EN)', 'Feld-ID', 'Untermenü'];
 
 function templateRows(catalog) {
   const saved = new Map(catalog.entries.map(({ id, value }) => [id, value]));
@@ -10,7 +10,7 @@ function templateRows(catalog) {
       category.de, field.de, saved.get(field.id) ?? '', '',
       field.options?.join(' / ') || (field.step ? 'Zahl in 0,05er-Schritten' :
         field.min !== undefined ? field.min + ' bis ' + field.max : field.kind === 'number' ? 'Zahl' : ''),
-      section.name, field.en, field.id,
+      section.name, field.en, field.id, section.tab || '',
     ]),
   ))];
 }
@@ -19,7 +19,7 @@ async function exportSettings(catalog) {
   const parser = await spreadsheet();
   const workbook = parser.utils.book_new();
   const sheet = parser.utils.aoa_to_sheet(templateRows(catalog));
-  sheet['!cols'] = [24, 45, 26, 15, 52, 28, 42, 36].map(wch => ({ wch }));
+  sheet['!cols'] = [24, 45, 26, 15, 52, 28, 42, 36, 20].map(wch => ({ wch }));
   sheet['!autofilter'] = { ref: sheet['!ref'] };
   for (let r = 1; r <= parser.utils.decode_range(sheet['!ref']).e.r; r += 1) {
     for (const c of [2, 3]) sheet[parser.utils.encode_cell({ r, c })].z = '@';

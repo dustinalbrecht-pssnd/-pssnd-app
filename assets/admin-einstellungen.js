@@ -1,6 +1,6 @@
 import { SETTING_PLATFORMS, settingPlatformLabel } from './mw4-inhalte.js';
 import { settingsImageExport } from './einstellungen-bild.js?v=mw4-katalog-20261125';
-import { mountSettingsExcel } from './einstellungen-excel.js?v=waffencheck-20261125';
+import { mountSettingsExcel } from './einstellungen-excel.js?v=mw4-spielmenue-20261126';
 
 const PAGE_LABELS = {
   feed: 'Ranking', builder: 'Bauen', attachments: 'Aufsätze', settings: 'MW4-Einstellungen',
@@ -93,7 +93,8 @@ export function mountAdminSettings({ request, note, esc }) {
     const value = presetDrafts.get(field.id) ?? presetValues.get(field.id)?.value ?? '';
     const attributes = `data-mw4-setting="${esc(field.id)}"`;
     if (field.kind === 'select') {
-      return `<select ${attributes}><option value="">Kein Wert eingetragen</option>${field.options.map(option =>
+      const options = value && !field.options.includes(value) ? [value, ...field.options] : field.options;
+      return `<select ${attributes}><option value="">Kein Wert eingetragen</option>${options.map(option =>
         `<option value="${esc(option)}"${option === value ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
     }
     const hint = field.kind === 'keybind' ? 'Taste / alternative Taste' : field.step ? '0,05er-Schritte' :
@@ -123,9 +124,9 @@ export function mountAdminSettings({ request, note, esc }) {
   function renderPresetFields() {
     const menu = selectedMenu();
     const quick = presetMenu.value === 'favorites';
-    presetFields.innerHTML = menu ? menu.sections.map(({ name, fields }) => `<section>
-      <h3>${esc(name)}</h3><div class="mw4-fields-grid">${fields.map(field => {
-        const search = [name, field.de, field.en].join(' ').toLocaleLowerCase('de');
+    presetFields.innerHTML = menu ? menu.sections.map(({ name, tab, fields }) => `<section>
+      <h3>${esc(tab && tab !== name ? tab + ' › ' + name : name)}</h3><div class="mw4-fields-grid">${fields.map(field => {
+        const search = [tab, name, field.de, field.en].join(' ').toLocaleLowerCase('de');
         return `<div class="mw4-field" data-search="${esc(search)}"><label><span>${esc(field.de)}
           ${field.de === field.en ? '' : `<small lang="en">${esc(field.en)}</small>`}</span>${presetControl(field)}</label>
           ${favoriteButton(field)}</div>`;

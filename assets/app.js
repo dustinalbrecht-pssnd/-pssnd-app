@@ -9,7 +9,7 @@ import { renderCurrentDetail } from './loadout.js';
 import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
 import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
-import { showGameSettings } from './einstellungen.js?v=mw4-katalog-20261125';
+import { showGameSettings } from './einstellungen.js?v=mw4-spielmenue-20261126';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
