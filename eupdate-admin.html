@@ -2065,6 +2065,51 @@ label :is(input, textarea, select) {
           grid-template-columns: 1fr;
         }
       }
+      button {
+        caret-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      :is(.toolbar, .actions) button {
+        min-width: 0;
+        line-height: 1.25;
+      }
+      .seo-form,
+      #privacyForm {
+        display: grid;
+        gap: 10px;
+      }
+      .seo-form .actions,
+      #privacyForm .actions {
+        flex-wrap: wrap;
+      }
+      .seo-preview {
+        display: grid;
+        gap: 4px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--bg);
+        overflow-wrap: anywhere;
+      }
+      .seo-preview a {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .seo-preview strong {
+        color: var(--text);
+        font-size: 19px;
+      }
+      .seo-preview p,
+      .seo-indexing h2 {
+        margin: 0;
+      }
+      .seo-indexing {
+        margin-top: 12px;
+      }
+      .seo-indexing a {
+        font-weight: 650;
+      }
     </style>
   </head>
   <body>
@@ -2153,11 +2198,13 @@ label :is(input, textarea, select) {
                 <button type="button" data-tab="news">News <span id="newsBadge"></span></button>
                 <button type="button" data-tab="events">Termine</button>
                 <button type="button" data-tab="appearance">Design &amp; Texte</button>
+                <button type="button" data-tab="seo">SEO</button>
                 <button type="button" data-tab="ads">Werbung</button>
                 <button type="button" data-tab="analytics">Controlling</button>
               </div>
               <div data-section-tabs="settings" hidden>
                 <button type="button" data-tab="settings">Betreiberangaben</button>
+                <button type="button" data-tab="privacy">Datenschutz</button>
                 <button type="button" data-tab="terms">Nutzungsbedingungen</button>
                 <button type="button" data-tab="audit">Protokoll</button>
                 <button type="button" data-tab="backup">Sicherung</button>
@@ -2626,11 +2673,6 @@ label :is(input, textarea, select) {
                   ><label class="">Menü · Bauen<input name="navBuilder" maxlength="300" /></label
                   ><label class="">Menü · Einstellungen<input name="navGameSettings" maxlength="300" /></label
                   ><label class="wide"
-                    >Zusätzliche Datenschutzhinweise<textarea
-                      name="privacyText"
-                      maxlength="24000"
-                    ></textarea></label
-                  ><label class="wide"
                     >Zusätzliche Impressumsangaben<textarea
                       name="imprintText"
                       maxlength="24000"
@@ -2639,6 +2681,44 @@ label :is(input, textarea, select) {
                 </div>
                 <button type="submit" class="primary">Design und Texte veröffentlichen</button>
               </form>
+            </section>
+            <section id="privacyView" class="view" hidden>
+              <form id="privacyForm" class="panel">
+                <label for="adminPrivacyText">Datenschutztext</label>
+                <textarea id="adminPrivacyText" name="privacyText" maxlength="24000" rows="14"
+                  placeholder="Ergänzende Datenschutzhinweise eintragen"></textarea>
+                <label class="editor-label"><input type="checkbox" name="privacyTextFull">
+                  Eigenen vollständigen Datenschutzhinweis anzeigen</label>
+                <p class="muted">Standardmäßig ergänzt dein Text die eingebauten Hinweise. Aktiviere die Option, wenn du hier den gesamten Text pflegst.</p>
+                <p class="notice">Eine geänderte Datenschutzerklärung erfordert eine erneute Community-Freigabe.</p>
+                <div class="actions">
+                  <button type="submit" class="primary">Datenschutz speichern</button>
+                  <button type="button" data-tab="settings">Betreiberangaben öffnen</button>
+                </div>
+              </form>
+            </section>
+            <section id="seoView" class="view" hidden>
+              <form id="seoForm" class="panel seo-form">
+                <label>Seite<select name="seoPage"></select></label>
+                <label>Suchergebnis-Titel<input name="seoTitle" maxlength="120" placeholder="Standardtitel verwenden"></label>
+                <label>Beschreibung<textarea name="seoDescription" maxlength="320" rows="3" placeholder="Standardbeschreibung verwenden"></textarea></label>
+                <div class="seo-preview" aria-label="Suchvorschau">
+                  <a id="seoPagePath" target="_blank" rel="noopener noreferrer"></a>
+                  <strong id="seoPreviewTitle"></strong>
+                  <p id="seoPreviewDescription"></p>
+                </div>
+                <div class="actions">
+                  <button type="submit" class="primary">SEO speichern</button>
+                  <button type="button" id="seoDownload">HTML für GitHub herunterladen</button>
+                </div>
+                <p class="muted">Das HTML enthält die gespeicherten Angaben. Lade die Datei in den Ordner der gewählten Seite hoch, damit Suchmaschinen sie direkt lesen können.</p>
+              </form>
+              <section class="panel seo-indexing">
+                <h2>Google-Indexierung</h2>
+                <p>Reiche die Sitemap in der Google Search Console ein. Dort kannst du die URL der gewünschten Seite prüfen und eine erneute Indexierung beantragen.</p>
+                <p><a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap öffnen</a> ·
+                  <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console öffnen</a></p>
+              </section>
             </section>
             <section id="backupView" class="view" hidden>
               <div class="panel">
@@ -2936,6 +3016,7 @@ label :is(input, textarea, select) {
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
       import { distanceOptions, loadoutWeaponProfiles, WEAPON_HINT_LENGTH } from './assets/waffenprofil.js';
       import { mountAdminSettings } from './assets/admin-einstellungen.js?v=waffencheck-20261125';
+      import { mountAdminSeo } from './assets/admin-seo.js?v=datenschutz-seo-20261125';
       import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
       import {
         attachmentNames,
@@ -2981,6 +3062,7 @@ label :is(input, textarea, select) {
         dashboard = null;
         catalogImport.reset();
         adminSettings.reset();
+        adminSeo.reset();
         assignmentResult = '';
         publicRelease = null;
         editedForms.clear();
@@ -3153,6 +3235,8 @@ label :is(input, textarea, select) {
           if (!editedForms.has('weaponCheckForm')) {
             $('weaponCheckForm').elements.weaponCheckSeason.value = dashboard.config.weaponCheckSeason ?? '';
           }
+          if (!editedForms.has('privacyForm')) renderPrivacyAdmin();
+          adminSeo.render();
           if (!$('newsAutomation').matches(':focus') && !editedForms.has('newsAutomation'))
             $('newsAutomation').checked = dashboard.config.autoNews !== false;
           renderCodes();
@@ -3233,6 +3317,13 @@ label :is(input, textarea, select) {
       const areaTabs = document.querySelector('.area-tabs');
       const sections = [...document.querySelectorAll('[data-section]')];
       const adminSettings = mountAdminSettings({ request, note, esc });
+      const adminSeo = mountAdminSeo({ getConfig: () => dashboard?.config, note });
+
+      function renderPrivacyAdmin() {
+        const fields = $('privacyForm').elements;
+        fields.privacyText.value = dashboard.config.privacyText || '';
+        fields.privacyTextFull.checked = dashboard.config.privacyTextFull === true;
+      }
 
       function showAdminView(view, focus = true) {
         const button = areaTabs.querySelector('[data-tab="' + view + '"]');
@@ -5821,6 +5912,17 @@ label :is(input, textarea, select) {
           } else if (form.id === 'launchForm') {
             await saveLaunch(form);
             return;
+          } else if (form.id === 'privacyForm') {
+            if (!serverHealth?.features?.includes('privacy-editor')) throw Error('Aktualisiere zuerst den Worker für den Datenschutzeditor.');
+            await request('/api/admin/extended-config', 'PUT', {
+              privacyText: data.privacyText, privacyTextFull: form.elements.privacyTextFull.checked,
+            });
+            note('Datenschutz gespeichert.');
+          } else if (form.id === 'seoForm') {
+            if (!serverHealth?.features?.includes('seo-settings')) throw Error('Aktualisiere zuerst den Worker für SEO.');
+            await request('/api/admin/extended-config', 'PUT', data);
+            adminSeo.saved(data);
+            note('SEO-Angaben gespeichert.');
           } else if (form.id === 'commentSettingsForm') {
             data.commentsEnabled = form.elements.commentsEnabled.checked;
             data.autoApproveComments = form.elements.autoApproveComments.checked;
