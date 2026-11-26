@@ -16,6 +16,7 @@
     <meta property="og:description" content="Finde MW4-Einstellungen für Controller, Maus, Grafik und Audio. Sieh dir Werte für Empfindlichkeit und Totzonen an und lade die Presets als Bild herunter.">
     <meta property="og:url" content="https://eupdategaming.com/Einstellungen/">
     <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
+    <link rel="stylesheet" href="assets/einstellungen-menue.css?v=20261126">
   </head>
   <body>
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -59,12 +60,20 @@
         <div class="page-heading rank-heading">
           <div><h1 id="gameSettingsHeading">MW4-Einstellungen<span class="title-dot">.</span></h1>
           <p id="gameSettingsIntro" hidden=""></p></div>
-          <button type="button" class="primary-btn settings-save" id="saveGameSettings" disabled="">Auswahl als Bild speichern ↓</button>
+          <button type="button" class="primary-btn settings-save" id="saveGameSettings" aria-label="Auswahl als Bild speichern" disabled="">
+            <span class="settings-save-wide">Auswahl als Bild speichern ↓</span><span class="settings-save-short" aria-hidden="true">Bild speichern</span>
+          </button>
         </div>
-        <div class="game-settings-filters">
-          <label>Einstellung suchen<input type="search" class="field" id="settingsSearch" placeholder="Deutsch oder Englisch"></label>
-          <label>Kategorie<select class="field" id="settingsCategory"><option value="">Alle Kategorien</option></select></label>
-          <label>Plattform<select class="field" id="settingsPlatform"><option value="">Alle Plattformen</option></select></label>
+        <nav id="settingsMenuNav" class="settings-menu-nav" aria-label="Spielmenüs"></nav>
+        <div id="settingsTabs" class="settings-menu-tabs" role="group" aria-label="Untermenüs" hidden=""></div>
+        <div class="settings-tools">
+          <label class="settings-search-label">Einstellung suchen<input type="search" class="field" id="settingsSearch" placeholder="Deutsch / Englisch"></label>
+          <label class="settings-platform-label">Plattform<select class="field" id="settingsPlatform"><option value="">Alle</option></select></label>
+          <label class="settings-show-options"><input id="settingsShowEmpty" type="checkbox">Auch leere Einstellungen</label>
+        </div>
+        <div class="settings-view-heading">
+          <h2 id="settingsViewTitle">Controller</h2>
+          <button type="button" class="ghost-btn" id="saveSettingsMenu" disabled="">Spielmenü als Bild</button>
         </div>
         <p class="fine-print" role="status" id="gameSettingsStatus"></p>
         <div id="gameSettingsList"></div>
