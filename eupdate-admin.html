@@ -1916,38 +1916,12 @@ label :is(input, textarea, select) {
         grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
         gap: 12px;
       }
-      .mw4-field,
-      .mw4-quick-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 6px;
-      }
       .mw4-fields-grid label {
         grid-template-rows: 1fr auto;
       }
       .mw4-fields-grid label > span {
         display: grid;
         gap: 2px;
-      }
-      .mw4-settings-editor button.mw4-favorite {
-        align-self: start;
-        min-width: 38px;
-        padding: 4px 7px;
-        color: var(--muted);
-        font-size: 19px;
-      }
-      .mw4-settings-editor button.mw4-favorite[aria-pressed="true"] {
-        color: var(--gold, #ffda0a);
-      }
-      .mw4-quick-row {
-        padding-block: 8px;
-      }
-      .mw4-quick-row + .mw4-quick-row {
-        border-top: 1px solid var(--line);
-      }
-      .mw4-quick-row small {
-        display: block;
-        color: var(--muted);
       }
       .mw4-settings-fields [hidden] {
         display: none;
@@ -2569,7 +2543,7 @@ label :is(input, textarea, select) {
                   </div>
                   <div class="mw4-settings-actions">
                     <button type="submit" class="primary" id="mw4PublishValues" disabled>Werte veröffentlichen</button>
-                    <button type="button" id="mw4DownloadValues" disabled>Veröffentlichte Werte als Bild ↓</button>
+                    <button type="button" id="mw4DownloadValues" disabled>Menü als PNG / ZIP ↓</button>
                     <button type="button" id="mw4ExcelExport" disabled>Excel-Vorlage ↓</button>
                     <button type="button" id="mw4ExcelImport" disabled>Excel importieren</button>
                   </div>
@@ -2577,14 +2551,6 @@ label :is(input, textarea, select) {
                   <p id="mw4MenuStatus" class="muted" role="status"></p>
                 </div>
                 <div id="mw4PresetFields" class="mw4-settings-fields"></div>
-                <details id="mw4AccountMenu" hidden>
-                  <summary>Kontodaten, Netzwerk-Info und Import im Spiel</summary>
-                  <dl>
-                    <dt>Activision-Konto</dt><dd>Anzeigename, E-Mail, verknüpfte Plattformen und Zwei-Faktor-Authentifizierung.</dd>
-                    <dt>Netzwerk-Info</dt><dd>NAT-Typ, Verbindungsstatus, geografische Region und IP-Adresse.</dd>
-                    <dt>Einstellungen importieren</dt><dd>Controller-, Grafik- und Audio-Werte im Spiel aus früheren Call-of-Duty-Teilen übernehmen.</dd>
-                  </dl>
-                </details>
               </form>
               <details class="panel custom-settings">
                 <summary>Eigene Einstellungen und Kategorien</summary>
@@ -3005,8 +2971,6 @@ label :is(input, textarea, select) {
         <div class="actions"><button type="submit" class="primary" id="saveGameSetting">Speichern</button>
         <button type="button" id="cancelGameSetting">Abbrechen</button></div>
       </form>
-      <div id="gameSettingImages" hidden><div class="actions" id="gameSettingImagePages"></div>
-        <button type="button" id="closeSettingImages">Schließen</button></div>
     </dialog>
     <div id="status" role="status" aria-live="polite"></div>
     <script type="module">
@@ -3015,7 +2979,7 @@ label :is(input, textarea, select) {
       import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
       import { distanceOptions, loadoutWeaponProfiles, WEAPON_HINT_LENGTH } from './assets/waffenprofil.js';
-      import { mountAdminSettings } from './assets/admin-einstellungen.js?v=mw4-spielmenue-20261126';
+      import { mountAdminSettings } from './assets/admin-einstellungen.js?v=mw4-community-20261126';
       import { mountAdminSeo } from './assets/admin-seo.js?v=datenschutz-seo-20261125';
       import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
       import {
