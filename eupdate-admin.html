@@ -3,9 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-GOYS1PTx3DpvKurENRgA107YbcldqiLlAKWGYcqmQVI='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
+    <script>
+      if (location.protocol === 'http:' && location.hostname === 'eupdategaming.com') {
+        location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+      }
+    </script>
     <style>
       :root {
   color-scheme: dark;
@@ -2109,6 +2115,9 @@ label :is(input, textarea, select) {
               required
             />
           </label>
+          <label id="adminAuthenticatorLabel" hidden>Authenticator-Code
+            <input id="adminAuthenticator" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" disabled>
+          </label>
           <button class="primary" type="submit">Anmelden</button>
           <details class="login-server">
             <summary>Serveradresse</summary>
@@ -2118,7 +2127,7 @@ label :is(input, textarea, select) {
                 id="server"
                 type="url"
                 value="https://eupdate-server.dustin-albrecht.workers.dev"
-                required
+                readonly
               />
             </label>
           </details>
@@ -2397,13 +2406,12 @@ label :is(input, textarea, select) {
                 <label class="editor-label"
                   ><input name="commentsEnabled" type="checkbox" checked />Neue Kommentare
                   erlauben</label
-                ><label class="editor-label"
+                ><label id="automaticCommentsLabel" class="editor-label"
                   ><input name="autoApproveComments" type="checkbox" checked />Unauffällige Kommentare
                   direkt veröffentlichen</label
                 >
                 <p class="muted">
-                  Wenn du die Automatik ausschaltest, warten alle neuen Kommentare auf Freigabe. Bereits
-                  wartende Kommentare bleiben zur Prüfung erhalten.
+                  Neue Kommentare warten auf die Freigabe. Der Wortfilter markiert Auffälligkeiten für die Prüfung.
                 </p>
                 <label
                   >Regeln für die Nutzer<textarea name="commentRules" maxlength="1000"></textarea></label
@@ -2448,12 +2456,13 @@ label :is(input, textarea, select) {
                   <option value="all">Alle</option>
                 </select>
               </div>
-              <p class="muted">
-                Prüfe Meldungen zeitnah. Erkläre deine Entscheidung; sie erscheint privat unter „Meine
-                Meldungen“. Benachrichtigungen per E-Mail werden nicht automatisch versendet. Bei
-                rechtlich relevanten Meldungen sind zusätzliche Pflichten und eine individuelle Prüfung
-                möglich.
-              </p>
+              <p class="muted">Prüfe Meldungen zügig. Die Entscheidung erscheint unter „Meine Meldungen“.
+                Bei vorhandener E-Mail-Adresse wird sie auch per E-Mail zugestellt.</p>
+              <div class="actions" id="reportDeliveryControls" hidden>
+                <button type="button" id="checkReportDelivery">Meldungsversand prüfen</button>
+                <button type="button" id="retryReportDelivery" hidden>Fehlgeschlagene E-Mails erneut senden</button>
+                <span id="reportDeliveryStatus" role="status"></span>
+              </div>
               <div id="reportsList"></div>
             </section>
             <section class="view" id="weaponsView" hidden>
@@ -2921,9 +2930,11 @@ label :is(input, textarea, select) {
           <p id="launchBlockedMessage"></p>
           <button type="button" id="goToLegal" data-tab="settings">Betreiberangaben öffnen</button>
         </div>
+        <p id="launchProtection" class="muted" hidden></p>
         <p id="launchError" class="notice error" role="alert" hidden></p>
         <div class="actions editor-actions">
           <button type="submit" id="launchSubmit" class="primary">Community live schalten</button>
+          <button type="button" id="emergencyStop" class="danger" hidden>Notabschaltung</button>
           <button type="button" id="cancelLaunch">Abbrechen</button>
         </div>
       </form>
@@ -2992,7 +3003,9 @@ label :is(input, textarea, select) {
         weaponNames,
       } from './assets/katalog-abgleich.js';
 
-      let base = '',
+      const SERVER_ORIGIN = 'https://eupdate-server.dustin-albrecht.workers.dev';
+      const secureAdminPage = window.isSecureContext && window.top === window;
+      let base = SERVER_ORIGIN,
         token = '',
         dashboard = null,
         timer = null,
@@ -3015,6 +3028,12 @@ label :is(input, textarea, select) {
         if (token) timer = setTimeout(logout, 20 * 60000);
       }
       function logout() {
+        if (token && serverHealth?.features?.includes('admin-sessions')) {
+          fetch(SERVER_ORIGIN + '/api/admin/session', {
+            method: 'DELETE', credentials: 'omit', redirect: 'error', keepalive: true,
+            headers: { authorization: 'Bearer ' + token },
+          }).catch(() => {});
+        }
         clearNewCreatorCode();
         creatorCodeJob = null;
         creatorCodesToRemove = [];
@@ -3023,6 +3042,7 @@ label :is(input, textarea, select) {
         token = '';
         serverHealth = null;
         $('token').value = '';
+        $('adminAuthenticator').value = '';
         dashboard = null;
         catalogImport.reset();
         adminSettings.reset();
@@ -3068,9 +3088,7 @@ label :is(input, textarea, select) {
         if (!r.ok) {
           if (r.status === 401) {
             logout();
-            throw Error(
-              'Der eingegebene Admin-Schlüssel stimmt nicht mit ADMIN_TOKEN im veröffentlichten Cloudflare-Worker überein. Verwende deinen dort eingerichteten Schlüssel, keinen Streamer-Code.',
-            );
+            throw Error(x.error || 'Bitte erneut im Adminbereich anmelden.');
           }
           throw Error(x.error || 'Server nicht erreichbar (HTTP ' + r.status + ').');
         }
@@ -3129,7 +3147,7 @@ label :is(input, textarea, select) {
           publicRelease?.communityReady ??
           config.communityReady ??
           (open && legal && releaseCheckNames.every((key) => config.releaseChecks?.[key] === true));
-        return { missing, legal, live, open };
+        return { missing, legal, live, open, mode: config.communityState, protection: config.protection };
       }
 
       function blockedMessage(state) {
@@ -3141,8 +3159,9 @@ label :is(input, textarea, select) {
       function renderOverview() {
         const state = releaseState();
         const badge = $('launchStatus');
-        badge.textContent = state.live
-          ? 'Community live'
+        badge.textContent = state.mode === 'emergency'
+          ? 'Notabschaltung aktiv'
+          : state.live ? 'Community live'
           : state.open
             ? 'Freigabe offen'
             : 'Community geschlossen';
@@ -3229,7 +3248,7 @@ label :is(input, textarea, select) {
 
       $('openLaunch').onclick = () => {
         const state = releaseState();
-        launchTarget = !state.live;
+        launchTarget = !state.open;
         const title = launchTarget ? 'Community live schalten' : 'Community pausieren';
         $('launchDialogTitle').textContent = title;
         $('launchSubmit').textContent = title;
@@ -3240,6 +3259,15 @@ label :is(input, textarea, select) {
         $('launchBlocked').hidden = !launchTarget || state.legal;
         $('launchBlockedMessage').textContent = state.legal ? '' : blockedMessage(state);
         $('launchError').hidden = true;
+        $('emergencyStop').hidden = !state.protection || state.mode === 'emergency';
+        const labels = {
+          adminAuthenticator: 'Admin-Authenticator', requestLimits: 'Cloudflare-Anfragelimits',
+          visitorVerification: 'Turnstile', photoProcessing: 'Cloudflare Images', reportDelivery: 'Meldungsversand',
+        };
+        const missing = Object.keys(state.protection || {}).filter(key => state.protection[key] === false);
+        $('launchProtection').textContent = missing.length ? 'Vor der Öffnung im Worker einrichten: ' +
+          new Intl.ListFormat('de').format(missing.map(key => labels[key] || key)) + '.' : '';
+        $('launchProtection').hidden = !launchTarget || !missing.length;
         for (const key of releaseCheckNames)
           $('launchForm').elements[key].checked = dashboard.config.releaseChecks?.[key] === true;
         refreshLaunchSubmit();
@@ -3248,6 +3276,25 @@ label :is(input, textarea, select) {
       $('launchForm').addEventListener('change', refreshLaunchSubmit);
       for (const id of ['closeLaunch', 'cancelLaunch', 'goToLegal'])
         $(id).addEventListener('click', () => $('launchDialog').close());
+
+      $('emergencyStop').onclick = async () => {
+        if (savingLaunch || !confirm('Alle Community-Beiträge und Kommentare sofort ausblenden und neue Veröffentlichungen pausieren?')) return;
+        savingLaunch = true;
+        $('emergencyStop').disabled = true;
+        try {
+          await request('/api/admin/launch', 'PUT', { communityOpen: false, emergency: true });
+          $('launchDialog').close();
+          await load();
+          note('Notabschaltung aktiv.');
+        } catch (error) {
+          $('launchError').textContent = error.message;
+          $('launchError').hidden = false;
+        } finally {
+          savingLaunch = false;
+          $('emergencyStop').disabled = false;
+          refreshLaunchSubmit();
+        }
+      };
 
       async function saveLaunch(form) {
         if (savingLaunch) return;
@@ -3580,14 +3627,9 @@ label :is(input, textarea, select) {
               '</h3><p>' +
               Number(c.uses || 0) +
               (Number(c.uses || 0) === 1 ? ' Veröffentlichung</p>' : ' Veröffentlichungen</p>') +
-              (c.code
-                ? '<label>Persönlicher Streamer-Code<input readonly type="text" value="' +
-                  esc(c.code) +
-                  '" aria-label="Code für ' +
-                  esc(c.name) +
-                  '" style="font-family:ui-monospace,monospace;font-size:16px"><button type="button" data-copy-code="' +
-                  esc(c.id) +
-                  '">Code kopieren</button></label>'
+              (c.code || c.hasCode
+                ? '<div class="actions"><button type="button" data-copy-code="' + esc(c.id) +
+                  '">Code abrufen und kopieren</button></div>'
                 : '<p class="muted">Erzeuge einen neuen Code, wenn du diesen Streamer erneut einladen willst.</p>') +
               '<div class="actions"><button type="button" data-regenerate-code="' +
               esc(c.id) +
@@ -3599,17 +3641,27 @@ label :is(input, textarea, select) {
           .join('') || '<p class="empty">Noch keine aktiven Streamer-Codes.</p>';
         renderCreatorCodeControls();
       }
-      async function copyCreatorCode(c, button) {
-        if (!c?.code) throw Error('Bitte zuerst einen neuen Code erzeugen');
+      async function copyCreatorCode(entry, button) {
+        button.disabled = true;
         try {
-          await navigator.clipboard.writeText(c.code);
-        } catch {
-          const input = button.closest('label').querySelector('input');
-          input.focus();
-          input.select();
-          if (!document.execCommand('copy')) throw Error('Code markieren und manuell kopieren');
+          const code = entry.code || (await request('/api/admin/creator-codes/' +
+            encodeURIComponent(entry.id) + '/reveal')).code;
+          if (!code) throw Error('Bitte zuerst einen neuen Code erzeugen.');
+          try {
+            await navigator.clipboard.writeText(code);
+            note('Code kopiert. Du kannst ihn jetzt persönlich versenden.');
+          } catch {
+            const input = document.createElement('input');
+            input.readOnly = true;
+            input.value = code;
+            input.setAttribute('aria-label', 'Persönlicher Streamer-Code');
+            button.before(input);
+            input.select();
+            input.addEventListener('blur', () => input.remove(), { once: true });
+          }
+        } finally {
+          button.disabled = false;
         }
-        note('Code kopiert · du kannst ihn jetzt persönlich versenden');
       }
 
       async function changeCreatorCodes(action) {
@@ -5473,7 +5525,10 @@ label :is(input, textarea, select) {
         const form = $('commentSettingsForm'),
           c = dashboard.config;
         form.elements.commentsEnabled.checked = c.commentsEnabled !== false;
-        form.elements.autoApproveComments.checked = c.autoApproveComments !== false;
+        const protectedComments = serverHealth?.features?.includes('community-protection');
+        $('automaticCommentsLabel').hidden = protectedComments;
+        form.elements.autoApproveComments.checked = !protectedComments && c.autoApproveComments !== false;
+        $('reportDeliveryControls').hidden = !protectedComments;
         form.elements.commentReviewWords.value = c.commentReviewWords || '';
         form.elements.commentRules.value = c.commentRules || '';
         form.elements.commentBlockedWords.value = c.commentBlockedWords || '';
@@ -5544,17 +5599,16 @@ label :is(input, textarea, select) {
                 ' · ' +
                 esc({ pending: 'OFFEN', resolved: 'BEARBEITET', dismissed: 'NICHT ENTFERNT' }[r.status]) +
                 '</span><h3>' +
-                esc(r.target_type === 'comments' ? 'Kommentar' : 'Loadout') +
-                ' #' +
-                r.target_id +
+                esc(r.target_type === 'page' ? 'Seiteninhalt' :
+                  (r.target_type === 'comments' ? 'Kommentar' : 'Loadout') + ' #' + r.target_id) +
                 '</h3><p class="moderation-text">' +
                 esc(r.reason).replace(/\n/g, '<br>') +
                 '</p><small>Von ' +
-                esc(r.name) +
+                esc(r.name || 'Meldende Person') +
                 ' · <a href="mailto:' +
                 esc(r.email) +
                 '">' +
-                esc(r.email) +
+                esc(r.email || 'Ohne E-Mail-Adresse') +
                 '</a> · ' +
                 esc(new Date(r.created).toLocaleString('de-DE')) +
                 '</small><details><summary>Gemeldeter Inhalt</summary><p>' +
@@ -5634,6 +5688,7 @@ label :is(input, textarea, select) {
           const r = await fetch(base + path, {
             ...options,
             credentials: 'omit',
+            redirect: 'error',
             cache: 'no-store',
             signal: controller.signal,
           });
@@ -5705,19 +5760,27 @@ label :is(input, textarea, select) {
           )
         );
       }
+      function showAuthenticator(required) {
+        $('adminAuthenticatorLabel').hidden = !required;
+        $('adminAuthenticator').disabled = !required;
+        $('adminAuthenticator').required = required;
+      }
+      if (secureAdminPage) {
+        readServerJSON('/api/health').then(({ data }) => showAuthenticator(data.adminAuthenticator === true)).catch(() => {});
+      } else {
+        $('loginForm').hidden = true;
+        setLoginError('Öffne den eUpdate-Admin direkt über HTTPS.');
+      }
+
       $('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (loginBusy) return;
+        if (loginBusy || !secureAdminPage) return;
         loginBusy = true;
         const button = $('loginForm').querySelector('button[type="submit"]');
         button.disabled = true;
         button.textContent = 'Anmeldung wird geprüft …';
         setLoginError('');
         try {
-          const u = new URL($('server').value.trim());
-          if (u.protocol !== 'https:' || u.username || u.password || u.search || u.hash || u.pathname !== '/')
-            throw Error('Bitte eine HTTPS-Server-URL ohne zusätzlichen Pfad verwenden');
-          base = u.origin;
           const entered = $('token').value.trim();
           if (entered.length < 32 || entered.length > 256)
             throw Error(
@@ -5730,9 +5793,26 @@ label :is(input, textarea, select) {
               'Die Serverversion ist mit diesem Admin nicht kompatibel. Aktualisiere den bestehenden Worker aus dem aktuellen Serverpaket. Dein Schlüssel wurde noch nicht geprüft.',
             );
           serverHealth = health;
-          token = entered;
+          if (health.features.includes('admin-sessions')) {
+            const code = $('adminAuthenticator').value.trim();
+            showAuthenticator(health.adminAuthenticator === true);
+            if (health.adminAuthenticator && !/^[0-9]{6}$/.test(code)) {
+              $('adminAuthenticator').focus();
+              throw Error('Gib den sechsstelligen Code deiner Authenticator-App ein.');
+            }
+            const login = await readServerJSON('/api/admin/session', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ token: entered, code }),
+            });
+            if (!login.response.ok || !login.data.session) throw Error(login.data.error || 'Anmeldung fehlgeschlagen.');
+            token = login.data.session;
+          } else {
+            token = entered;
+          }
           await load();
           $('token').value = '';
+          $('adminAuthenticator').value = '';
           $('loginView').hidden = true;
           showAdminView('overview', false);
           $('appView').hidden = false;
@@ -5751,6 +5831,22 @@ label :is(input, textarea, select) {
         }
       });
       $('logout').onclick = logout;
+      async function checkReportDelivery() {
+        const info = await request('/api/admin/report-delivery');
+        $('reportDeliveryStatus').textContent = info.configured ?
+          `${info.pending} ausstehend, ${info.failed} mit fehlgeschlagenen Zustellversuchen.` :
+          'Der Meldungsversand wird im Worker eingerichtet.';
+        $('retryReportDelivery').hidden = !info.failed || !info.configured;
+      }
+      $('checkReportDelivery').onclick = () => checkReportDelivery().catch(error => note(error.message));
+      $('retryReportDelivery').onclick = async () => {
+        try {
+          await request('/api/admin/report-delivery', 'POST', {});
+          await checkReportDelivery();
+        } catch (error) {
+          note(error.message);
+        }
+      };
       $('reload').onclick = () =>
         load()
           .then(() => {
