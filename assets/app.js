@@ -832,7 +832,7 @@ function imprint() {
           html(siteConfig.newsResponsibleAddress).replace(/\n/g, '<br>') +
           '</p>'
         : '') +
-      '<p>Weitere Pflichtangaben, etwa Umsatzsteuer-ID oder ein Verantwortlicher für journalistisch-redaktionelle Inhalte, sind abhängig vom Betrieb zu ergänzen. Unabhängiges Community-Projekt. Keine Verbindung zu Activision oder Call of Duty. Waffenbilder sind zur Darstellung verwendete Konzeptgrafiken und keine offiziellen Spielbilder. Eine Rechtefreigabe wird damit nicht behauptet.</p></div>',
+      '</div>',
   );
 }
 
