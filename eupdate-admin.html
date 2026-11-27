@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-GOYS1PTx3DpvKurENRgA107YbcldqiLlAKWGYcqmQVI='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-YMbGeB6CcgV2lZBQb7ERVl10GGdtLI1UxkrheTZBR/k='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
@@ -2456,13 +2456,7 @@ label :is(input, textarea, select) {
                   <option value="all">Alle</option>
                 </select>
               </div>
-              <p class="muted">Prüfe Meldungen zügig. Die Entscheidung erscheint unter „Meine Meldungen“.
-                Bei vorhandener E-Mail-Adresse wird sie auch per E-Mail zugestellt.</p>
-              <div class="actions" id="reportDeliveryControls" hidden>
-                <button type="button" id="checkReportDelivery">Meldungsversand prüfen</button>
-                <button type="button" id="retryReportDelivery" hidden>Fehlgeschlagene E-Mails erneut senden</button>
-                <span id="reportDeliveryStatus" role="status"></span>
-              </div>
+              <p class="muted">Prüfe Meldungen zügig und speichere deine begründete Entscheidung. Die meldende Person kann sie unter „Meine Meldungen“ mit ihrem Empfangsschlüssel abrufen.</p>
               <div id="reportsList"></div>
             </section>
             <section class="view" id="weaponsView" hidden>
@@ -5528,7 +5522,6 @@ label :is(input, textarea, select) {
         const protectedComments = serverHealth?.features?.includes('community-protection');
         $('automaticCommentsLabel').hidden = protectedComments;
         form.elements.autoApproveComments.checked = !protectedComments && c.autoApproveComments !== false;
-        $('reportDeliveryControls').hidden = !protectedComments;
         form.elements.commentReviewWords.value = c.commentReviewWords || '';
         form.elements.commentRules.value = c.commentRules || '';
         form.elements.commentBlockedWords.value = c.commentBlockedWords || '';
@@ -5605,11 +5598,7 @@ label :is(input, textarea, select) {
                 esc(r.reason).replace(/\n/g, '<br>') +
                 '</p><small>Von ' +
                 esc(r.name || 'Meldende Person') +
-                ' · <a href="mailto:' +
-                esc(r.email) +
-                '">' +
-                esc(r.email || 'Ohne E-Mail-Adresse') +
-                '</a> · ' +
+                ' · ' +
                 esc(new Date(r.created).toLocaleString('de-DE')) +
                 '</small><details><summary>Gemeldeter Inhalt</summary><p>' +
                 esc(comment?.text || post?.title || 'Inhalt bereits entfernt / nicht im letzten Abruf') +
@@ -5831,22 +5820,6 @@ label :is(input, textarea, select) {
         }
       });
       $('logout').onclick = logout;
-      async function checkReportDelivery() {
-        const info = await request('/api/admin/report-delivery');
-        $('reportDeliveryStatus').textContent = info.configured ?
-          `${info.pending} ausstehend, ${info.failed} mit fehlgeschlagenen Zustellversuchen.` :
-          'Der Meldungsversand wird im Worker eingerichtet.';
-        $('retryReportDelivery').hidden = !info.failed || !info.configured;
-      }
-      $('checkReportDelivery').onclick = () => checkReportDelivery().catch(error => note(error.message));
-      $('retryReportDelivery').onclick = async () => {
-        try {
-          await request('/api/admin/report-delivery', 'POST', {});
-          await checkReportDelivery();
-        } catch (error) {
-          note(error.message);
-        }
-      };
       $('reload').onclick = () =>
         load()
           .then(() => {
