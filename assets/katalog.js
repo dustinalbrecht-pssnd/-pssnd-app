@@ -1,6 +1,6 @@
 import { MW_IMAGES } from './waffenbilder.js';
 import { API, html } from './app.js';
-import { renderBuilder } from './bauen.js';
+import { renderBuilder, renderPicker } from './bauen.js';
 import { renderGunsmith } from './aufsaetze.js';
 
 const BO7 = [];
@@ -8072,7 +8072,9 @@ const ATTACHMENT_BY = Object.fromEntries(ATTACHMENTS.map((a) => [a.id, a]));
 
 const CATALOG_CACHE = 'eupdate_weapon_catalog_v1';
 
-let catalogPending = null;
+let catalogPending = null,
+  catalogResponse = '',
+  catalogRevision = 0;
 
 function applyWeaponCatalog(data) {
   if (!Array.isArray(data.weapons)) return;
@@ -8106,13 +8108,17 @@ async function loadWeaponCatalog() {
   catalogPending = (async () => {
     const r = await fetch(API + '/api/catalog', { cache: 'no-store' });
     if (!r.ok) throw Error('Waffenkatalog nicht erreichbar');
-    const data = await r.json();
-    applyWeaponCatalog(data);
+    const response = await r.text();
+    if (response === catalogResponse) return catalogRevision;
+    applyWeaponCatalog(JSON.parse(response));
     renderBuilder();
     renderGunsmith();
+    renderPicker();
+    catalogResponse = response;
+    return ++catalogRevision;
   })();
   try {
-    await catalogPending;
+    return await catalogPending;
   } finally {
     catalogPending = null;
   }

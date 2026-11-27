@@ -1,7 +1,7 @@
 import { BY, GAME, MODE, WM, art, loadWeaponCatalog } from './katalog.js';
 import { downloadRank, exportPng, image } from './bildexport.js';
 import { importLoadout, payload, postLoadout, renderBuilder, validateDraft } from './bauen.js';
-import { currentParam, navigate, startNavigation } from './navigation.js';
+import { currentParam, currentView, navigate, startNavigation } from './navigation.js';
 import { GEAR_NAMES, managedItems } from './ausruestung.js';
 import { availableInMode } from './mw4-ausruestung.js';
 import { activateRanking, avatar, renderFeed, setFeedStatus, updateCommunityConnection } from './ranking.js';
@@ -16,6 +16,7 @@ import { clearVisitorVerification, needsVisitorVerification, visitorVerification
 import { applyPageSeo, SEO_PAGES } from './seo.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
+const COMMUNITY_REFRESH_MS = 60_000;
 
 const LOGO = new URL('./bilder/logo.jpg', import.meta.url).href;
 
@@ -573,7 +574,12 @@ function storeCommunity() {
   }
 }
 
-async function refresh() {
+let communityRequest = 0,
+  communityLoading = false,
+  communityResponse = '',
+  communityCatalogRevision = 0;
+
+async function refresh({ background = false } = {}) {
   if (!API) {
     creators = localStreamers;
     feed = localPosts
@@ -586,38 +592,62 @@ async function refresh() {
     renderCurrentDetail();
     return;
   }
-  setFeedStatus('Lade Community-Loadouts …');
+  if (background && communityLoading) return;
+  const request = ++communityRequest;
+  communityLoading = true;
+  let redrawDetail = !background;
+  if (!background) setFeedStatus('Lade Community-Loadouts …');
   try {
-    await loadWeaponCatalog();
+    const catalogRevision = await loadWeaponCatalog();
+    if (request !== communityRequest) return;
     const r = await fetch(API + '/api/sets', { cache: 'no-store', headers: existingVisitorHeaders() });
     if (!r.ok) throw Error();
-    const data = await r.json();
-    weeklyWinnerIds = Array.isArray(data.weeklyWinnerIds) ? data.weeklyWinnerIds : [];
-    weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
-    weeklyPeriod = data.week || null;
-    feed = (data.sets || [])
-      .filter((x) => BY[x.primary] && GAME[x.game] && MODE[x.mode])
-      .map((x) => ({ ...x, description: x.note }));
-    creators = (data.creators || []).filter((x) => BY[x.primary] && GAME[x.game]);
-    for (const x of feed) likedIds[x.id] = !!x.liked;
-    for (const x of creators) streamerLikes[x.id] = !!x.liked;
-    state.liked = !!data.supportLiked;
-    el('supportCount').textContent = data.supportLikes || 0;
-    updateSupportHeart();
+    const response = await r.text();
+    if (request !== communityRequest) return;
+    if (!background || catalogRevision !== communityCatalogRevision || response !== communityResponse) {
+      const data = JSON.parse(response);
+      weeklyWinnerIds = Array.isArray(data.weeklyWinnerIds) ? data.weeklyWinnerIds : [];
+      weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
+      weeklyPeriod = data.week || null;
+      feed = (data.sets || [])
+        .filter((x) => BY[x.primary] && GAME[x.game] && MODE[x.mode])
+        .map((x) => ({ ...x, description: x.note }));
+      creators = (data.creators || []).filter((x) => BY[x.primary] && GAME[x.game]);
+      for (const x of feed) likedIds[x.id] = !!x.liked;
+      for (const x of creators) streamerLikes[x.id] = !!x.liked;
+      state.liked = !!data.supportLiked;
+      el('supportCount').textContent = data.supportLikes || 0;
+      updateSupportHeart();
+      renderFeed();
+      communityResponse = response;
+      communityCatalogRevision = catalogRevision;
+      redrawDetail = true;
+    }
     updateCommunityConnection('');
-    renderFeed();
     setFeedStatus(
       'Community · aktualisiert ' +
         new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) +
         ' Uhr',
     );
   } catch (_) {
-    setFeedStatus('Community gerade nicht erreichbar · bitte später neu laden');
-    updateCommunityConnection('offline');
+    if (request === communityRequest && (!background || !communityResponse)) {
+      setFeedStatus('Community gerade nicht erreichbar · bitte später neu laden');
+      updateCommunityConnection('offline');
+    }
   } finally {
-    communityLoaded = true;
-    renderCurrentDetail();
+    if (request === communityRequest) {
+      communityLoading = false;
+      communityLoaded = true;
+      if (redrawDetail) renderCurrentDetail();
+    }
   }
+}
+
+function refreshVisibleCommunity() {
+  if (!API || document.hidden) return;
+  const view = currentView();
+  if (view === 'feed' || view === 'detail') refresh({ background: true });
+  if (view === 'builder' || view === 'attachments') loadWeaponCatalog().catch(() => {});
 }
 
 let siteConfig = {
@@ -2013,6 +2043,7 @@ function activateView(view) {
   if (view === 'settings') showGameSettings();
   applySiteContent();
   countPageView(API, view);
+  if (communityLoaded) refreshVisibleCommunity();
 }
 
 function start() {
@@ -2036,12 +2067,12 @@ function start() {
     }
   } catch {}
   setInterval(tick, 1000);
-  setInterval(() => {
-    checkLive();
-    if (API) refresh();
-  }, 600000);
+  setInterval(checkLive, 600000);
+  setInterval(refreshVisibleCommunity, COMMUNITY_REFRESH_MS);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) checkLive();
+    if (document.hidden) return;
+    checkLive();
+    refreshVisibleCommunity();
   });
 }
 

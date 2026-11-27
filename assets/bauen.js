@@ -102,9 +102,8 @@ function openArsenal() {
   arsenalMode = true;
   picker.slot = 'primary';
   picker.category = 'all';
-  const count = candidates('secondary').length;
   modal(
-    head('Waffenübersicht', MODE[state.mode] + ' · ' + count + ' Waffen') +
+    head('Waffenübersicht', MODE[state.mode]) +
       '<p class="arsenal-note">Waffe antippen und direkt ins Loadout übernehmen.</p>' +
       weaponPickerTools() +
       '<div id="pickResults" class="weapon-options arsenal-options"></div>',
@@ -114,8 +113,12 @@ function openArsenal() {
 }
 
 function renderPicker() {
+  if (el('modal').hidden || !el('pickResults')) return;
   const list = candidates(arsenalMode ? 'secondary' : picker.slot),
     classes = [...new Set(list.map((w) => w.cls))];
+  if (arsenalMode) {
+    el('modalBody').querySelector('.dialog-head p').textContent = MODE[state.mode] + ' · ' + list.length + ' Waffen';
+  }
   el('pickClasses').innerHTML = ['all', ...classes]
     .map(
       (cls) =>
@@ -861,4 +864,4 @@ document.addEventListener('input', (e) => {
   save();
 });
 
-export { addPart, importLoadout, payload, postLoadout, publish, renderBuilder, renderPartRows, saveParts, validateDraft };
+export { addPart, importLoadout, payload, postLoadout, publish, renderBuilder, renderPartRows, renderPicker, saveParts, validateDraft };

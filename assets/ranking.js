@@ -50,9 +50,9 @@ function avatar(x) {
         '</span>';
 }
 
-function rankCard(x, i) {
+function rankCard(x, i, selectedWeapon) {
   const weekly = el('feedSort').value === 'week',
-    w = BY[x.primary] || WM[0],
+    weapon = (selectedWeapon === x.secondary && BY[x.secondary]) || BY[x.primary] || WM[0],
     n = weekly ? 1 : i + 1,
     isTop = weekly || i === 0,
     by = x.name || 'Community',
@@ -79,7 +79,7 @@ function rankCard(x, i) {
     '</span><button class="rank-art"' + detailAttrs + ' aria-label="Loadout ' +
     html(x.title) +
     ' öffnen">' +
-    art(w) +
+    art(weapon) +
     '</button></div>';
   return (
     '<article class="rank-card ' +
@@ -99,7 +99,7 @@ function rankCard(x, i) {
     '<span>von ' +
     html(by) +
     ' · ' +
-    html(CLASS[w.cls]) +
+    html(CLASS[weapon.cls]) +
     '</span></p>' + (profiles ? '<ul class="rank-weapon-profiles">' + profiles + '</ul>' : '') +
     (streamer ? streamerLinks(x) : '') +
     '</div><div class="rank-actions"><button class="like-btn" ' + (streamer ? 'data-like-creator' : 'data-like') + '="' +
@@ -226,7 +226,7 @@ function redrawFeed() {
       : 'Wähle einen anderen Filter oder veröffentliche dein Loadout.';
   visibleRank = shown;
   el('loadoutList').innerHTML = shown.length
-    ? shown.map(rankCard).join('')
+    ? shown.map((loadout, index) => rankCard(loadout, index, gun)).join('')
     : '<div class="empty"><strong>' +
       emptyTitle +
       '</strong><p>' +
