@@ -12,6 +12,7 @@ import { weaponNames } from './katalog-abgleich.js';
 import { applyGameSettingsCopy, showGameSettings } from './einstellungen.js?v=mw4-community-20261126';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
+import { clearVisitorVerification, needsVisitorVerification, visitorVerification } from './community-verification.js?v=community-security-20261126';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
@@ -209,12 +210,21 @@ async function apiPost(path, payload) {
   if (payload?.weaponProfiles && siteConfig.supportsWeaponProfiles !== true) {
     throw Error('Der Community-Server braucht das Update für Einsatzdistanz und Waffenhinweise. Dein Entwurf ist gespeichert.');
   }
-  const id = await anonId();
-  const r = await fetch(API + path, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-eupdate-visitor': id },
+  const isReport = path === '/api/reports' || /^\/api\/reports\/\d+\/status$/.test(path);
+  const id = isReport ? '' : await anonId();
+  const verify = id && siteConfig.visitorVerification === true && needsVisitorVerification(path, payload);
+  const headers = { 'content-type': 'application/json', ...(id ? { 'x-eupdate-visitor': id } : {}) };
+  if (verify) headers['x-eupdate-session'] = await visitorVerification(API, id, siteConfig.turnstileSiteKey);
+  const send = () => fetch(API + path, {
+    method: 'POST', credentials: 'omit', redirect: 'error', headers,
     body: JSON.stringify({ ...termsReceipt(), ...(payload || {}) }),
   });
+  let r = await send();
+  if (verify && r.status === 428 && (await r.clone().json().catch(() => ({}))).code === 'visitor_verification') {
+    clearVisitorVerification();
+    headers['x-eupdate-session'] = await visitorVerification(API, id, siteConfig.turnstileSiteKey);
+    r = await send();
+  }
   let data = {};
   try {
     data = await r.json();
@@ -700,10 +710,11 @@ function privacyMarkup() {
       : '<p class="legal-draft">Die konkreten Angaben zu Hosting-Verträgen, Speicherregion und Übermittlungsgarantien werden vor der Startfreigabe ergänzt. Neue Veröffentlichungen sind bis dahin gesperrt.</p>') +
     '<h3>Statistik zu Seitenaufrufen</h3><p>eUpdate zählt pro Tag die aufgerufene Seite, die Herkunfts-Domain und das Land, soweit diese Angaben vorliegen. Für diese Zählung speichert eUpdate weder Besucherkennungen noch IP-Adressen und setzt keine Analyse-Cookies. Do Not Track und Global Privacy Control werden berücksichtigt.</p>' +
     '<h3>KI-gestützte Aufbereitung öffentlicher Gaming-Nachrichten</h3><p>eUpdate nutzt Cloudflare Workers AI (Cloudflare, Inc.) zur automatisierten sprachlichen Bearbeitung, Übersetzung und Zusammenfassung öffentlich zugänglicher Gaming-Nachrichten. Dabei werden Artikeltexte, Überschriften und Quellenangaben an das KI-Modell übermittelt. Nutzereingaben aus Kommentaren, Loadouts, Profilen, Feedback und private Kontaktdaten werden für diese News-Funktion nicht an das KI-Modell übermittelt. Die News-Verarbeitung erfolgt serverseitig unabhängig vom einzelnen Besuch. Beim bloßen Lesen einer News wird keine personenbezogene Anfrage an das KI-Modell gesendet. Enthalten öffentlich zugängliche Quellartikel personenbezogene Angaben, können diese Teil der KI-Eingabe sein; ihre Verarbeitung muss im Einzelfall auf eine Rechtsgrundlage gestützt werden. Die hierfür eingesetzten Cloudflare-Dienste und etwaige Drittlandübermittlungen sind unter den Hostingangaben beschrieben. Weitere Informationen: <a href="https://developers.cloudflare.com/workers-ai/platform/data-usage/" target="_blank" rel="noopener noreferrer">Cloudflare Workers AI – Datenverwendung ↗</a>.</p>' +
-    '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden. Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Hochgeladene Profilfotos werden im Browser zugeschnitten und als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
-    '<h3>4. Kommentare und Moderation</h3><p>Bei einem Kommentar speichern wir den optionalen Spielernamen, Text, Loadout-Bezug, Zeitpunkt, Freigabestatus, Nachweis deiner Bestätigung und Einwilligung und einen Hash deines privaten Löschschlüssels. Bei eingeschalteter Automatik erscheinen Kommentare ohne erkannte Auffälligkeit sofort mit deinem Namen öffentlich. Auffällige Kommentare bleiben bis zur manuellen Freigabe privat. Für öffentliche Kommentare bestätigst du ebenfalls Volljährigkeit und die Nutzungsregeln. Der Betreiber kann die Automatik ausschalten; dann werden alle neuen Kommentare vor Veröffentlichung geprüft. Ohne Namen erscheint „Gast“. Grundlage der Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO; Moderation und Missbrauchsschutz beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Kommentare über „Meine Beiträge“ löschen oder deine Einwilligung über den Betreiberkontakt widerrufen.</p><p>Ein serverseitiger Regelfilter prüft Namen und Text auf hinterlegte Begriffe, Links, mögliche Kontaktangaben, auffällige Schreibweisen und Spam. Bekannte gesperrte Ausdrücke und direkte Links führen zur Ablehnung; andere erkannte Auffälligkeiten zur manuellen Prüfung. Dabei wird keine externe KI genutzt und kein Kommentar an einen KI-Anbieter gesendet. Abgewiesene Texte werden nicht in der App-Datenbank gespeichert. Der Filter kann harmlose Texte anhalten oder problematische Texte übersehen. Öffentliche Inhalte lassen sich melden; der Betreiber kann sie ausblenden oder löschen. Bei einer irrtümlichen Ablehnung oder einer offenen Prüfung kannst du den Betreiber kontaktieren.</p>' +
-    '<h3>5. Meldungen problematischer Inhalte</h3><p>Über „Inhalt melden“ kannst du Loadouts und Kommentare melden. Wir speichern den Inhalt-Verweis, deine Begründung, Namen, E-Mail-Adresse, Zeitpunkt und Bearbeitungsentscheidung. Name, E-Mail und Meldung erscheinen nicht öffentlich. Zweck ist die Prüfung und Bearbeitung von Hinweisen, der Schutz Betroffener und die Kontaktmöglichkeit bei Rückfragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; soweit eine gesetzliche Pflicht besteht, zusätzlich Art. 6 Abs. 1 lit. c DSGVO. Die Angaben sind für die Bearbeitung des eingebauten Meldeformulars erforderlich. Alternativ kannst du den Betreiber direkt kontaktieren. Die App bestätigt den Eingang sofort. Unter „Meine Meldungen“ kannst du mit dem auf deinem Gerät gespeicherten Empfangsschlüssel den Stand und die Begründung abrufen. E-Mails werden nicht automatisch versendet. Bei Rückfragen oder Einwänden gegen eine Entscheidung nutze den Betreiberkontakt.</p>' +
-    '<h3>6. Likes und Missbrauchsschutz</h3><p>Erst bei einer ausdrücklich ausgelösten Serveraktion wird eine zufällige Kennung auf deinem Gerät gespeichert. Der Server speichert einen mit geheimem Zusatz gebildeten Hash davon, um deine Like-Auswahl wiederzufinden und doppelte Likes zu verhindern. Ein erneuter Klick entfernt deinen Like und den zugehörigen Datenbankeintrag. Für Tageslimits wird aus IP-Adresse, Datum und geheimem Zusatz ein kurzlebiger Hash gebildet. Die App-Datenbank speichert keine vollständige IP-Adresse; Hostinganbieter können IP-Adressen in eigenen Protokollen verarbeiten. Grundlage ist Art. 6 Abs. 1 lit. f DSGVO für die gewünschte Like-Funktion und den Schutz vor Missbrauch. Die Rangliste verwendet Like-Zahlen, kein personenbezogenes Profiling. Ohne Konto ist der Missbrauchsschutz begrenzt.</p>' +
+    '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden. Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Profilfotos werden im Browser zugeschnitten und auf dem Server mit Cloudflare Images als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
+    '<h3>4. Kommentare und Moderation</h3><p>Bei einem Kommentar speichern wir den optionalen Spielernamen, Text, Loadout-Bezug, Zeitpunkt, Freigabestatus, Nachweis deiner Bestätigung und Einwilligung und einen Hash deines privaten Löschschlüssels. Kommentare bleiben bis zur manuellen Freigabe privat. Für öffentliche Kommentare bestätigst du ebenfalls Volljährigkeit und die Nutzungsregeln. Ohne Namen erscheint „Gast“. Grundlage der Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO; Moderation und Missbrauchsschutz beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Kommentare über „Meine Beiträge“ löschen oder deine Einwilligung über den Betreiberkontakt widerrufen.</p><p>Ein serverseitiger Regelfilter prüft Namen und Text auf hinterlegte Begriffe, Links, mögliche Kontaktangaben, auffällige Schreibweisen und Spam. Bekannte gesperrte Ausdrücke und direkte Links führen zur Ablehnung; andere erkannte Auffälligkeiten zur manuellen Prüfung. Dabei wird keine externe KI genutzt und kein Kommentar an einen KI-Anbieter gesendet. Abgewiesene Texte werden nicht in der App-Datenbank gespeichert. Der Filter kann harmlose Texte anhalten oder problematische Texte übersehen. Öffentliche Inhalte lassen sich melden; der Betreiber kann sie ausblenden oder löschen. Bei einer irrtümlichen Ablehnung oder einer offenen Prüfung kannst du den Betreiber kontaktieren.</p>' +
+    '<h3>5. Meldungen problematischer Inhalte</h3><p>Du kannst Nutzereinträge und Seiteninhalte privat melden. Wir speichern Inhalt, Begründung, Zeitpunkt und Entscheidung sowie, falls angegeben, Name und E-Mail-Adresse. Bei Meldungen zu sexualisierter Gewalt gegen Kinder können die Kontaktdaten wegbleiben. Wir nutzen die Daten zur Bearbeitung gesetzlicher Meldepflichten und zum Schutz Betroffener. Bei einer angegebenen Adresse versenden wir Bestätigung und Entscheidung über den eingerichteten Versanddienst. ' +
+    (c.reportEmailProvider === 'resend' ? 'Hierfür nutzen wir Resend.' : c.reportEmailProvider === 'cloudflare' ? 'Hierfür nutzen wir Cloudflare Email Service.' : '') + ' Du kannst die Entscheidung auch mit deinem Empfangsschlüssel abrufen.</p>' +
+    '<h3>6. Likes und Missbrauchsschutz</h3><p>Cloudflare Turnstile prüft den Zugriff bei der ersten Veröffentlichung, beim Kommentieren oder Liken. Cloudflare verarbeitet dafür Verbindungs- und technische Browserdaten. eUpdate nutzt die Bestätigung für eine zeitlich begrenzte Sitzung und die Verhinderung automatisierten Missbrauchs. Erst bei einer ausdrücklich ausgelösten Serveraktion wird eine zufällige Kennung auf deinem Gerät gespeichert. Der Server speichert einen mit geheimem Zusatz gebildeten Hash davon, um deine Like-Auswahl wiederzufinden und doppelte Likes zu verhindern. Ein erneuter Klick entfernt deinen Like und den zugehörigen Datenbankeintrag. Für Tageslimits wird aus IP-Adresse, Datum und geheimem Zusatz ein kurzlebiger Hash gebildet. Die App-Datenbank speichert keine vollständige IP-Adresse; Hostinganbieter können IP-Adressen in eigenen Protokollen verarbeiten. Grundlage ist Art. 6 Abs. 1 lit. f DSGVO für die gewünschte Like-Funktion und den Schutz vor Missbrauch. Die Rangliste verwendet Like-Zahlen, kein personenbezogenes Profiling. Ohne Konto ist der Missbrauchsschutz begrenzt.</p>' +
     '<h3>7. Speicherfristen und Löschung</h3><p>Nicht freigegebene und ausgeblendete Loadouts werden nach 30 Tagen, öffentliche Loadouts nach 365 Tagen bei der nächsten automatischen Bereinigung gelöscht. Ihre Like-Einträge und Kommentare werden mitgelöscht. Nicht freigegebene oder ausgeblendete Kommentare werden nach 7 Tagen, alle Kommentare spätestens nach 90 Tagen bei der nächsten Bereinigung entfernt. Meldungen werden 90 Tage nach Abschluss, spätestens 180 Tage nach Eingang bereinigt. Private Moderationsmitteilungen speichern nur Beitragsbezug, Löschschlüssel-Hash, Status, Begründung und Zeitpunkt. Sie werden nach 180 Tagen bei der nächsten Bereinigung gelöscht; ein entfernter Inhalt wird darin nicht erneut gespeichert. Support-Likes werden nach 365 Tagen entfernt. Tageslimit-Hashes verfallen nach 24 Stunden und werden bei der nächsten Bereinigung gelöscht. Die Bereinigung läuft über den eingerichteten regelmäßigen Cloudflare-Cron. Du und der Administrator können Inhalte vorher löschen. Lokale Daten bleiben bis zu deiner Löschung oder dem Entfernen der Browserdaten. Anbieterprotokolle und Datenbank-Sicherungskopien können bis zum Ablauf der jeweiligen Anbieterfristen fortbestehen.</p>' +
     '<h3>8. Daten auf deinem Gerät</h3><p>LocalStorage enthält nach Nutzung der jeweiligen Funktionen Loadout-Entwürfe, lokal vorbereitete Bilder, Like-Auswahl sowie private Lösch- und Empfangsschlüssel. Neue öffentliche Nachrichten- und Katalogdaten bleiben im Arbeitsspeicher dieses Tabs. Ältere Cache-Daten aus Vorversionen kannst du über „Meine Daten löschen“ entfernen. Für eigene Kommentare wird außerdem eine lokale Kopie mit Status gespeichert. Das ermöglicht dir Speichern, Wiederfinden und Löschen ohne Konto. Technisch notwendige Speicherung für ausdrücklich gewünschte Funktionen erfolgt gemäß § 25 Abs. 2 Nr. 2 TDDDG. Es gibt keine Analyse-Cookies, Werbetracker oder automatisch geladenen Social-Media-Einbettungen. „Meine Daten löschen“ entfernt anhand der vorhandenen Schlüssel und Gerätekennung deine zuordenbaren gespeicherten Beiträge, Kommentare, Meldungen, Likes, Feedback und Protokolleinträge. Anschließend entfernt die Funktion die eUpdate-Daten aus dem Browser. Für Daten aus anderen Browsern nutze den dortigen Speicher oder wende dich an den Betreiber.</p>' +
     '<h3>9. News, externe Links und Unterstützung</h3><p>Der eingerichtete Server prüft offizielle Call-of-Duty-Quellen regelmäßig über den eingerichteten Cloudflare-Cron, sofern die Automatik aktiviert ist. Nutzerkennungen und Profilfotos werden dabei nicht an die Quelle übertragen. Quellen-, Social-Media-, Werbe- und PayPal-Links öffnen externe Seiten erst nach deinem Klick. Dann gelten die Hinweise der jeweiligen Anbieter. Für eine Zahlung ist PayPal zuständig; eUpdate verarbeitet hier keine Zahlungsdaten.</p>' +
@@ -1330,10 +1341,12 @@ function readLocalList(key) {
 function writeLocalList(key, list) {
   try {
     localStorage.setItem(key, JSON.stringify(list));
+    return true;
   } catch (_) {
     toast(
       'Gerätespeicher voll. Löschschlüssel konnten nicht gespeichert werden. Bitte bei Bedarf den Betreiber kontaktieren.',
     );
+    return false;
   }
 }
 
@@ -1348,10 +1361,29 @@ function openDataErasure() {
     '<p>Verwende für Einträge aus einem anderen Browser dort dieselbe Funktion ' + contact + '</p>' +
     '<p id="dataErasureStatus" role="status"></p><div class="dialog-actions">' +
     '<button type="button" class="ghost-btn" data-close>Abbrechen</button>' +
+    '<button type="button" class="ghost-btn" data-erase-local-data hidden>Nur Browserdaten löschen</button>' +
     '<button type="button" class="danger-btn" data-confirm-data-erasure>Endgültig löschen</button></div>');
 }
 
 let dataErasureInProgress = false;
+let temporaryReports = [];
+
+function clearCommunityStorage() {
+  clearVisitorVerification();
+  for (const storage of [localStorage, sessionStorage]) {
+    for (const key of Object.keys(storage)) if (key.startsWith('eupdate_')) storage.removeItem(key);
+  }
+  sessionStorage.setItem('eupdate_data_erasure_done', '1');
+  location.reload();
+}
+
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('[data-erase-local-data]')) return;
+  if (confirm('Die restlichen Löschschlüssel gehen dabei verloren. Browserdaten löschen?')) {
+    try { clearCommunityStorage(); } catch { toast('Die Browserdaten konnten nicht entfernt werden.'); }
+  }
+});
+
 async function eraseOwnData(button) {
   if (dataErasureInProgress || button.disabled) return;
   dataErasureInProgress = true;
@@ -1362,12 +1394,14 @@ async function eraseOwnData(button) {
     const items = [
       ...readLocalList(OWNER_KEY).filter(item => ['sets', 'creators'].includes(item?.kind)),
       ...readLocalList(COMMENTS_KEY).map(item => ({ ...item, kind: 'comments' })),
-      ...readLocalList(REPORTS_KEY).map(item => ({ ...item, kind: 'reports' })),
+      ...readLocalList(REPORTS_KEY).concat(temporaryReports).map(item => ({ ...item, kind: 'reports' })),
       ...readLocalList(FEEDBACK_KEY).map(item => ({ ...item, kind: 'feedback' })),
     ].filter(item => Number.isSafeInteger(item?.id) && item.id > 0 &&
         typeof item.key === 'string' && /^[a-z0-9_-]{32,128}$/i.test(item.key))
       .map(({ kind, id, key }) => ({ kind, id, key }));
     const visitor = existingVisitorHeaders();
+    const confirmed = new Set();
+    let unverified = false;
     if (API && (items.length || Object.keys(visitor).length)) {
       for (let offset = 0; offset < Math.max(1, items.length); offset += 1000) {
         const signal = typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(25000) : undefined;
@@ -1379,13 +1413,28 @@ async function eraseOwnData(button) {
         const result = await response.json().catch(() => ({}));
         if (!response.ok || result.ok !== true) throw Error(response.status === 404
           ? 'Die Serverfunktion zum Löschen wird noch eingerichtet.' : (result.error || 'Die Löschung konnte nicht bestätigt werden.'));
+        if (Array.isArray(result.items)) {
+          const submitted = items.slice(offset, offset + 1000);
+          submitted.forEach((item, index) => {
+            if (result.items[index]?.confirmed === true) confirmed.add(item.key);
+            else unverified = true;
+          });
+          for (const key of [OWNER_KEY, COMMENTS_KEY, REPORTS_KEY, FEEDBACK_KEY]) {
+            const saved = readLocalList(key);
+            const remaining = saved.filter((item) => !confirmed.has(item.key));
+            if (remaining.length !== saved.length) writeLocalList(key, remaining);
+          }
+          temporaryReports = temporaryReports.filter((item) => !confirmed.has(item.key));
+        }
       }
     }
-    for (const storage of [localStorage, sessionStorage]) {
-      for (const key of Object.keys(storage)) if (key.startsWith('eupdate_')) storage.removeItem(key);
+    if (unverified) {
+      const contact = siteConfig.controllerEmail ? ' Für Rückfragen erreichst du den Betreiber unter ' + siteConfig.controllerEmail + '.' : '';
+      const local = document.querySelector('[data-erase-local-data]');
+      if (local) local.hidden = false;
+      throw Error('Bestätigte Einträge wurden entfernt. Die Schlüssel der übrigen Einträge bleiben für eine Rückfrage auf diesem Gerät.' + contact);
     }
-    sessionStorage.setItem('eupdate_data_erasure_done', '1');
-    location.reload();
+    clearCommunityStorage();
   } catch (error) {
     const message = error.name === 'TimeoutError' ? 'Der Server hat zu lange gebraucht. Versuche es erneut.' :
       error instanceof TypeError ? 'Der Server ist gerade nicht erreichbar. Versuche es erneut.' : error.message;
@@ -1632,66 +1681,70 @@ async function refreshOwnComments() {
   await refreshOwnStatus();
 }
 
-function reportForm(value) {
-  if (!API || !siteConfig.legalReady) {
-    toast('Meldungen sind nach Einrichtung des Betreiberkontakts möglich.');
-    return;
-  }
-  const [kind, raw] = value.split(':'),
-    id = Number(raw);
-  if (!['comments', 'sets', 'creators'].includes(kind) || !Number.isSafeInteger(id) || id < 1) return;
-  modal(
-    head('Inhalt melden', 'Die Meldung geht privat an eUpdate.') +
-      '<form id="reportForm" class="form-grid" data-kind="' +
-      kind +
-      '" data-target="' +
-      id +
-      '"><p class="wide report-target">' +
-      html(
-        kind === 'comments' ? 'Kommentar' : kind === 'creators' ? 'Streamer-Loadout' : 'Community-Loadout',
-      ) +
-      ' #' +
-      id +
-      '</p><label>Name<input class="field" name="name" maxlength="60" required autocomplete="name"></label><label>E-Mail für Rückfragen<input class="field" name="email" type="email" maxlength="180" required autocomplete="email"></label><label class="wide">Was ist problematisch?<textarea class="field" name="reason" minlength="10" maxlength="1500" required placeholder="Beschreibe den Inhalt und warum er aus deiner Sicht entfernt werden sollte."></textarea></label><label class="wide consent comment-consent"><input type="checkbox" name="goodFaith" required><span>Ich melde nach bestem Wissen und Gewissen. Meine Angaben werden zur Bearbeitung der Meldung verwendet. <button type="button" id="openPrivacy">Datenschutz</button></span></label><div class="dialog-actions wide"><button type="submit" class="primary-btn">Meldung senden →</button><button type="button" class="ghost-btn" data-close>Abbrechen</button></div></form><p class="fine-print">Name und E-Mail erscheinen nicht öffentlich. Bestätigung und Bearbeitungsstand findest du unter „Meine Meldungen“ auf diesem Gerät. Bei Rückfragen kannst du den Betreiber kontaktieren.</p>',
-  );
+
+function reportForm(value = 'page') {
+  if (!API) return;
+  const [kind, raw] = value.split(':');
+  const id = Number(raw);
+  const pageReport = kind === 'page';
+  if (!pageReport && (!['comments', 'sets', 'creators'].includes(kind) || !Number.isSafeInteger(id) || id < 1)) return;
+  const name = kind === 'comments' ? 'Kommentar' : kind === 'creators' ? 'Streamer-Loadout' : 'Community-Loadout';
+  modal(head('Inhalt melden', 'Deine Meldung geht privat an eUpdate.') +
+    `<form id="reportForm" class="form-grid" data-kind="${kind}" data-target="${pageReport ? 0 : id}">
+      ${pageReport ? `<label class="wide">Genauer Link zum Inhalt<input type="url" class="field" name="location"
+        value="${html(location.href)}" maxlength="600" required></label>` : `<p class="wide report-target">${name} #${id}</p>`}
+      <label>Name<input class="field" name="name" maxlength="60" required autocomplete="name"></label>
+      <label>E-Mail<input class="field" name="email" type="email" maxlength="254" required autocomplete="email"></label>
+      <label class="wide consent comment-consent"><input type="checkbox" name="childProtection">
+        <span>Die Meldung betrifft sexualisierte Gewalt gegen Kinder. Name und E-Mail können in diesem Fall frei bleiben.</span></label>
+      <label class="wide">Was ist rechtswidrig oder problematisch?
+        <textarea class="field" name="reason" minlength="10" maxlength="1500" required
+          placeholder="Beschreibe den Inhalt und begründe deine Meldung."></textarea></label>
+      <label class="wide consent comment-consent"><input type="checkbox" name="goodFaith" required>
+        <span>Meine Angaben sind nach bestem Wissen richtig und vollständig. <button type="button" id="openPrivacy">Datenschutz</button></span></label>
+      <div class="dialog-actions wide"><button type="submit" class="primary-btn">Meldung senden</button>
+        <button type="button" class="ghost-btn" data-close>Schließen</button></div>
+    </form><p class="fine-print">Du findest die Bestätigung und Entscheidung unter „Meine Meldungen“.${siteConfig.reportEmailProvider
+      ? ' Bei Angabe einer E-Mail-Adresse erhältst du beides auch per E-Mail.' : ''}</p>`);
+  const form = el('reportForm');
+  form.elements.childProtection.addEventListener('change', () => {
+    form.elements.name.required = form.elements.email.required = !form.elements.childProtection.checked;
+  });
 }
 
-async function submitReport(e) {
-  e.preventDefault();
-  const form = e.target,
-    button = form.querySelector('[type="submit"]');
+async function submitReport(event) {
+  event.preventDefault();
+  const form = event.target;
+  const button = form.querySelector('[type="submit"]');
   if (button.disabled) return;
   button.disabled = true;
   try {
-    const data = Object.fromEntries(new FormData(form)),
-      x = await apiPost('/api/reports', {
-        targetType: form.dataset.kind,
-        targetId: Number(form.dataset.target),
-        name: data.name,
-        email: data.email,
-        reason: data.reason,
-        goodFaith: data.goodFaith === 'on',
-      }),
-      list = readLocalList(REPORTS_KEY);
-    list.unshift({
-      id: x.id,
-      key: x.receiptKey,
-      status: x.status,
-      decision: '',
-      created: new Date().toISOString(),
-      target: form.dataset.kind + ':' + form.dataset.target,
+    const data = Object.fromEntries(new FormData(form));
+    const report = await apiPost('/api/reports', {
+      targetType: form.dataset.kind,
+      targetId: Number(form.dataset.target),
+      location: data.location,
+      name: data.name,
+      email: data.email,
+      reason: data.reason,
+      childProtection: data.childProtection === 'on',
+      goodFaith: data.goodFaith === 'on',
     });
-    writeLocalList(REPORTS_KEY, list);
+    const entry = { id: report.id, key: report.receiptKey, status: report.status, decision: '',
+      created: new Date().toISOString(), target: form.dataset.kind + ':' + form.dataset.target };
+    const list = readLocalList(REPORTS_KEY);
+    list.unshift(entry);
+    if (!writeLocalList(REPORTS_KEY, list)) temporaryReports.unshift(entry);
     myReports();
-    toast('Meldung eingegangen. Deine Bestätigung ist gespeichert.');
-  } catch (e) {
+    toast('Meldung eingegangen.');
+  } catch (error) {
     button.disabled = false;
-    toast(e.message);
+    toast(error.message);
   }
 }
 
 function myReports() {
-  const list = readLocalList(REPORTS_KEY);
+  const list = temporaryReports.concat(readLocalList(REPORTS_KEY));
   modal(
     head('Meine Meldungen', 'Private Bestätigung und Bearbeitungsstand') +
       (list.length
@@ -1713,7 +1766,10 @@ function myReports() {
                 html(x.decision || 'Deine Meldung ist eingegangen und wird geprüft.') +
                 '</p><small>' +
                 html(new Date(x.created).toLocaleString('de-DE')) +
-                '</small><button class="ghost-btn" data-report-status="' +
+                '</small>' +
+                (temporaryReports.includes(x) ? '<label>Empfangsschlüssel sichern<input class="field" readonly value="' +
+                  html(x.key) + '"></label>' : '') +
+                '<button class="ghost-btn" data-report-status="' +
                 x.id +
                 '">Stand prüfen ↻</button></article>',
             )
@@ -1725,7 +1781,7 @@ function myReports() {
           html(siteConfig.controllerEmail) +
           '">Betreiber kontaktieren ↗</a>'
         : '') +
-      '<div class="dialog-actions"><button class="ghost-btn" id="ownPosts">Meine Beiträge</button><button class="ghost-btn" data-close>Schließen</button></div>',
+      '<div class="dialog-actions"><button class="ghost-btn" data-report="page">Seiteninhalt melden</button><button class="ghost-btn" id="ownPosts">Meine Beiträge</button><button class="ghost-btn" data-close>Schließen</button></div>',
   );
 }
 
@@ -1734,7 +1790,7 @@ async function refreshReportStatus(id) {
   if (button?.disabled) return;
   if (button) button.disabled = true;
   const list = readLocalList(REPORTS_KEY),
-    item = list.find((x) => x.id === id);
+    item = temporaryReports.concat(list).find((x) => x.id === id);
   if (!item) return;
   try {
     const x = await apiPost('/api/reports/' + id + '/status', { receiptKey: item.key });
@@ -1918,17 +1974,7 @@ el('entryImprint').onclick = imprint;
 
 el('entryOwn').onclick = ownPosts;
 
-el('entryReport').onclick = () => {
-  const email = siteConfig.controllerEmail;
-  modal(
-    head('Inhalt melden', 'Auch ohne Bestätigung der Nutzungsbedingungen') +
-      '<p>Nenne die Beitragsnummer oder den Link, beschreibe den Inhalt und warum er rechtswidrig sein könnte.</p>' +
-      (email
-        ? '<a class="primary-btn" href="mailto:' + html(email) + '">Betreiber kontaktieren</a>'
-        : '<p>Der Betreiberkontakt ist noch nicht eingerichtet. Öffne später das Impressum.</p>') +
-      '<button class="ghost-btn" id="myReports">Meine Meldungen ansehen</button>',
-  );
-};
+el('entryReport').onclick = () => reportForm('page');
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Tab' || el('termsGate').hidden || !el('modal').hidden) return;
@@ -1961,6 +2007,11 @@ function activateView(view) {
 }
 
 function start() {
+  const reportLink = document.createElement('button');
+  reportLink.type = 'button';
+  reportLink.dataset.report = 'page';
+  reportLink.textContent = 'Inhalt melden';
+  document.querySelector('.legal-footer #myReports')?.before(reportLink);
   checkTermsGate();
   updateSupportHeart();
   if (!API) el('supportCount').textContent = state.liked ? '1' : '0';
