@@ -160,19 +160,21 @@ function exportGear(b, game, mode) {
     .filter((x) => x.value && x.value !== 'Keine' && x.value !== 'None');
 }
 
-async function exportThreePng(item = null, direct = false) {
+async function exportLoadoutImages(item = null, direct = false, weaponId) {
   const b = item ? { ...item, parts: item.parts || item.attachments || {}, gear: item.gear || {} } : build(),
     weapons = [item ? BY[item.primary] : weapon('primary'), item ? BY[item.secondary] : weapon('secondary')];
-  if (weapons.some((w) => !w)) {
+  const selectedPage = weaponId ? weapons.findIndex((w) => w?.id === weaponId) : -1;
+  if (weaponId ? selectedPage < 0 : weapons.some((w) => !w)) {
     toast('Waffen nicht verfügbar');
     return;
   }
+  const single = selectedPage >= 0;
   const accent = siteConfig.accent || '#ffda0a',
     results = [],
     mode = item?.mode || state.mode,
-    gear = exportGear(b, item?.game || state.game, mode);
+    gear = single ? [] : exportGear(b, item?.game || state.game, mode);
   const logo = await image(siteConfig.logo || LOGO);
-  for (let page = 0; page < 3; page++) {
+  for (const page of single ? [selectedPage] : [0, 1, 2]) {
     const w = weapons[page] || null,
       parts = w ? b.parts[w.id] || [] : [],
       entries = page === 2 ? gear : parts;
@@ -201,7 +203,7 @@ async function exportThreePng(item = null, direct = false) {
     ctx.fillText(siteConfig.appName || 'eUpdate', 145, 82);
     ctx.fillStyle = accent;
     ctx.font = 'bold 22px Arial';
-    ctx.fillText('MEIN LOADOUT  ·  ' + (page + 1) + '/3', 145, 116);
+    ctx.fillText(single ? 'WAFFENSETUP' : 'MEIN LOADOUT  ·  ' + (page + 1) + '/3', 145, 116);
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 48px Arial';
     ctx.fillText(['PRIMÄRWAFFE', 'SEKUNDÄRWAFFE', 'PERKS & GRANATEN'][page], 48, 196);
@@ -264,11 +266,25 @@ async function exportThreePng(item = null, direct = false) {
     ctx.fillText('eUpdate · ' + ['Primärwaffe', 'Sekundärwaffe', 'Ausrüstung'][page], 48, c.height - 45);
     const blob = await new Promise((resolve) => c.toBlob(resolve, 'image/png'));
     if (!blob) throw Error('PNG konnte nicht erstellt werden');
-    results.push({ blob, url: URL.createObjectURL(blob), name: 'eupdate-loadout-' + (page + 1) + '.png' });
+    const name = single ? 'eupdate-' + w.id + '.png' : 'eupdate-loadout-' + (page + 1) + '.png';
+    results.push({ blob, url: URL.createObjectURL(blob), name });
   }
   if (window.eupdateThreeUrls) window.eupdateThreeUrls.forEach((x) => URL.revokeObjectURL(x));
   window.eupdateThreeUrls = results.map((x) => x.url);
   if (window.eupdateThreeArchive) URL.revokeObjectURL(window.eupdateThreeArchive.url);
+  window.eupdateThreeArchive = null;
+  window.eupdateThreeResults = results;
+  const mobile = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  if (single) {
+    modal(
+      head(weaponNames(weapons[selectedPage])[attachmentLanguage], 'Waffenbild mit Aufsätzen') +
+      '<img class="export-preview" src="' + results[0].url + '" alt="Waffenbild mit Aufsätzen">' +
+      '<div class="dialog-actions"><button class="primary-btn" data-export-page="0">Bild ' +
+      (mobile ? 'sichern / teilen ↗' : 'herunterladen ↓') + '</button></div>',
+    );
+    if (direct && !mobile) await saveThreePage(0);
+    return;
+  }
   const archive = await loadoutZip(results);
   window.eupdateThreeArchive = {
     blob: archive,
@@ -278,7 +294,7 @@ async function exportThreePng(item = null, direct = false) {
   modal(
     head('Deine 3 Loadout-Bilder', 'Alle drei PNGs in voller Auflösung zusammen herunterladen oder teilen.') +
       '<div class="dialog-actions"><button class="primary-btn" id="saveAllThreePages">Alle 3 Bilder ' +
-      (/iPhone|iPad|iPod/.test(navigator.userAgent) ? 'sichern / teilen ↗' : 'herunterladen ↓') +
+      (mobile ? 'sichern / teilen ↗' : 'herunterladen ↓') +
       '</button></div><p class="fine-print">Der Download enthält alle drei PNG-Bilder in einer ZIP-Datei. Auf unterstützten Geräten kannst du die drei Bilder gemeinsam teilen.</p>' +
       results
         .map(
@@ -298,8 +314,7 @@ async function exportThreePng(item = null, direct = false) {
         .join('') +
       '<div class="dialog-actions"><button class="ghost-btn" data-close>Schließen</button></div>',
   );
-  window.eupdateThreeResults = results;
-  if (direct && !/iPhone|iPad|iPod/.test(navigator.userAgent)) await saveAllThreePages(false);
+  if (direct && !mobile) await saveAllThreePages(false);
 }
 
 function loadoutCrc32(bytes) {
@@ -405,7 +420,7 @@ async function saveThreePage(index) {
 }
 
 async function exportPng(item = null, direct = false) {
-  return exportThreePng(item, direct);
+  return exportLoadoutImages(item, direct);
   const b = item ? { ...item, parts: item.parts || item.attachments || {}, gear: item.gear || {} } : build(),
     w = item ? BY[item.primary] : weapon('primary'),
     s = item ? BY[item.secondary] : weapon('secondary'),
@@ -701,9 +716,9 @@ async function saveExport() {
   toast('Bild bereit ✓');
 }
 
-async function downloadRank(id, kind) {
+async function downloadRank(id, kind, weaponId) {
   const item = kind === 'creators' ? creators.find((x) => x.id === id) : feed.find((x) => x.id === id);
-  if (item) await exportPng(item, true);
+  if (item) await exportLoadoutImages(item, true, weaponId);
 }
 
 document.addEventListener('click', (e) => {

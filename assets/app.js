@@ -1135,7 +1135,7 @@ function openSupport() {
 document.addEventListener('click', (e) => {
   const n = e.target.closest('button');
   if (!n) return;
-  if (n.dataset.download) downloadRank(Number(n.dataset.download), n.dataset.downloadKind);
+  if (n.dataset.download) downloadRank(Number(n.dataset.download), n.dataset.downloadKind, n.dataset.loadoutWeapon);
   if (n.id === 'openPrivacy') privacy();
   if (n.id === 'openImprint') imprint();
   if (n.id === 'openUsage') modal(head('Nutzungsregeln', 'Öffentlich teilen · ohne Konto') + usageMarkup());

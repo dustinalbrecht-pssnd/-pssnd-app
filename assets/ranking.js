@@ -22,7 +22,7 @@ import { BY, CLASS, GAME, MODE, WM, art } from './katalog.js';
 import { weaponNames } from './katalog-abgleich.js';
 import { renderCurrentDetail } from './loadout.js';
 import { currentParam, navigate, replaceViewParam } from './navigation.js';
-import { loadoutWeaponSeasons, seasonLabel } from './season.js';
+import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { streamerFilterKey, streamerLinks } from './creator.js';
 import { weaponProfile, weaponProfileSummary } from './waffenprofil.js';
 
@@ -50,24 +50,32 @@ function avatar(x) {
         '</span>';
 }
 
-function rankCard(x, i, selectedWeapon) {
-  const weekly = el('feedSort').value === 'week',
-    weapon = (selectedWeapon === x.secondary && BY[x.secondary]) || BY[x.primary] || WM[0],
+function rankCard({ loadout: x, weaponId }, i, weekly) {
+  const weapon = BY[weaponId || x.primary] || WM[0],
+    title = weaponId ? weaponNames(weapon).de : x.title,
     n = weekly ? 1 : i + 1,
     isTop = weekly || i === 0,
     by = x.name || 'Community',
     streamer = x.kind === 'creators',
     liked = Boolean((streamer ? streamerLikes : likedIds)[x.id]),
-    detailAttrs = ' data-detail="' + x.id + '" data-detail-kind="' + x.kind + '"';
+    busy = likeBusy.has(x.kind + ':' + x.id),
+    weaponAttr = weaponId ? ' data-loadout-weapon="' + html(weaponId) + '"' : '',
+    detailAttrs = ' data-detail="' + x.id + '" data-detail-kind="' + x.kind + '"' + weaponAttr;
   const seasons = loadoutWeaponSeasons(x)
+    .filter(([id]) => !weaponId || id === weaponId)
     .map(([id, season]) => {
       const slot = id === x.primary ? 'Primär' : 'Sekundär';
       return '<span class="season-chip">' + slot + ' · ' + seasonLabel(season) + '</span>';
     })
     .join('');
-  const profiles = [['Primär', x.primary], ['Sekundär', x.secondary]].map(([slot, id]) => {
+  const slots = weaponId
+    ? [[weaponId === x.primary ? 'Primär' : 'Sekundär', weaponId]]
+    : [['Primär', x.primary], ['Sekundär', x.secondary]];
+  const profiles = slots.map(([slot, id]) => {
+    if (!id) return '';
     const summary = weaponProfileSummary(x, id);
-    const name = BY[id] ? weaponNames(BY[id]).de : '';
+    if (weaponId) return '<li><span>' + html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
+    const name = weaponNames(BY[id]).de;
     return summary ? '<li><strong>' + html(name || slot) + '</strong><span>' + html(slot + ' · ' + summary) + '</span></li>' : '';
   }).join('');
   const media =
@@ -76,8 +84,8 @@ function rankCard(x, i, selectedWeapon) {
     '</span><span class="rank-heart">♥ ' +
     Number(weekly ? x.weekLikes || 0 : x.likes || 0).toLocaleString('de-DE') +
     (weekly ? ' diese Woche' : '') +
-    '</span><button class="rank-art"' + detailAttrs + ' aria-label="Loadout ' +
-    html(x.title) +
+    '</span><button class="rank-art"' + detailAttrs + ' aria-label="' +
+    (weaponId ? '' : 'Loadout ') + html(title) +
     ' öffnen">' +
     art(weapon) +
     '</button></div>';
@@ -93,7 +101,7 @@ function rankCard(x, i, selectedWeapon) {
     (streamer ? '<span class="rank-tag streamer-tag">Streamer</span>' : '') +
     seasons +
     '</div><h2><button' + detailAttrs + '>' +
-    html(x.title) +
+    html(title) +
     '</button></h2><p class="rank-author">' +
     avatar(x) +
     '<span>von ' +
@@ -105,8 +113,8 @@ function rankCard(x, i, selectedWeapon) {
     '</div><div class="rank-actions"><button class="like-btn" ' + (streamer ? 'data-like-creator' : 'data-like') + '="' +
     x.id +
     '" aria-pressed="' +
-    liked +
-    '" aria-label="' +
+    liked + '"' + (busy ? ' disabled' : '') +
+    ' aria-label="' +
     (liked ? 'Like entfernen' : 'Loadout liken') +
     '">' +
     (liked ? '♥' : '♡') +
@@ -120,35 +128,28 @@ function rankCard(x, i, selectedWeapon) {
     '</button>' +
     '<button class="copy-btn" data-download="' +
     x.id +
-    '" data-download-kind="' + x.kind + '">Als Bild herunterladen <span>↓</span></button>' +
-    (streamer ? '<button class="copy-btn" data-copy-creator="' + x.id + '">Loadout kopieren →</button>' : '') +
+    '" data-download-kind="' + x.kind + '"' + weaponAttr + '>' +
+    (weaponId ? 'Waffenbild herunterladen' : 'Als Bild herunterladen') + ' <span>↓</span></button>' +
+    (streamer && !weaponId ? '<button class="copy-btn" data-copy-creator="' + x.id + '">Loadout kopieren →</button>' : '') +
     '</div></div></article>'
   );
 }
 
-function weaponMatches(loadout, weapon, gun, distance) {
-  return Boolean(weapon) && (gun === 'all' || weapon === gun) &&
-    (distance === 'all' || weaponProfile(loadout, weapon).distance === distance);
+function matchingWeapons(loadout, gun, distance) {
+  return [...new Set([loadout.primary, loadout.secondary])]
+    .filter((id) => BY[id] && (gun === 'all' || id === gun) &&
+      (distance === 'all' || weaponProfile(loadout, id).distance === distance))
+    .map((weaponId) => ({ loadout, weaponId, season: weaponSeason(loadout, weaponId) }));
 }
 
-function matchingWeaponSeasons(loadout, gun, season, distance) {
-  return loadoutWeaponSeasons(loadout).filter(
-    ([weapon, number]) => weaponMatches(loadout, weapon, gun, distance) && (season === undefined || number === season),
-  );
-}
-
-function seasonMeta(loadouts, gun, season, distance) {
+function seasonMeta(results) {
   const topLikes = new Map();
-  return loadouts.filter((loadout) => {
+  return results.filter(({ loadout, weaponId }) => {
     const likes = Number(loadout.likes || 0);
     if (likes <= 0) return false;
-    let top = false;
-    for (const [weapon] of matchingWeaponSeasons(loadout, gun, season, distance)) {
-      // Loadouts are already ordered by descending likes.
-      if (!topLikes.has(weapon)) topLikes.set(weapon, likes);
-      if (likes === topLikes.get(weapon)) top = true;
-    }
-    return top;
+    // Results are already ordered by descending loadout likes.
+    if (!topLikes.has(weaponId)) topLikes.set(weaponId, likes);
+    return likes === topLikes.get(weaponId);
   });
 }
 
@@ -166,49 +167,53 @@ function rankAudience(items) {
   return onlyStreamers ? items.filter((item) => item.kind === 'creators') : items;
 }
 
-function redrawFeed() {
-  if (!el('feedGame')) return;
+function rankScope(items) {
   const game = el('feedGame').value,
     mode = el('feedMode').value,
+    streamer = el('feedStreamer')?.value || 'all';
+  return rankAudience(items).filter((loadout) =>
+    (game === 'all' || loadout.game === game) &&
+    (mode === 'all' || loadout.mode === mode) &&
+    (streamer === 'all' || streamerFilterKey(loadout) === streamer)
+  );
+}
+
+function redrawFeed() {
+  if (!el('feedGame')) return;
+  const mode = el('feedMode').value,
     gun = el('feedWeapon').value,
     distance = el('feedDistance')?.value || 'all',
     sort = el('feedSort').value,
     seasonFilter = el('feedSeason'),
-    streamer = el('feedStreamer')?.value || 'all',
     onlyStreamers = el('feedAudience')?.value === 'creators';
   const meta = sort === 'meta',
     weekly = sort === 'week';
   let season = seasonFilter?.value && seasonFilter.value !== 'all' ? Number(seasonFilter.value) : undefined;
+  const showWeapons = gun !== 'all' || distance !== 'all' || season !== undefined || meta;
   const items = rankingLoadouts();
-  const sources = weekly ? weeklyLoadouts(items, onlyStreamers) : items;
-  let shown = rankAudience(sources).filter(
-    (x) =>
-      (game === 'all' || x.game === game) &&
-      (mode === 'all' || x.mode === mode) &&
-      (gun === 'all' && distance === 'all' ||
-        [x.primary, x.secondary].some(weapon => weaponMatches(x, weapon, gun, distance))) &&
-      (streamer === 'all' || streamerFilterKey(x) === streamer),
+  const loadouts = rankScope(weekly ? weeklyLoadouts(items, onlyStreamers) : items).sort(
+    sort === 'new'
+      ? (a, b) => (Date.parse(b.created) || 0) - (Date.parse(a.created) || 0)
+      : compareRank,
   );
+  let shown = showWeapons
+    ? loadouts.flatMap((loadout) => matchingWeapons(loadout, gun, distance))
+    : loadouts.map((loadout) => ({ loadout }));
   if (seasonFilter) seasonFilter.options[0].textContent = meta ? 'Neueste Season' : 'Alle Seasons';
   if (meta && season === undefined) {
-    for (const loadout of shown) {
-      for (const [, number] of matchingWeaponSeasons(loadout, gun, undefined, distance)) {
-        if (season === undefined || number > season) season = number;
-      }
+    for (const result of shown) {
+      if (result.season !== undefined && (season === undefined || result.season > season)) season = result.season;
     }
   }
-  if (season !== undefined) shown = shown.filter((x) => matchingWeaponSeasons(x, gun, season, distance).length > 0);
-  shown.sort(
-    sort === 'new' ? (a, b) => Date.parse(b.created || 0) - Date.parse(a.created || 0) : compareRank,
-  );
-  if (meta) shown = season === undefined ? [] : seasonMeta(shown, gun, season, distance);
+  if (season !== undefined) shown = shown.filter((result) => result.season === season);
+  if (meta) shown = season === undefined ? [] : seasonMeta(shown);
   const hint = el('rankingHint');
   if (hint) {
     hint.hidden = !weekly && !meta;
     hint.textContent = weekly
       ? 'Die meisten Likes seit Montag, 00:00 Uhr (deutsche Zeit). Bei Gleichstand teilen sich alle Gewinner Platz 1. Entfernte Likes zählen nicht.'
       : meta && season !== undefined
-        ? seasonLabel(season) + ' · Die Loadouts mit den meisten Likes je Waffe.'
+        ? seasonLabel(season) + ' · Je Waffe siehst du die Setups aus den Loadouts mit den meisten Likes.'
         : '';
     if (!hint.textContent) hint.hidden = true;
   }
@@ -216,17 +221,20 @@ function redrawFeed() {
     ? 'Noch kein Wochengewinner für diese Auswahl.'
     : meta
       ? 'Für diese Auswahl gibt es noch keine Season-META.'
-      : season !== undefined
-        ? 'Keine Loadouts für ' + seasonLabel(season) + '.'
-        : 'Hier ist noch kein Loadout veröffentlicht.';
+      : showWeapons
+        ? 'Keine Waffen für diese Filter.'
+        : items.length ? 'Keine Loadouts für diese Filter.' : 'Hier ist noch kein Loadout veröffentlicht.';
   const emptyMessage = weekly
     ? 'Es zählen nur Likes aus der laufenden Woche. Setze die Filter zurück, um die Wochengewinner zu sehen.'
     : meta
       ? 'Für die Season-META braucht ein Loadout eine Waffen-Season und mindestens einen Like.'
-      : 'Wähle einen anderen Filter oder veröffentliche dein Loadout.';
+      : showWeapons
+        ? 'Ändere einen Filter oder setze die Filter zurück.'
+        : 'Wähle einen anderen Filter oder veröffentliche dein Loadout.';
   visibleRank = shown;
+  updateRankStats(shown, showWeapons, weekly);
   el('loadoutList').innerHTML = shown.length
-    ? shown.map((loadout, index) => rankCard(loadout, index, gun)).join('')
+    ? shown.map((result, index) => rankCard(result, index, weekly)).join('')
     : '<div class="empty"><strong>' +
       emptyTitle +
       '</strong><p>' +
@@ -235,8 +243,21 @@ function redrawFeed() {
         ? '<button type="button" class="primary-btn" id="startStreamerLoadout">Streamer-Loadout bauen →</button>'
         : '<button type="button" class="primary-btn" data-view="builder">Loadout bauen →</button>') + '</div>';
   const reset = el('resetRankFilters');
-  if (reset) reset.hidden = !onlyStreamers && mode === 'all' && gun === 'all' && distance === 'all' && sort === 'popular' &&
+  if (reset) reset.hidden = !onlyStreamers && el('feedGame').selectedIndex === 0 &&
+    mode === 'all' && gun === 'all' && distance === 'all' && sort === 'popular' &&
     (!seasonFilter || seasonFilter.value === 'all');
+}
+
+function updateRankStats(results, showWeapons, weekly) {
+  const count = el('loadoutCount');
+  const label = showWeapons ? 'Treffer' : results.length === 1 ? 'Loadout' : 'Loadouts';
+  count.textContent = results.length.toLocaleString('de-DE');
+  count.parentElement.replaceChildren(count, ' ' + label);
+  const loadouts = [...new Set(results.map(({ loadout }) => loadout))];
+  el('likesCount').textContent = loadouts.reduce((sum, loadout) =>
+    sum + Number((weekly ? loadout.weekLikes : loadout.likes) || 0), 0).toLocaleString('de-DE');
+  const streamers = loadouts.filter((loadout) => loadout.kind === 'creators');
+  el('creatorCount').textContent = new Set(streamers.map(streamerFilterKey).filter(Boolean)).size.toLocaleString('de-DE');
 }
 
 let visibleRank = [],
@@ -248,50 +269,48 @@ function renderFeed() {
   updateCommunityConnection(communityConnection);
   setFeedStatus(feedStatusText);
   const all = rankingLoadouts();
-  el('loadoutCount').textContent = all.length.toLocaleString('de-DE');
-  el('likesCount').textContent = all.reduce((n, x) => n + Number(x.likes || 0), 0).toLocaleString('de-DE');
-  el('creatorCount').textContent = new Set(creators.map(streamerFilterKey).filter(Boolean)).size.toLocaleString('de-DE');
   const audience = rankAudience(all);
   const name = el('feedStreamer');
   const onlyStreamers = el('feedAudience')?.value === 'creators';
   if (name) {
     name.closest('label').hidden = !onlyStreamers;
-    const selectedStreamer = onlyStreamers ? name.value : 'all';
+    const selectedStreamer = onlyStreamers ? name.value || 'all' : 'all';
     const names = onlyStreamers ? new Map(audience.map((item) => [streamerFilterKey(item), item.name || item.handle]).filter(([key]) => key)) : new Map();
+    if (selectedStreamer !== 'all' && !names.has(selectedStreamer)) {
+      names.set(selectedStreamer, name.selectedOptions[0].textContent);
+    }
     name.innerHTML = '<option value="all">Alle Streamer</option>' + [...names]
       .sort((a, b) => a[1].localeCompare(b[1], 'de'))
       .map(([id, label]) => '<option value="' + html(id) + '">' + html(label) + '</option>').join('');
-    name.value = names.has(selectedStreamer) ? selectedStreamer : 'all';
+    name.value = selectedStreamer;
   }
-  updateRankOptions(audience);
+  updateRankOptions(rankScope(all));
   redrawFeed();
 }
 
-function updateRankOptions(audience) {
-  const game = el('feedGame').value,
-    mode = el('feedMode').value,
-    streamer = el('feedStreamer')?.value || 'all';
-  const scope = audience.filter((item) => (game === 'all' || item.game === game) &&
-    (mode === 'all' || item.mode === mode) && (streamer === 'all' || streamerFilterKey(item) === streamer));
-  const old = el('feedWeapon').value || 'all',
+function updateRankOptions(scope) {
+  const weaponFilter = el('feedWeapon'),
+    old = weaponFilter.value || 'all',
     present = new Set(scope.flatMap((x) => [x.primary, x.secondary]));
-  el('feedWeapon').innerHTML =
+  if (BY[old]) present.add(old);
+  weaponFilter.innerHTML =
     '<option value="all">Alle Waffen</option>' +
     WM.filter((w) => present.has(w.id))
-      .map((w) => '<option value="' + w.id + '">' + html(weaponNames(w).de) + ' (' + w.game.toUpperCase() + ')</option>')
+      .map((w) => '<option value="' + html(w.id) + '">' + html(weaponNames(w).de) + '</option>')
       .join('');
-  el('feedWeapon').value = present.has(old) ? old : 'all';
+  weaponFilter.value = BY[old] ? old : 'all';
   const seasonFilter = el('feedSeason');
   if (seasonFilter) {
-    const selected = seasonFilter.value,
-      seasons = [...new Set(scope.flatMap((x) => loadoutWeaponSeasons(x).map(([, number]) => number)))];
+    const selected = seasonFilter.value || 'all',
+      seasons = new Set(scope.flatMap((x) => loadoutWeaponSeasons(x).map(([, number]) => number)));
+    if (selected !== 'all') seasons.add(Number(selected));
     seasonFilter.innerHTML =
       '<option value="all">Alle Seasons</option>' +
-      seasons
+      [...seasons]
         .sort((a, b) => b - a)
         .map((number) => '<option value="' + number + '">' + seasonLabel(number) + '</option>')
         .join('');
-    seasonFilter.value = seasons.includes(Number(selected)) ? selected : 'all';
+    seasonFilter.value = selected;
   }
 }
 
@@ -357,11 +376,13 @@ function compareRank(a, b) {
   );
 }
 
-function rankPlace(id, kind = 'sets') {
+function rankPlace(id, kind = 'sets', weaponId) {
   const matches = (item) => item.id === id && item.kind === kind;
   const sort = el('feedSort');
   if (!sort) return rankingLoadouts().sort(compareRank).findIndex(matches) + 1;
-  const index = visibleRank.findIndex(matches);
+  const index = visibleRank.findIndex((result) =>
+    matches(result.loadout) && (!weaponId || !result.weaponId || result.weaponId === weaponId)
+  );
   return index < 0 ? 0 : sort.value === 'week' ? 1 : index + 1;
 }
 
@@ -370,6 +391,7 @@ document.addEventListener('click', (e) => {
   if (!button) return;
   if (button.dataset.detail !== undefined) navigate('detail', { params: { id: button.dataset.detail,
     ...(button.dataset.detailKind === 'creators' ? { kind: 'creators' } : {}),
+    ...(button.dataset.loadoutWeapon ? { weapon: button.dataset.loadoutWeapon } : {}),
   } });
   if (button.dataset.like) like(Number(button.dataset.like));
   if (button.id === 'refreshFeed') refresh();

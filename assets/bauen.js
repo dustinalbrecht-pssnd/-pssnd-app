@@ -737,6 +737,7 @@ async function postLoadout(e) {
     el('feedGame').value = state.game;
     el('feedMode').value = state.mode;
     el('feedWeapon').value = 'all';
+    if (el('feedDistance')) el('feedDistance').value = 'all';
     if (el('feedSeason')) el('feedSeason').value = 'all';
     el('feedSort').value = 'new';
     redrawFeed();
