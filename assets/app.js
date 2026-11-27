@@ -712,8 +712,12 @@ function privacyMarkup() {
     '<h3>KI-gestützte Aufbereitung öffentlicher Gaming-Nachrichten</h3><p>eUpdate nutzt Cloudflare Workers AI (Cloudflare, Inc.) zur automatisierten sprachlichen Bearbeitung, Übersetzung und Zusammenfassung öffentlich zugänglicher Gaming-Nachrichten. Dabei werden Artikeltexte, Überschriften und Quellenangaben an das KI-Modell übermittelt. Nutzereingaben aus Kommentaren, Loadouts, Profilen, Feedback und private Kontaktdaten werden für diese News-Funktion nicht an das KI-Modell übermittelt. Die News-Verarbeitung erfolgt serverseitig unabhängig vom einzelnen Besuch. Beim bloßen Lesen einer News wird keine personenbezogene Anfrage an das KI-Modell gesendet. Enthalten öffentlich zugängliche Quellartikel personenbezogene Angaben, können diese Teil der KI-Eingabe sein; ihre Verarbeitung muss im Einzelfall auf eine Rechtsgrundlage gestützt werden. Die hierfür eingesetzten Cloudflare-Dienste und etwaige Drittlandübermittlungen sind unter den Hostingangaben beschrieben. Weitere Informationen: <a href="https://developers.cloudflare.com/workers-ai/platform/data-usage/" target="_blank" rel="noopener noreferrer">Cloudflare Workers AI – Datenverwendung ↗</a>.</p>' +
     '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden. Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Profilfotos werden im Browser zugeschnitten und auf dem Server mit Cloudflare Images als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
     '<h3>4. Kommentare und Moderation</h3><p>Bei einem Kommentar speichern wir den optionalen Spielernamen, Text, Loadout-Bezug, Zeitpunkt, Freigabestatus, Nachweis deiner Bestätigung und Einwilligung und einen Hash deines privaten Löschschlüssels. Kommentare bleiben bis zur manuellen Freigabe privat. Für öffentliche Kommentare bestätigst du ebenfalls Volljährigkeit und die Nutzungsregeln. Ohne Namen erscheint „Gast“. Grundlage der Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO; Moderation und Missbrauchsschutz beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Kommentare über „Meine Beiträge“ löschen oder deine Einwilligung über den Betreiberkontakt widerrufen.</p><p>Ein serverseitiger Regelfilter prüft Namen und Text auf hinterlegte Begriffe, Links, mögliche Kontaktangaben, auffällige Schreibweisen und Spam. Bekannte gesperrte Ausdrücke und direkte Links führen zur Ablehnung; andere erkannte Auffälligkeiten zur manuellen Prüfung. Dabei wird keine externe KI genutzt und kein Kommentar an einen KI-Anbieter gesendet. Abgewiesene Texte werden nicht in der App-Datenbank gespeichert. Der Filter kann harmlose Texte anhalten oder problematische Texte übersehen. Öffentliche Inhalte lassen sich melden; der Betreiber kann sie ausblenden oder löschen. Bei einer irrtümlichen Ablehnung oder einer offenen Prüfung kannst du den Betreiber kontaktieren.</p>' +
-    '<h3>5. Meldungen problematischer Inhalte</h3><p>Du kannst Nutzereinträge und Seiteninhalte privat melden. Wir speichern Inhalt, Begründung, Zeitpunkt und Entscheidung sowie, falls angegeben, Name und E-Mail-Adresse. Bei Meldungen zu sexualisierter Gewalt gegen Kinder können die Kontaktdaten wegbleiben. Wir nutzen die Daten zur Bearbeitung gesetzlicher Meldepflichten und zum Schutz Betroffener. Bei einer angegebenen Adresse versenden wir Bestätigung und Entscheidung über den eingerichteten Versanddienst. ' +
-    (c.reportEmailProvider === 'resend' ? 'Hierfür nutzen wir Resend.' : c.reportEmailProvider === 'cloudflare' ? 'Hierfür nutzen wir Cloudflare Email Service.' : '') + ' Du kannst die Entscheidung auch mit deinem Empfangsschlüssel abrufen.</p>' +
+    '<h3>5. Meldungen problematischer Inhalte</h3>' +
+    (c.reportContactMode === 'in-app'
+      ? '<p>Du kannst Nutzereinträge und Seiteninhalte privat melden. Wir speichern die Fundstelle, die Begründung, den Zeitpunkt, den Bearbeitungsstand, die Entscheidung und deinen Namen, wenn du ihn angibst. Bei Meldungen zu sexualisierter Gewalt gegen Kinder kannst du deinen Namen weglassen. Wir verarbeiten die Angaben zur Erfüllung anwendbarer gesetzlicher Pflichten nach Art. 6 Abs. 1 lit. c DSGVO und im Übrigen zur Prüfung von Verstößen und zum Schutz Betroffener nach Art. 6 Abs. 1 lit. f DSGVO.</p>' +
+        '<p>eUpdate bestätigt den Eingang direkt in der App. Mit deinem privaten Empfangsschlüssel kannst du die Entscheidung unter „Meine Meldungen“ abrufen. Die App speichert die Meldungsnummer und den Empfangsschlüssel in deinem Browser und der Server speichert den Hash des Schlüssels.</p>'
+      : '<p>Du kannst Nutzereinträge und Seiteninhalte privat melden. Wir speichern Inhalt, Begründung, Zeitpunkt und Entscheidung sowie, falls angegeben, Name und E-Mail-Adresse. Bei Meldungen zu sexualisierter Gewalt gegen Kinder können die Kontaktdaten wegbleiben. Wir nutzen die Daten zur Bearbeitung gesetzlicher Meldepflichten und zum Schutz Betroffener. Bei einer angegebenen Adresse versenden wir Bestätigung und Entscheidung über den eingerichteten Versanddienst. ' +
+        (c.reportEmailProvider === 'resend' ? 'Hierfür nutzen wir Resend.' : c.reportEmailProvider === 'cloudflare' ? 'Hierfür nutzen wir Cloudflare Email Service.' : '') + ' Du kannst die Entscheidung auch mit deinem Empfangsschlüssel abrufen.</p>') +
     '<h3>6. Likes und Missbrauchsschutz</h3><p>Cloudflare Turnstile prüft den Zugriff bei der ersten Veröffentlichung, beim Kommentieren oder Liken. Cloudflare verarbeitet dafür Verbindungs- und technische Browserdaten. eUpdate nutzt die Bestätigung für eine zeitlich begrenzte Sitzung und die Verhinderung automatisierten Missbrauchs. Erst bei einer ausdrücklich ausgelösten Serveraktion wird eine zufällige Kennung auf deinem Gerät gespeichert. Der Server speichert einen mit geheimem Zusatz gebildeten Hash davon, um deine Like-Auswahl wiederzufinden und doppelte Likes zu verhindern. Ein erneuter Klick entfernt deinen Like und den zugehörigen Datenbankeintrag. Für Tageslimits wird aus IP-Adresse, Datum und geheimem Zusatz ein kurzlebiger Hash gebildet. Die App-Datenbank speichert keine vollständige IP-Adresse; Hostinganbieter können IP-Adressen in eigenen Protokollen verarbeiten. Grundlage ist Art. 6 Abs. 1 lit. f DSGVO für die gewünschte Like-Funktion und den Schutz vor Missbrauch. Die Rangliste verwendet Like-Zahlen, kein personenbezogenes Profiling. Ohne Konto ist der Missbrauchsschutz begrenzt.</p>' +
     '<h3>7. Speicherfristen und Löschung</h3><p>Nicht freigegebene und ausgeblendete Loadouts werden nach 30 Tagen, öffentliche Loadouts nach 365 Tagen bei der nächsten automatischen Bereinigung gelöscht. Ihre Like-Einträge und Kommentare werden mitgelöscht. Nicht freigegebene oder ausgeblendete Kommentare werden nach 7 Tagen, alle Kommentare spätestens nach 90 Tagen bei der nächsten Bereinigung entfernt. Meldungen werden 90 Tage nach Abschluss, spätestens 180 Tage nach Eingang bereinigt. Private Moderationsmitteilungen speichern nur Beitragsbezug, Löschschlüssel-Hash, Status, Begründung und Zeitpunkt. Sie werden nach 180 Tagen bei der nächsten Bereinigung gelöscht; ein entfernter Inhalt wird darin nicht erneut gespeichert. Support-Likes werden nach 365 Tagen entfernt. Tageslimit-Hashes verfallen nach 24 Stunden und werden bei der nächsten Bereinigung gelöscht. Die Bereinigung läuft über den eingerichteten regelmäßigen Cloudflare-Cron. Du und der Administrator können Inhalte vorher löschen. Lokale Daten bleiben bis zu deiner Löschung oder dem Entfernen der Browserdaten. Anbieterprotokolle und Datenbank-Sicherungskopien können bis zum Ablauf der jeweiligen Anbieterfristen fortbestehen.</p>' +
     '<h3>8. Daten auf deinem Gerät</h3><p>LocalStorage enthält nach Nutzung der jeweiligen Funktionen Loadout-Entwürfe, lokal vorbereitete Bilder, Like-Auswahl sowie private Lösch- und Empfangsschlüssel. Neue öffentliche Nachrichten- und Katalogdaten bleiben im Arbeitsspeicher dieses Tabs. Ältere Cache-Daten aus Vorversionen kannst du über „Meine Daten löschen“ entfernen. Für eigene Kommentare wird außerdem eine lokale Kopie mit Status gespeichert. Das ermöglicht dir Speichern, Wiederfinden und Löschen ohne Konto. Technisch notwendige Speicherung für ausdrücklich gewünschte Funktionen erfolgt gemäß § 25 Abs. 2 Nr. 2 TDDDG. Es gibt keine Analyse-Cookies, Werbetracker oder automatisch geladenen Social-Media-Einbettungen. „Meine Daten löschen“ entfernt anhand der vorhandenen Schlüssel und Gerätekennung deine zuordenbaren gespeicherten Beiträge, Kommentare, Meldungen, Likes, Feedback und Protokolleinträge. Anschließend entfernt die Funktion die eUpdate-Daten aus dem Browser. Für Daten aus anderen Browsern nutze den dortigen Speicher oder wende dich an den Betreiber.</p>' +
@@ -724,7 +728,7 @@ function privacyMarkup() {
   );
 }
 
-const PRIVACY_TEMPLATE_VERSION = '2026-11-25-erasure-1';
+const PRIVACY_TEMPLATE_VERSION = '2026-11-27-reports-in-app';
 
 function noticeVersion() {
   return siteConfig.privacyNoticeVersion || PRIVACY_TEMPLATE_VERSION;
@@ -1688,27 +1692,32 @@ function reportForm(value = 'page') {
   const id = Number(raw);
   const pageReport = kind === 'page';
   if (!pageReport && (!['comments', 'sets', 'creators'].includes(kind) || !Number.isSafeInteger(id) || id < 1)) return;
+  const inApp = siteConfig.reportContactMode === 'in-app';
   const name = kind === 'comments' ? 'Kommentar' : kind === 'creators' ? 'Streamer-Loadout' : 'Community-Loadout';
   modal(head('Inhalt melden', 'Deine Meldung geht privat an eUpdate.') +
     `<form id="reportForm" class="form-grid" data-kind="${kind}" data-target="${pageReport ? 0 : id}">
       ${pageReport ? `<label class="wide">Genauer Link zum Inhalt<input type="url" class="field" name="location"
         value="${html(location.href)}" maxlength="600" required></label>` : `<p class="wide report-target">${name} #${id}</p>`}
       <label>Name<input class="field" name="name" maxlength="60" required autocomplete="name"></label>
-      <label>E-Mail<input class="field" name="email" type="email" maxlength="254" required autocomplete="email"></label>
+      ${inApp ? '' : '<label>E-Mail<input class="field" name="email" type="email" maxlength="254" required autocomplete="email"></label>'}
       <label class="wide consent comment-consent"><input type="checkbox" name="childProtection">
-        <span>Die Meldung betrifft sexualisierte Gewalt gegen Kinder. Name und E-Mail können in diesem Fall frei bleiben.</span></label>
+        <span>Die Meldung betrifft sexualisierte Gewalt gegen Kinder. ${inApp
+          ? 'Du kannst in diesem Fall deinen Namen weglassen.' : 'Name und E-Mail können in diesem Fall frei bleiben.'}</span></label>
       <label class="wide">Was ist rechtswidrig oder problematisch?
         <textarea class="field" name="reason" minlength="10" maxlength="1500" required
-          placeholder="Beschreibe den Inhalt und begründe deine Meldung."></textarea></label>
+          placeholder="Beschreibe den Inhalt und begründe deine Meldung."></textarea>
+        ${inApp ? '<small>Für die Begründung genügen die Angaben zum gemeldeten Inhalt.</small>' : ''}</label>
       <label class="wide consent comment-consent"><input type="checkbox" name="goodFaith" required>
         <span>Meine Angaben sind nach bestem Wissen richtig und vollständig. <button type="button" id="openPrivacy">Datenschutz</button></span></label>
       <div class="dialog-actions wide"><button type="submit" class="primary-btn">Meldung senden</button>
         <button type="button" class="ghost-btn" data-close>Schließen</button></div>
-    </form><p class="fine-print">Du findest die Bestätigung und Entscheidung unter „Meine Meldungen“.${siteConfig.reportEmailProvider
+    </form><p class="fine-print">Du findest die Bestätigung und Entscheidung unter „Meine Meldungen“.${!inApp && siteConfig.reportEmailProvider
       ? ' Bei Angabe einer E-Mail-Adresse erhältst du beides auch per E-Mail.' : ''}</p>`);
   const form = el('reportForm');
   form.elements.childProtection.addEventListener('change', () => {
-    form.elements.name.required = form.elements.email.required = !form.elements.childProtection.checked;
+    const required = !form.elements.childProtection.checked;
+    form.elements.name.required = required;
+    if (form.elements.email) form.elements.email.required = required;
   });
 }
 
@@ -1725,7 +1734,7 @@ async function submitReport(event) {
       targetId: Number(form.dataset.target),
       location: data.location,
       name: data.name,
-      email: data.email,
+      email: siteConfig.reportContactMode === 'in-app' ? undefined : data.email,
       reason: data.reason,
       childProtection: data.childProtection === 'on',
       goodFaith: data.goodFaith === 'on',
@@ -1775,8 +1784,8 @@ function myReports() {
             )
             .join('')
         : '<p>Auf diesem Gerät sind noch keine Meldungen gespeichert.</p>') +
-      '<p class="fine-print">Empfangsschlüssel bleiben auf deinem Gerät. Mit dem Betreiberkontakt kannst du Rückfragen stellen oder eine Entscheidung überprüfen lassen.</p>' +
-      (siteConfig.controllerEmail
+      '<p class="fine-print">Empfangsschlüssel bleiben auf deinem Gerät. Über „Stand prüfen“ rufst du die aktuelle Entscheidung ab.</p>' +
+      (siteConfig.reportContactMode !== 'in-app' && siteConfig.controllerEmail
         ? '<a class="text-action" href="mailto:' +
           html(siteConfig.controllerEmail) +
           '">Betreiber kontaktieren ↗</a>'
