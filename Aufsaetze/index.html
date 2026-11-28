@@ -16,8 +16,9 @@
     <meta property="og:description" content="Entdecke Optiken, Läufe, Mündungen und weitere Aufsätze für MW4. Wähle die passenden Teile für deine Waffe und übernimm sie in dein Loadout.">
     <meta property="og:url" content="https://eupdategaming.com/Aufsaetze/">
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=20261128">
   </head>
-  <body>
+  <body class="app-interface">
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
       <div class="terms-shell">
         <div class="terms-brand">eUpdate.</div>
@@ -43,6 +44,15 @@
     </section>
     <header class="topbar">
       <a class="brand" data-view="feed" aria-label="eUpdate Rangliste" href="ranking/"><span class="logo-disc"><img src="assets/bilder/logo.jpg" alt=""></span><span>eUpdate<small>LOADOUTS AUS DER COMMUNITY</small></span></a>
+      <nav class="bottom-nav" aria-label="Hauptmenü">
+        <a data-view="feed" href="ranking/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
+              <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
+              <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
+              <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
+      </nav>
       <button class="support-top" data-support="" aria-label="eUpdate unterstützen">
         ♡ <span id="supportCount">0</span><small> Unterstützen</small>
       </button>
@@ -80,15 +90,6 @@
         <button id="openPrivacy">Datenschutz</button><button id="openImprint">Impressum</button><button id="openUsage">Nutzungsregeln</button><button id="myReports">Meine Meldungen</button>
       </footer>
     </main>
-    <nav class="bottom-nav" aria-label="Hauptmenü">
-      <a data-view="feed" href="ranking/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
-            <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
-            <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
-            <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
-    </nav>
     <div id="modal" class="modal" hidden="">
       <div class="shade" data-close=""></div>
       <section class="dialog" role="dialog" aria-modal="true" aria-label="Auswahl">
@@ -100,12 +101,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
-          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
-          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/news.js": "./assets/news.js?v=oberflaeche-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=oberflaeche-20261128",
+          "./assets/app.js": "./assets/app.js?v=oberflaeche-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=oberflaeche-20261128",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
           "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
-          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
-          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=oberflaeche-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=oberflaeche-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
