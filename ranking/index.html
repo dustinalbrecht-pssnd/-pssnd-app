@@ -16,7 +16,7 @@
     <meta property="og:description" content="Entdecke die MW4-META der Season und beliebte Community-Loadouts für Warzone, Multiplayer, Ranked und DMZ. Filtere nach Waffe und Distanz">
     <meta property="og:url" content="https://eupdategaming.com/ranking/">
     <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "eUpdateGaming", "alternateName": ["eUpdate Gaming", "eUpdate"], "url": "https://eupdategaming.com/"}</script>
-    <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
+    <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
   </head>
   <body>
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -79,6 +79,11 @@
               <option value="mp">Multiplayer</option>
               <option value="ranked">Ranked</option>
               <option value="dmz">DMZ</option>
+            </select></label><label>Ansicht<select id="feedSetupType">
+              <option value="auto">Automatisch</option>
+              <option value="primary">Primärwaffen</option>
+              <option value="secondary">Sekundärwaffen</option>
+              <option value="full">Gesamte Loadouts</option>
             </select></label><label>Waffe<select id="feedWeapon">
               <option value="all">Alle Waffen</option>
             </select></label><label>Einsatzdistanz<select id="feedDistance">
@@ -133,7 +138,20 @@
       </section>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="assets/app.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
+          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
+          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
+        }
+      }
+    </script>
+    <script type="module">import "./assets/app.js";</script>
   
 
 </body></html>
