@@ -60,6 +60,10 @@ import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { distanceOptions, loadoutWeaponProfiles, WEAPON_DISTANCES, WEAPON_HINT_LENGTH, weaponProfile } from './waffenprofil.js';
 import { weaponCheck } from './waffencheck.js';
 import { inAdminBuilder, notifyAdminBuilder } from './admin-baukasten-kontext.js';
+import { generatedLoadoutTitle, ownLoadoutTitle } from './loadout-gestaltung.js';
+import { skinDefinition, weaponSkin } from './waffenskin-katalog.js';
+import { chooseWeaponSkin } from './waffenskin-dialog.js';
+import { renderWeaponSkins } from './waffenskin-renderer.js';
 
 function setGame(game) {
   if (!GAME[game]) return;
@@ -251,6 +255,8 @@ function importLoadout(x, selectedId) {
   b.parts = { ...b.parts };
   b.weaponSeasons = { ...b.weaponSeasons };
   b.weaponProfiles = { ...b.weaponProfiles };
+  b.weaponSkins = { ...b.weaponSkins };
+  b.customTitle = ownLoadoutTitle(x);
   for (const slot of setupSlots(b.setupType)) {
     const id = x[slot];
     if (!id) continue;
@@ -260,6 +266,9 @@ function importLoadout(x, selectedId) {
     delete b.weaponProfiles[id];
     const season = weaponSeason(x, id);
     const profile = weaponProfile(x, id);
+    const skin = weaponSkin(x, slot);
+    if (skin) b.weaponSkins[slot] = skin;
+    else delete b.weaponSkins[slot];
     if (season !== undefined) b.weaponSeasons[id] = season;
     if (profile.distance || profile.hint) b.weaponProfiles[id] = profile;
   }
@@ -274,10 +283,12 @@ function payload() {
   const slots = setupSlots(b.setupType);
   const primary = slots.includes('primary') ? b.primary : '';
   const secondary = slots.includes('secondary') ? b.secondary : '';
-  const selected = { ...b, primary, secondary };
+  const selected = { ...b, primary, secondary, mode: state.mode };
   const seasons = loadoutWeaponSeasons(selected);
   const profiles = loadoutWeaponProfiles(selected);
   const gear = slots.length === 2 ? draftGear(b.gear, state.game, state.mode) : {};
+  const customTitle = ownLoadoutTitle(b);
+  const weaponSkins = Object.fromEntries(slots.map(slot => [slot, weaponSkin(b, slot)]).filter(([, skin]) => skin));
   const attachments = Object.fromEntries([...new Set([primary, secondary].filter(Boolean))].map((weaponId) => {
     const parts = b.parts?.[weaponId] || [];
     const w = BY[weaponId];
@@ -295,6 +306,9 @@ function payload() {
     mode: state.mode,
     primary,
     secondary,
+    title: customTitle || generatedLoadoutTitle(selected, undefined, attachmentLanguage),
+    ...(customTitle ? { customTitle } : {}),
+    ...(Object.keys(weaponSkins).length ? { weaponSkins } : {}),
     ...(slots.length === 1 ? { setupType: slots[0] } : {}),
     attachments,
     gear,
@@ -321,6 +335,7 @@ function updateProfileField(field, slot, key) {
   b.weaponProfiles ??= {};
   if (profile.distance || profile.hint.trim()) b.weaponProfiles[id] = profile;
   else delete b.weaponProfiles[id];
+  if (key === 'distance') updateTitlePlaceholder(b);
   save();
 }
 
@@ -353,6 +368,9 @@ function renderWeaponCards(b) {
           <button type="button" class="ghost-btn" data-pick="${slot}">Waffe ändern</button>
           <button type="button" class="ghost-btn" data-attach="${slot}">
             Aufsätze <span class="build-attachment-count"></span><span aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="ghost-btn build-skin-trigger" data-pick-skin="${slot}" aria-haspopup="dialog">
+            <span>Skin</span><small class="build-skin-name"></small>
           </button>
         </div>
         <div class="build-weapon-profile">
@@ -387,6 +405,10 @@ function renderWeaponCards(b) {
     const attach = card.querySelector('[data-attach]');
     attach.querySelector('.build-attachment-count').textContent = standardCount(parts) + '/' + attachmentLimit();
     attach.disabled = !w;
+    const skin = weaponSkin(b, slot);
+    const skinButton = card.querySelector('[data-pick-skin]');
+    skinButton.disabled = !w;
+    skinButton.querySelector('.build-skin-name').textContent = skinDefinition(skin)?.name || 'Grunddesign';
     const distance = card.querySelector('[data-weapon-distance]');
     const hint = card.querySelector('[data-weapon-hint]');
     const profile = weaponProfile(b, w?.id);
@@ -394,14 +416,28 @@ function renderWeaponCards(b) {
     if (distance !== document.activeElement) distance.value = profile.distance;
     if (hint !== document.activeElement) hint.value = profile.hint;
     card.querySelector('[data-weapon-check]').disabled = !allowed;
-    const picture = w ? art(w) : '';
+    const picture = w ? art(w, skin) : '';
     if (picture !== artButton.weaponArtwork) {
       artButton.innerHTML = picture;
       artButton.weaponArtwork = picture;
+      renderWeaponSkins(artButton);
     }
     artButton.setAttribute('aria-label', name ? label + ' ändern · ' + name : label + ' wählen');
   }
   renderWeaponSeasons(b);
+}
+
+function openSkinPicker(slot) {
+  const w = weapon(slot);
+  if (!w) return;
+  const b = build();
+  chooseWeaponSkin(w, weaponSkin(b, slot), (id) => {
+    b.weaponSkins ??= {};
+    if (id) b.weaponSkins[slot] = id;
+    else delete b.weaponSkins[slot];
+    save();
+    renderWeaponCards(b);
+  });
 }
 
 let currentWeaponCheck;
@@ -499,6 +535,13 @@ function applyWeaponCheckPart(id) {
   toast('Aufsatz übernommen ✓');
 }
 
+function updateTitlePlaceholder(draft) {
+  const title = el('buildLoadoutTitle');
+  if (title) {
+    title.placeholder = generatedLoadoutTitle({ ...draft, mode: state.mode }, undefined, attachmentLanguage);
+  }
+}
+
 function renderBuilder() {
   if (!el('gameSelect')) return;
   for (const button of document.querySelectorAll('[data-audience]')) {
@@ -509,6 +552,9 @@ function renderBuilder() {
   const g = state.game,
     mode = state.mode,
     b = build();
+  const title = el('buildLoadoutTitle');
+  if (title && title !== document.activeElement) title.value = b.customTitle || '';
+  updateTitlePlaceholder(b);
   if (el('buildSetupType')) el('buildSetupType').value = b.setupType || 'full';
   if (el('builderGear')) el('builderGear').hidden = setupSlots(b.setupType).length === 1;
   el('gameSelect').innerHTML = Object.entries(GAME)
@@ -670,10 +716,9 @@ function publish() {
       toast('Wähle zwei unterschiedliche Waffen.');
       return;
     }
-    const names = setupSlots(build().setupType).map(slot => weaponNames(weapon(slot)).de);
     notifyAdminBuilder('prepare', {
       draft,
-      title: names.join(' / ') + ' · ' + MODE[state.mode],
+      title: draft.title,
       kind: state.publisherType === 'streamer' ? 'creators' : 'sets',
     });
     return;
@@ -705,9 +750,9 @@ function publish() {
   const publishesDirectly = siteConfig.supportsDirectLoadoutPublishing === true;
   clearCrop();
   modal(
-    head('Veröffentlichen', 'Dein Setup auf einen Blick') +
+    head('Veröffentlichen', ownLoadoutTitle(build()) || 'Dein Setup auf einen Blick') +
       '<div class="publish-preview"><div class="preview-image weapon-stage">' +
-      art(w) +
+      art(w, weaponSkin(build(), slots[0])) +
       '</div><span class="rank-tag">' +
       html(GAME[state.game]) +
       ' · ' +
@@ -747,6 +792,7 @@ function publish() {
           : 'Nach Prüfung erscheint dein Beitrag in der Rangliste.') +
       '</p>',
   );
+  renderWeaponSkins(el('modalBody'));
 }
 
 async function postLoadout(e) {
@@ -763,7 +809,6 @@ async function postLoadout(e) {
   const photo = crop ? await croppedPhoto() : state.profilePhoto || '';
   const data = {
     ...payload(), name,
-    title: weaponNames(weapon(setupSlots(build().setupType)[0]))[attachmentLanguage] + ' · ' + MODE[state.mode],
     note, photo,
   };
   state.lastName = name;
@@ -847,6 +892,10 @@ document.addEventListener('click', (e) => {
     openWeaponCheck(button.dataset.weaponCheck);
     return;
   }
+  if (button.dataset.pickSkin) {
+    openSkinPicker(button.dataset.pickSkin);
+    return;
+  }
   if (button.dataset.applyCheckPart) {
     applyWeaponCheckPart(button.dataset.applyCheckPart);
     return;
@@ -897,6 +946,11 @@ document.addEventListener('change', (e) => {
   }
 });
 document.addEventListener('input', (e) => {
+  if (e.target.id === 'buildLoadoutTitle') {
+    build().customTitle = e.target.value;
+    save();
+    return;
+  }
   if (e.target.id === 'pickSearch') renderPicker();
   if (e.target.dataset.weaponHint) updateProfileField(e.target, e.target.dataset.weaponHint, 'hint');
   const slot = e.target.dataset.weaponSeason;

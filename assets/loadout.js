@@ -8,17 +8,23 @@ import { attachmentLanguage, attachmentName, languageButtons } from './aufsaetze
 import { weaponNames } from './katalog-abgleich.js';
 import { seasonLabel, weaponSeason } from './season.js';
 import { weaponProfileSummary } from './waffenprofil.js';
+import { loadoutDisplayTitle } from './loadout-gestaltung.js';
+import { skinDefinition, weaponSkin } from './waffenskin-katalog.js';
+import { renderWeaponSkins } from './waffenskin-renderer.js';
 
-function weaponDetail(loadout, weapon, label) {
+function weaponDetail(loadout, weapon, slot) {
+  const label = slot === 'primary' ? 'Primärwaffe' : 'Sekundärwaffe';
   const name = weaponNames(weapon)[attachmentLanguage];
   const season = weaponSeason(loadout, weapon.id);
   const profile = weaponProfileSummary(loadout, weapon.id);
   const parts = (loadout.parts || loadout.attachments || {})[weapon.id] || [];
+  const skin = weaponSkin(loadout, slot);
   return (
     '<section class="detail-section"><div class="detail-stage weapon-stage"><span class="stage-label">' +
     html(label + ' · ' + CLASS[weapon.cls]) +
     (season === undefined ? '' : ' · ' + seasonLabel(season)) +
-    '</span>' + art(weapon) + '<strong>' + html(name) + '</strong>' +
+    '</span>' + art(weapon, skin) + '<strong>' + html(name) + '</strong>' +
+    (skin ? '<span class="detail-skin-name">' + html(skinDefinition(skin).name) + '</span>' : '') +
     (profile ? '<p class="detail-weapon-profile">' + html(profile) + '</p>' : '') +
     '</div><div class="detail-section"><h2 class="eyebrow">Aufsätze</h2><div class="detail-chips">' +
     (parts.length
@@ -55,15 +61,15 @@ function renderCurrentDetail() {
   const full = Boolean(primary && secondary);
   const requested = currentParam('weapon');
   const selected = full ? (requested === x.primary || requested === x.secondary ? BY[requested] : undefined) : primary || secondary;
-  const title = selected ? weaponNames(selected)[attachmentLanguage] : x.title;
+  const title = loadoutDisplayTitle(x, selected?.id, attachmentLanguage);
   const place = rankPlace(x.id, kind, selected?.id);
   const gear = selected ? [] : Object.entries(x.gear || {})
     .filter(([key, value]) => value && GEAR_NAMES[key])
     .map(([key, value]) => GEAR_NAMES[key] + ': ' + gearLabel(key, value, x.mode));
   const weapons = selected
-    ? weaponDetail(x, selected, selected.id === x.primary ? 'Primärwaffe' : 'Sekundärwaffe')
-    : weaponDetail(x, primary || WM[0], 'Primärwaffe') +
-      (secondary ? weaponDetail(x, secondary, 'Sekundärwaffe') : '');
+    ? weaponDetail(x, selected, selected.id === x.primary ? 'primary' : 'secondary')
+    : weaponDetail(x, primary || WM[0], 'primary') +
+      (secondary ? weaponDetail(x, secondary, 'secondary') : '');
   const fullButton = ' data-detail="' + x.id + '" data-detail-kind="' + kind + '"';
   const weaponAttr = selected ? ' data-loadout-weapon="' + html(selected.id) + '"' : '';
   content.innerHTML =
@@ -75,9 +81,9 @@ function renderCurrentDetail() {
     html(title) +
     '</h1><p class="rank-author">' +
     avatar(x) +
-    '<span>von ' +
+    '<span>von <strong>' +
     html(x.name || 'Community') +
-    '</span></p>' + (streamer ? streamerLinks(x) : '') + '</div><div class="detail-place"><b>' +
+    '</strong></span></p>' + (streamer ? streamerLinks(x) : '') + '</div><div class="detail-place"><b>' +
     (place ? '#' + place : '—') +
     '</b><small>PLATZIERUNG</small></div></div>' +
     (selected && full ? '<div class="detail-actions"><button class="ghost-btn"' + fullButton +
@@ -96,6 +102,7 @@ function renderCurrentDetail() {
       ? '<div class="detail-report"><button class="text-action" data-report="' + kind + ':' + x.id + '">Loadout melden</button></div>'
       : '') +
     (x.local ? '<p class="fine-print">Dieser Beitrag ist nur auf diesem Gerät gespeichert.</p>' : '');
+  renderWeaponSkins(content);
 }
 
 export { renderCurrentDetail };

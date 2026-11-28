@@ -20,6 +20,8 @@ import {
 import { addPart, publish, renderBuilder, renderPartRows, saveParts } from './bauen.js';
 import { renderCurrentDetail } from './loadout.js';
 import { apexBlockedSlots, apexConflict } from './apex-regeln.js';
+import { weaponSkin } from './waffenskin-katalog.js';
+import { renderWeaponSkins } from './waffenskin-renderer.js';
 
 let attachmentLanguage = localStorage.getItem('eupdate_attachment_language') === 'en' ? 'en' : 'de';
 
@@ -90,12 +92,13 @@ function renderGunsmith() {
     '</span><button data-pick="' +
     slot +
     '">Waffe ändern →</button></div><div class="gunsmith-gun">' +
-    (w ? art(w) : '') +
+    (w ? art(w, weaponSkin(build(), slot)) : '') +
     '</div><div class="gunsmith-name"><strong>' +
     html(weaponNames(w)[attachmentLanguage] || 'Waffe wählen') +
     '</strong><span>' +
     html(CLASS[w?.cls]) +
     '</span></div></div>';
+  renderWeaponSkins(el('attachmentHero'));
   el('gunsmithLanguage').innerHTML = languageButtons();
   el('attachmentCount').textContent =
     standardCount(parts) +

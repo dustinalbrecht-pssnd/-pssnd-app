@@ -20,7 +20,7 @@ import {
   weeklyStreamerWinnerIds,
   weeklyWinnerIds,
 } from './app.js';
-import { BY, CLASS, GAME, MODE, WM, art } from './katalog.js';
+import { BY, GAME, MODE, WM, art } from './katalog.js';
 import { weaponNames } from './katalog-abgleich.js';
 import { renderCurrentDetail } from './loadout.js';
 import { currentParam, navigate, replaceViewParam } from './navigation.js';
@@ -28,6 +28,11 @@ import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { streamerFilterKey, streamerLinks } from './creator.js';
 import { weaponProfile, weaponProfileSummary } from './waffenprofil.js';
 import { ADMIN_AUTHOR } from './admin-baukasten-kontext.js';
+import { attachmentName } from './aufsaetze.js';
+import { gearLabel } from './ausruestung.js';
+import { authorInitials, loadoutDisplayTitle, loadoutWeapons } from './loadout-gestaltung.js';
+import { skinDefinition } from './waffenskin-katalog.js';
+import { renderWeaponSkins } from './waffenskin-renderer.js';
 
 const advancedFilters = ['feedAudience', 'feedStreamer', 'feedSeason', 'feedGame'];
 const rankingFilters = ['feedWeapon', 'feedDistance', 'feedMode', ...advancedFilters];
@@ -56,11 +61,11 @@ function avatar(x) {
   const src = x.photo || '',
     safe =
       /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) || /^https:\/\/[^\s"<>]+$/.test(src);
+  const { initials, hue } = authorInitials(x.name);
   return safe
     ? '<img class="post-avatar" src="' + html(src) + '" alt="" loading="lazy" decoding="async">'
-    : '<span class="post-avatar fallback-avatar">' +
-        html((x.name || 'C').slice(0, 1).toUpperCase()) +
-        '</span>';
+    : '<span class="post-avatar fallback-avatar author-initials" aria-hidden="true" style="--author-hue:' +
+        hue + '">' + html(initials) + '</span>';
 }
 
 function postLikeButton(item, kind) {
@@ -75,9 +80,39 @@ function postLikeButton(item, kind) {
     '</span><span class="vote-count">' + vote.likes.toLocaleString('de-DE') + '</span></button>';
 }
 
+function rankSetup(loadout, weapons, full) {
+  let remaining = 3;
+  const partMap = loadout.parts || loadout.attachments || {};
+  const partsByWeapon = weapons.map(({ id }) =>
+    (partMap[id] || []).map(part => attachmentName(part) || part.name).filter(Boolean));
+  const rows = weapons.map(({ slot, id, weapon, skin }, index) => {
+    const role = slot === 'primary' ? 'Primär' : 'Sekundär';
+    const label = [role, weaponProfileSummary(loadout, id), skinDefinition(skin)?.name].filter(Boolean).join(' · ');
+    const reserve = partsByWeapon[index + 1]?.length ? 1 : 0;
+    const parts = partsByWeapon[index].slice(0, remaining - reserve);
+    remaining -= parts.length;
+    return '<li><div class="rank-weapon-heading"><strong>' + html(weaponNames(weapon).de) +
+      '</strong><span>' + html(label) + '</span></div>' +
+      (parts.length ? '<div class="rank-build-chips">' +
+        parts.map(name => '<span>' + html(name) + '</span>').join('') + '</div>' : '') + '</li>';
+  });
+  const gear = loadout.gear || {};
+  const present = value => value && !['Keine', 'None'].includes(value);
+  const extra = Object.entries(gear).find(([key, value]) => /^perk\d+$/.test(key) && present(value));
+  const labels = full ? [
+    present(gear.tactical) && gearLabel('tactical', gear.tactical, loadout.mode),
+    extra && gearLabel(extra[0], extra[1], loadout.mode),
+  ].filter(Boolean) : [];
+  return '<ul class="rank-weapon-profiles">' + rows.join('') + '</ul>' +
+    (labels.length ? '<div class="rank-build-chips rank-build-gear">' +
+      labels.map(label => '<span>' + html(label) + '</span>').join('') + '</div>' : '');
+}
+
 function rankCard({ loadout: x, weaponId }, i, weekly) {
-  const weapon = BY[weaponId || x.primary] || WM[0],
-    title = weaponId ? weaponNames(weapon).de : x.title,
+  const weapons = loadoutWeapons(x, weaponId),
+    weapon = weapons[0]?.weapon || BY[weaponId || x.primary || x.secondary] || WM[0],
+    title = loadoutDisplayTitle(x, weaponId),
+    paired = weapons.length === 2,
     n = weekly ? 1 : i + 1,
     isTop = weekly || i === 0,
     by = x.name || 'Community',
@@ -91,25 +126,18 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
       return '<span class="season-chip">' + slot + ' · ' + seasonLabel(season) + '</span>';
     })
     .join('');
-  const slots = weaponId
-    ? [[weaponId === x.primary ? 'Primär' : 'Sekundär', weaponId]]
-    : [['Primär', x.primary], ['Sekundär', x.secondary]];
-  const profiles = slots.map(([slot, id]) => {
-    if (!id) return '';
-    const summary = weaponProfileSummary(x, id);
-    if (weaponId) return '<li><span>' + html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
-    const name = weaponNames(BY[id]).de;
-    return '<li><strong>' + html(name || slot) + '</strong><span>' +
-      html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
-  }).join('');
+  const artwork = paired
+    ? weapons.map(entry => '<span class="rank-art-part">' + art(entry.weapon, entry.skin) + '</span>').join('')
+    : art(weapon, weapons[0]?.skin);
+  const note = x.note || x.description;
   const media =
     '<div class="rank-media weapon-stage"><span class="rank-number" aria-label="Platz ' + n + '">#' +
     n +
     '</span>' + (weekly ? '<span class="rank-heart">♥ ' + Number(x.weekLikes || 0).toLocaleString('de-DE') + ' diese Woche</span>' : '') +
-    '<button class="rank-art"' + detailAttrs + ' aria-label="' +
+    '<button class="rank-art' + (paired ? ' rank-art-pair' : '') + '"' + detailAttrs + ' aria-label="' +
     (weaponId ? '' : 'Loadout ') + html(title) +
     ' öffnen">' +
-    art(weapon) +
+    artwork +
     '</button></div>';
   return (
     '<article class="rank-card' +
@@ -126,11 +154,10 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     html(title) +
     '</button></h2><p class="rank-author">' +
     avatar(x) +
-    '<span>von ' +
+    '<span>von <strong>' +
     html(by) +
-    ' · ' +
-    html(CLASS[weapon.cls]) +
-    '</span></p>' + (profiles ? '<ul class="rank-weapon-profiles">' + profiles + '</ul>' : '') +
+    '</strong></span></p>' + rankSetup(x, weapons, paired) +
+    (note ? '<p class="rank-build-note">' + html(note) + '</p>' : '') +
     (streamer ? streamerLinks(x) : '') +
     '</div><div class="rank-actions">' + postLikeButton(x, x.kind) +
     '<button class="copy-btn" data-download="' +
@@ -260,6 +287,7 @@ function redrawFeed() {
       '</p>' + (onlyStreamers
         ? '<button type="button" class="primary-btn" id="startStreamerLoadout">Streamer-Loadout bauen →</button>'
         : '<button type="button" class="primary-btn" data-view="builder">Loadout bauen →</button>') + '</div>';
+  renderWeaponSkins(el('loadoutList'), true);
   updateFilterChips(setupType, sort);
 }
 

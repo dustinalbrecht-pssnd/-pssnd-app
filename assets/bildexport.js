@@ -7,9 +7,12 @@ import {
   gearVisual,
 } from './ausruestung.js';
 import { LOGO, build, creators, feed, head, modal, setupSlots, siteConfig, state, toast, weapon } from './app.js';
-import { BY, CAT, CLASS, GAME, MODE, artSource } from './katalog.js';
+import { BY, CAT, CLASS, GAME, MODE, artSource, skinArtSource } from './katalog.js';
 import { ATTACHMENT_ART_SLOTS, attachmentLanguage, attachmentName } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
+import { ownLoadoutTitle } from './loadout-gestaltung.js';
+import { skinDefinition, weaponSkin } from './waffenskin-katalog.js';
+import { skinnedImageSource } from './waffenskin-renderer.js';
 
 let outputFilename = '',
   outputBlob = null,
@@ -181,7 +184,11 @@ function exportGear(b, game, mode) {
 }
 
 async function exportLoadoutImages(item = null, direct = false, weaponId) {
-  const b = item ? { ...item, parts: item.parts || item.attachments || {}, gear: item.gear || {} } : build(),
+  const source = item || build();
+  const b = {
+    ...source, parts: source.parts || source.attachments || {}, gear: source.gear || {},
+    weaponSkins: { ...source.weaponSkins },
+  },
     weapons = [item ? BY[item.primary] : weapon('primary'), item ? BY[item.secondary] : weapon('secondary')];
   const slots = setupSlots(b.setupType);
   const chosen = weaponId || (slots.length === 1 ? b[slots[0]] :
@@ -201,6 +208,7 @@ async function exportLoadoutImages(item = null, direct = false, weaponId) {
     const w = weapons[page] || null,
       parts = w ? b.parts[w.id] || [] : [],
       entries = page === 2 ? gear : parts;
+    const skin = w ? weaponSkin(b, page === 0 ? 'primary' : 'secondary') : '';
     const c = document.createElement('canvas');
     c.width = 1080;
     c.height = Math.max(1480, 670 + Math.ceil(entries.length / 2) * 160 + 110);
@@ -229,13 +237,15 @@ async function exportLoadoutImages(item = null, direct = false, weaponId) {
     ctx.fillText(single ? 'WAFFENSETUP' : 'MEIN LOADOUT  ·  ' + (page + 1) + '/3', 145, 116);
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 48px Arial';
-    ctx.fillText(['PRIMÄRWAFFE', 'SEKUNDÄRWAFFE', 'PERKS & GRANATEN'][page], 48, 196);
+    ctx.fillText(ownLoadoutTitle(b) || ['PRIMÄRWAFFE', 'SEKUNDÄRWAFFE', 'PERKS & GRANATEN'][page], 48, 196, 984);
     if (w) {
       drawWeaponBackdrop(ctx, backdrop, 48, 228, 984, 405, 22);
       ctx.fillStyle = accent;
       ctx.font = 'bold 25px Arial';
-      ctx.fillText(weaponNames(w)[attachmentLanguage], 76, 280);
-      const gun = await image(artSource(w));
+      const heading = [weaponNames(w)[attachmentLanguage], skinDefinition(skin)?.name].filter(Boolean).join(' · ');
+      ctx.fillText(heading, 76, 280, 928);
+      const artwork = skin ? await skinnedImageSource(skinArtSource(w), skin) : artSource(w);
+      const gun = await image(artwork);
       drawExportWeapon(ctx, gun, 75, 290, 930, 305);
     } else {
       round(ctx, 48, 228, 984, 215, 22, '#20272d', '#414c55');

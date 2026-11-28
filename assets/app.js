@@ -15,6 +15,7 @@ import { countPageView } from './zugriffe.js';
 import { clearVisitorVerification, needsVisitorVerification, visitorVerification } from './community-verification.js?v=turnstile-likes-20261128';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
 import { ADMIN_BUILDER_STORAGE_KEY, inAdminBuilder, notifyAdminBuilder } from './admin-baukasten-kontext.js';
+import { ownLoadoutTitle } from './loadout-gestaltung.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
 const COMMUNITY_REFRESH_MS = 60_000;
@@ -125,6 +126,7 @@ function modal(content, mode = '') {
   dialog.classList.toggle('feedback-dialog', mode === 'feedback');
   dialog.classList.toggle('standard-dialog', standard);
   dialog.classList.toggle('equipment-picker', mode === 'equipment');
+  dialog.classList.toggle('skin-dialog', mode === 'skin');
   const body = el('modalBody');
   body.innerHTML = content;
   if (standard) {
@@ -220,6 +222,12 @@ async function apiPost(path, payload, { keepalive = false, onSend } = {}) {
   if (payload?.weaponProfiles && siteConfig.supportsWeaponProfiles !== true) {
     throw Error('Der Community-Server braucht das Update für Einsatzdistanz und Waffenhinweise. Dein Entwurf ist gespeichert.');
   }
+  if ((payload?.customTitle || payload?.weaponSkins) && siteConfig.supportsLoadoutDesigns !== true) {
+    await loadSiteConfig();
+    if (siteConfig.supportsLoadoutDesigns !== true) {
+      throw Error('Titel und Skins brauchen das Worker-Update 16.24.0. Dein Entwurf ist gespeichert.');
+    }
+  }
   const isReport = path === '/api/reports' || /^\/api\/reports\/\d+\/status$/.test(path);
   const id = isReport ? '' : await anonId();
   const verify = id && siteConfig.visitorVerification === true && needsVisitorVerification(path, payload);
@@ -266,7 +274,7 @@ function creatorForm() {
     : 'Streamer-Loadout speichern';
   clearCrop();
   modal(
-    head('Streamer-Loadout zeigen', 'Dein gebautes Loadout · Foto und Links sind optional') +
+    head('Streamer-Loadout zeigen', ownLoadoutTitle(build()) || 'Dein gebautes Loadout · Foto und Links sind optional') +
       '<form id="creatorForm" class="form-grid"><label class="wide">Dein Freigabecode<input id="creatorCode" class="field" type="password" required maxlength="64" autocomplete="off" placeholder="Code von eUpdate" spellcheck="false"><small>Dein Code ordnet den Beitrag deinem Streamer-Namen zu.</small></label><label>Name<input id="creatorName" class="field" maxlength="40" required placeholder="Dein Creator-Name"></label><label>Kanalname<input id="creatorHandle" class="field" maxlength="45" placeholder="@deinname"></label><label class="wide">Kurz zum Loadout<textarea id="creatorNote" class="field" maxlength="180" placeholder="Warum nutzt du es?"></textarea></label><label>YouTube · optional<input id="creatorYoutube" class="field" type="url" placeholder="https://youtube.com/@…"></label><label>Twitch · optional<input id="creatorTwitch" class="field" type="url" placeholder="https://twitch.tv/…"></label><label class="wide">Instagram · optional<input id="creatorInstagram" class="field" type="url" placeholder="https://instagram.com/…"></label><label class="wide">Dein Foto (bis 10 MB)<input class="field" id="creatorPhoto" type="file" accept="image/jpeg,image/png,image/webp"></label><div class="wide" id="cropArea" hidden><div class="crop-box" id="cropBox"><img id="cropImage" alt="Fotoausschnitt"></div><div class="crop-controls"><span>−</span><input type="range" id="cropZoom" min="1" max="3" step=".02" value="1" aria-label="Foto zoomen"><span>＋</span></div><p class="fine-print">Bild mit dem Finger verschieben und mit dem Regler zoomen.</p></div>' +
       privacyConfirmation() +
       publicationRules() +
@@ -381,7 +389,6 @@ async function submitCreator(e) {
         id: Date.now(),
         created: new Date().toISOString(),
         likes: 0,
-        title: weaponNames(weapon(setupSlots(build().setupType)[0]))[attachmentLanguage] + ' · ' + MODE[state.mode],
         name: el('creatorName').value.trim().slice(0, 40),
         handle: el('creatorHandle').value.trim().slice(0, 45),
         note: el('creatorNote').value.trim().slice(0, 180),

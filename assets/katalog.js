@@ -2,6 +2,7 @@ import { MW_IMAGES } from './waffenbilder.js';
 import { API, html } from './app.js';
 import { renderBuilder, renderPicker } from './bauen.js';
 import { renderGunsmith } from './aufsaetze.js';
+import { skinDefinition } from './waffenskin-katalog.js';
 
 const BO7 = [];
 
@@ -8205,18 +8206,25 @@ function conceptArt(w) {
   return '';
 }
 
-function art(w) {
+function art(w, skinId = '') {
+  const skin = skinDefinition(skinId);
+  if (skin) {
+    return '<img src="' + html(skinArtSource(w)) + '" data-weapon-skin="' + skin.id +
+      '" alt="Eigene Konzeptgrafik ' + html(w.name + ' · ' + skin.name) + '" loading="lazy" decoding="async">';
+  }
   const picture = naturalWeaponImage(w, conceptArt(w) || w?.img);
   return picture
     ? '<img src="' + picture + '" alt="Eigene Konzeptgrafik ' + html(w.name) + '" loading="lazy">'
     : svgArt(w);
 }
 
+function skinArtSource(w) {
+  return conceptArt(w) || w.img ||
+    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgArt(w).replace(/ aria-label="[^"]*"/g, ''));
+}
+
 function artSource(w) {
-  return (
-    naturalWeaponImage(w, conceptArt(w) || w.img) ||
-    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgArt(w).replace(/ aria-label="[^"]*"/g, ''))
-  );
+  return naturalWeaponImage(w, skinArtSource(w));
 }
 
 export {
@@ -8232,5 +8240,6 @@ export {
   WM,
   art,
   artSource,
+  skinArtSource,
   loadWeaponCatalog,
 };
