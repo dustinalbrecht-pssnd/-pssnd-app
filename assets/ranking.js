@@ -27,6 +27,13 @@ import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { streamerFilterKey, streamerLinks } from './creator.js';
 import { weaponProfile, weaponProfileSummary } from './waffenprofil.js';
 
+const advancedFilters = ['feedAudience', 'feedStreamer', 'feedSeason', 'feedGame'];
+const rankingFilters = ['feedWeapon', 'feedDistance', 'feedMode', ...advancedFilters];
+
+function rankView() {
+  return el('feedSetupType')?.querySelector('input:checked')?.value || 'auto';
+}
+
 function rankingLoadouts() {
   return [...feed.map((item) => ({ ...item, kind: 'sets' })), ...creators.map((item) => ({ ...item, kind: 'creators' }))];
 }
@@ -45,7 +52,7 @@ function avatar(x) {
     safe =
       /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) || /^https:\/\/[^\s"<>]+$/.test(src);
   return safe
-    ? '<img class="post-avatar" src="' + html(src) + '" alt="Profilbild">'
+    ? '<img class="post-avatar" src="' + html(src) + '" alt="" loading="lazy" decoding="async">'
     : '<span class="post-avatar fallback-avatar">' +
         html((x.name || 'C').slice(0, 1).toUpperCase()) +
         '</span>';
@@ -81,7 +88,7 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
       html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
   }).join('');
   const media =
-    '<div class="rank-media"><span class="rank-number">#' +
+    '<div class="rank-media weapon-stage"><span class="rank-number" aria-label="Platz ' + n + '">#' +
     n +
     '</span><span class="rank-heart">♥ ' +
     Number(weekly ? x.weekLikes || 0 : x.likes || 0).toLocaleString('de-DE') +
@@ -92,8 +99,8 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     art(weapon) +
     '</button></div>';
   return (
-    '<article class="rank-card ' +
-    (isTop ? 'featured' : 'compact') +
+    '<article class="rank-card' +
+    (isTop ? ' rank-leader' : '') +
     '">' +
     media +
     '<div class="rank-body"><div class="rank-copy"><div class="rank-tags"><span class="rank-tag">' +
@@ -131,8 +138,8 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     '<button class="copy-btn" data-download="' +
     x.id +
     '" data-download-kind="' + x.kind + '"' + weaponAttr + '>' +
-    (weaponId ? 'Waffenbild herunterladen' : 'Als Bild herunterladen') + ' <span>↓</span></button>' +
-    (streamer && !weaponId ? '<button class="copy-btn" data-copy-creator="' + x.id + '">Loadout kopieren →</button>' : '') +
+    (weaponId ? 'Waffenbild speichern' : 'Bild speichern') + ' <span aria-hidden="true">↓</span></button>' +
+    (streamer && !weaponId ? '<button class="copy-btn" data-copy-creator="' + x.id + '">Setup kopieren</button>' : '') +
     '</div></div></article>'
   );
 }
@@ -173,7 +180,7 @@ function rankScope(items) {
   const game = el('feedGame').value,
     mode = el('feedMode').value,
     streamer = el('feedStreamer')?.value || 'all',
-    fullOnly = el('feedSetupType')?.value === 'full';
+    fullOnly = rankView() === 'full';
   return rankAudience(items).filter((loadout) =>
     (game === 'all' || loadout.game === game) &&
     (mode === 'all' || loadout.mode === mode) &&
@@ -185,7 +192,7 @@ function rankScope(items) {
 function redrawFeed() {
   if (!el('feedGame')) return;
   const mode = el('feedMode').value,
-    setupType = el('feedSetupType')?.value || 'auto',
+    setupType = rankView(),
     gun = el('feedWeapon').value,
     distance = el('feedDistance')?.value || 'all',
     sort = el('feedSort').value,
@@ -255,10 +262,27 @@ function redrawFeed() {
       '</p>' + (onlyStreamers
         ? '<button type="button" class="primary-btn" id="startStreamerLoadout">Streamer-Loadout bauen →</button>'
         : '<button type="button" class="primary-btn" data-view="builder">Loadout bauen →</button>') + '</div>';
-  const reset = el('resetRankFilters');
-  if (reset) reset.hidden = !onlyStreamers && setupType === 'auto' && el('feedGame').selectedIndex === 0 &&
-    mode === 'all' && gun === 'all' && distance === 'all' && sort === 'popular' &&
-    (!seasonFilter || seasonFilter.value === 'all');
+  updateFilterChips(setupType, sort);
+}
+
+function updateFilterChips(setupType, sort) {
+  const row = el('rankSelectedFilters');
+  if (!row) return;
+  const chips = el('rankFilterChips');
+  const active = rankingFilters.map(el).filter((field) =>
+    field?.selectedIndex > 0 && !field.closest('label').hidden
+  );
+  chips.innerHTML = active.map((field) => {
+    const label = html(field.selectedOptions[0].textContent);
+    return '<button type="button" data-clear-rank-filter="' + field.id +
+      '" aria-label="' + label + ' entfernen">' + label + '<span aria-hidden="true">×</span></button>';
+  }).join('');
+  chips.hidden = !active.length;
+  row.hidden = !active.length && setupType === 'auto' && sort === 'popular';
+  const count = el('rankExtraCount');
+  const extraCount = active.filter((field) => advancedFilters.includes(field.id)).length;
+  count.hidden = !extraCount;
+  count.textContent = extraCount;
 }
 
 function updateRankStats(results, showWeapons, weekly) {
@@ -304,7 +328,7 @@ function renderFeed() {
 }
 
 function updateRankOptions(scope) {
-  const slots = setupSlots(el('feedSetupType')?.value);
+  const slots = setupSlots(rankView());
   const weaponFilter = el('feedWeapon'),
     old = weaponFilter.value || 'all',
     present = new Set(scope.flatMap((x) => slots.map((slot) => x[slot])));
@@ -417,16 +441,24 @@ document.addEventListener('click', (e) => {
     navigate('builder');
   }
   if (button.id === 'resetRankFilters') {
-    for (const id of ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedSetupType', 'feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'])
-      if (el(id)) el(id).selectedIndex = 0;
+    for (const id of [...rankingFilters, 'feedSort']) el(id).selectedIndex = 0;
+    el('rankViewAll').checked = true;
     replaceViewParam('streamer', '');
     renderFeed();
-    el('feedAudience')?.focus();
+    el('rankViewAll').focus();
+  }
+  if (button.dataset.clearRankFilter) {
+    const field = el(button.dataset.clearRankFilter);
+    field.selectedIndex = 0;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    const disclosure = field.closest('details');
+    if (disclosure && !disclosure.open) disclosure.querySelector('summary').focus();
+    else field.focus();
   }
 });
 document.addEventListener('change', (e) => {
   if (e.target.id === 'feedAudience') replaceViewParam('streamer', e.target.value === 'creators' ? '1' : '');
-  if (['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedSetupType'].includes(e.target.id)) renderFeed();
+  if (e.target.name === 'rankView' || ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer'].includes(e.target.id)) renderFeed();
   if (['feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'].includes(e.target.id)) redrawFeed();
 });
 

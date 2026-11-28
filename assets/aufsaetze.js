@@ -85,7 +85,7 @@ function renderGunsmith() {
     parts = storedParts(w),
     can = availableInMode(w, state.mode) && w.cls !== 'melee' && w.cls !== 'launcher';
   el('attachmentHero').innerHTML =
-    '<div class="gunsmith-stage"><div class="slot-row"><span>' +
+    '<div class="gunsmith-stage weapon-stage"><div class="slot-row"><span>' +
     html(slot === 'primary' ? 'PRIMÄRWAFFE' : 'SEKUNDÄRWAFFE') +
     '</span><button data-pick="' +
     slot +

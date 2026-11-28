@@ -172,7 +172,7 @@ function card(x, starter = false) {
     html(MODE[x.mode] || '') +
     '</span><span class="heart-count">' +
     (starter ? 'VORLAGE' : '♥ ' + Number(x.likes || 0)) +
-    '</span></div><div class="card-art">' +
+    '</span></div><div class="card-art weapon-stage">' +
     art(w) +
     '</div><h3>' +
     html(x.title) +

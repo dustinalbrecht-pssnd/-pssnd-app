@@ -5,6 +5,7 @@ const DATA_VERSION = '2026-10-11.16.8';
 const LIVE_CACHE_KEY = 'eupdate_live_v16_3';
 
 const LIVE_DAY = 86400000;
+const externalIcon = '<svg class="news-external-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12l8-8M5 4h7v7"/></svg>';
 
 const OFFICIAL_BLOG = 'https://www.callofduty.com/blog';
 
@@ -200,27 +201,30 @@ function liveNewsLabel(item) {
   );
 }
 
+function newsMeta(item) {
+  const date = String(item.date || '');
+  const dateAttribute = /^\d{4}-\d{2}-\d{2}$/.test(date) ? ' datetime="' + date + '"' : '';
+  return '<div class="news-byline"><span>' + html(liveNewsLabel(item)) + '</span><time' +
+    dateAttribute + '>' + html(liveDate(item.date)) + '</time></div>';
+}
+
+function newsSource(item) {
+  return '<a class="news-source-link" href="' + html(item.url) +
+    '" target="_blank" rel="noopener noreferrer">Offizielle Quelle ' + externalIcon + '</a>';
+}
+
+function newsAiNote(item) {
+  return item.aiAssisted
+    ? '<p class="news-ai-note">KI-unterstützt aufbereitet · Automatische Zusammenfassung/Übersetzung; Fehler möglich.</p>'
+    : '';
+}
+
 function renderLive() {
-  if (!el('liveFilters')) return;
-  el('liveFilters').innerHTML = [
-    ['all', 'Alle'],
-    ['mw4', 'MW4'],
-    ['mp', 'Multiplayer'],
-    ['dmz', 'DMZ'],
-    ['wz', 'Warzone'],
-    ['cdl', 'CDL'],
-  ]
-    .map(
-      ([id, label]) =>
-        '<button data-live-filter="' +
-        id +
-        '" class="' +
-        (liveFilter === id ? 'active' : '') +
-        '">' +
-        label +
-        '</button>',
-    )
-    .join('');
+  const filters = el('liveFilters');
+  if (!filters) return;
+  for (const button of filters.querySelectorAll('[data-live-filter]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.liveFilter === liveFilter));
+  }
   const newsTime = (x) => {
     const raw = String(x.date || '').trim();
     const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? Date.parse(raw + 'T00:00:00Z') : Date.parse(raw);
@@ -242,47 +246,27 @@ function renderLive() {
   const latestNews = allItems[0],
     hero = el('latestNewsHero');
   hero.hidden = !latestNews;
-  if (latestNews)
+  if (latestNews) {
     hero.innerHTML =
-      '<span class="eyebrow">NEUESTE MELDUNG · ' +
-      html(liveDate(latestNews.date)) +
-      '</span><h2>' +
-      html(latestNews.title) +
-      '</h2><p>' +
-      html(latestNews.summary || '') +
-      '</p>' +
-      (latestNews.aiAssisted
-        ? '<p class="news-ai-note">✦ KI-unterstützt aufbereitet · Automatische Zusammenfassung/Übersetzung; Fehler möglich.</p>'
-        : '') +
-      '<a href="' +
-      html(latestNews.url) +
-      '" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a>';
+      '<div class="news-lead-copy">' + newsMeta(latestNews) +
+      '<h2>' + html(latestNews.title) + '</h2><p class="news-lead-summary">' +
+      html(latestNews.summary || '') + '</p>' + newsAiNote(latestNews) + newsSource(latestNews) + '</div>';
+  }
   el('patchList').innerHTML = items.length
     ? items
         .map(
           (x) =>
-            '<article class="news-card"><div class="news-meta"><span>' +
-            html(liveNewsLabel(x)) +
-            '</span><time>' +
-            liveDate(x.date) +
-            '</time></div><h3>' +
-            html(x.title) +
-            '</h3><p>' +
-            html(x.summary || '') +
-            '</p>' +
-            (x.aiAssisted
-              ? '<p class="news-ai-note" aria-label="KI-unterstützt aufbereitet">✦ KI-unterstützt aufbereitet · Automatische Zusammenfassung/Übersetzung; Fehler möglich.</p>'
-              : '') +
-            '<a href="' +
-            html(x.url) +
-            '" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a></article>',
+            '<article class="news-story">' + newsMeta(x) + '<h3>' + html(x.title) +
+            '</h3><p class="news-story-summary">' + html(x.summary || '') + '</p>' +
+            newsAiNote(x) + newsSource(x) + '</article>',
         )
         .join('')
     : '<div class="empty">Keine aktuellen Meldungen verfügbar.</div>';
-  el('eventTimeline').innerHTML = LIVE_EVENTS.filter((e) =>
+  const events = LIVE_EVENTS.filter((e) =>
     e.instant ? Date.parse(e.instant) > Date.now() : eventDays(e.date) >= 0,
-  )
-    .sort((a, b) => Date.parse(a.date) - Date.parse(b.date))
+  ).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  el('emptyNewsDates').hidden = events.length > 0;
+  el('eventTimeline').innerHTML = events
     .map(
       (e) =>
         '<article class="date-card"><div class="event-date"><b>' +
@@ -301,7 +285,7 @@ function renderLive() {
         eventClock(e) +
         '</strong><a href="' +
         html(e.url) +
-        '" target="_blank" rel="noopener">Quelle ↗</a></div></article>',
+        '" target="_blank" rel="noopener">Quelle ' + externalIcon + '</a></div></article>',
     )
     .join('');
   const success = liveState.lastSuccess

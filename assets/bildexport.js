@@ -51,6 +51,19 @@ function ellipsize(ctx, s, width) {
 
 const exportSprites = new Map(),
   exportImageBounds = new WeakMap();
+const weaponBackdrop = new URL('./bilder/waffen-buehne.webp', import.meta.url).href;
+
+function drawWeaponBackdrop(ctx, backdrop, x, y, width, height, radius) {
+  round(ctx, x, y, width, height, radius, '#20272d', '#414c55');
+  if (!backdrop) return;
+  const scale = Math.max(width / backdrop.width, height / backdrop.height);
+  const imageWidth = backdrop.width * scale;
+  const imageHeight = backdrop.height * scale;
+  ctx.save();
+  ctx.clip();
+  ctx.drawImage(backdrop, x + (width - imageWidth) / 2, y + (height - imageHeight) / 2, imageWidth, imageHeight);
+  ctx.restore();
+}
 
 function exportTextLines(ctx, value, width) {
   const words = String(value || '')
@@ -142,6 +155,13 @@ function fitExportImage(ctx, im, x, y, w, h, trim = true) {
   ctx.drawImage(im, b.x, b.y, b.w, b.h, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
 }
 
+function drawExportWeapon(ctx, gun, x, y, width, height) {
+  ctx.save();
+  ctx.filter = 'brightness(1.25) contrast(1.04) saturate(.91) drop-shadow(0 10px 7px #000a)';
+  fitExportImage(ctx, gun, x, y, width, height);
+  ctx.restore();
+}
+
 async function drawExportArt(ctx, group, index, x, y, size) {
   const tile = artworkTile(group, index);
   if (!exportSprites.has(group)) exportSprites.set(group, image(tile.url));
@@ -176,7 +196,7 @@ async function exportLoadoutImages(item = null, direct = false, weaponId) {
     results = [],
     mode = item?.mode || state.mode,
     gear = single ? [] : exportGear(b, item?.game || state.game, mode);
-  const logo = await image(siteConfig.logo || LOGO);
+  const [logo, backdrop] = await Promise.all([image(siteConfig.logo || LOGO), image(weaponBackdrop)]);
   for (const page of single ? [selectedPage] : [0, 1, 2]) {
     const w = weapons[page] || null,
       parts = w ? b.parts[w.id] || [] : [],
@@ -211,12 +231,12 @@ async function exportLoadoutImages(item = null, direct = false, weaponId) {
     ctx.font = 'bold 48px Arial';
     ctx.fillText(['PRIMÄRWAFFE', 'SEKUNDÄRWAFFE', 'PERKS & GRANATEN'][page], 48, 196);
     if (w) {
-      round(ctx, 48, 228, 984, 405, 22, '#20272d', '#414c55');
+      drawWeaponBackdrop(ctx, backdrop, 48, 228, 984, 405, 22);
       ctx.fillStyle = accent;
       ctx.font = 'bold 25px Arial';
       ctx.fillText(weaponNames(w)[attachmentLanguage], 76, 280);
       const gun = await image(artSource(w));
-      fitExportImage(ctx, gun, 75, 290, 930, 305);
+      drawExportWeapon(ctx, gun, 75, 290, 930, 305);
     } else {
       round(ctx, 48, 228, 984, 215, 22, '#20272d', '#414c55');
       ctx.fillStyle = accent;
@@ -519,10 +539,11 @@ async function exportPng(item = null, direct = false) {
   ctx.fillRect(0, 0, 1080, c.height);
   ctx.fillStyle = accent;
   ctx.fillRect(0, 0, 1080, 10);
-  const [logo, wi, si] = await Promise.all([
+  const [logo, wi, si, backdrop] = await Promise.all([
     image(siteConfig.logo || LOGO),
     image(artSource(w)),
     image(artSource(s)),
+    image(weaponBackdrop),
   ]);
   if (logo) {
     ctx.save();
@@ -542,7 +563,7 @@ async function exportPng(item = null, direct = false) {
   ctx.fillStyle = '#f7f8f2';
   ctx.font = '800 45px Arial,sans-serif';
   ctx.fillText(ellipsize(ctx, item?.title || 'MEIN LOADOUT', 984), 48, 165);
-  round(ctx, 48, 190, 984, 340, 24, '#20272d', '#3d4851');
+  drawWeaponBackdrop(ctx, backdrop, 48, 190, 984, 340, 24);
   ctx.fillStyle = accent;
   ctx.font = '700 22px Arial,sans-serif';
   ctx.fillText('01  /  PRIMÄRWAFFE', 72, 227);
@@ -554,15 +575,15 @@ async function exportPng(item = null, direct = false) {
   ctx.fillStyle = '#fff';
   ctx.font = '800 49px Arial,sans-serif';
   ctx.fillText(ellipsize(ctx, w.name, 910), 72, 284);
-  fitExportImage(ctx, wi, 75, 296, 930, 213);
-  round(ctx, 48, 548, 984, 135, 20, '#20272d', '#3d4851');
+  drawExportWeapon(ctx, wi, 75, 296, 930, 213);
+  drawWeaponBackdrop(ctx, backdrop, 48, 548, 984, 135, 20);
   ctx.fillStyle = accent;
   ctx.font = '700 21px Arial,sans-serif';
   ctx.fillText('02  /  SEKUNDÄRWAFFE', 72, 586);
   ctx.fillStyle = '#fff';
   ctx.font = '800 37px Arial,sans-serif';
   ctx.fillText(ellipsize(ctx, s.name, 596), 72, 634);
-  fitExportImage(ctx, si, 702, 561, 294, 105);
+  drawExportWeapon(ctx, si, 702, 561, 294, 105);
   async function drawPart(entry, x, y, width) {
     round(ctx, x, y, width, entry.height, 15, '#22292f', '#414d56');
     ctx.fillStyle = accent;

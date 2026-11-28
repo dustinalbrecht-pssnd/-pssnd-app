@@ -162,7 +162,7 @@ function renderPicker() {
             w.id +
             '" data-select-slot="' +
             slot +
-            '"><span class="weapon-picture">' +
+            '"><span class="weapon-picture weapon-stage">' +
             art(w) +
             '</span><span class="weapon-option-meta"><b class="weapon-name">' +
             html(weaponNames(w)[attachmentLanguage]) +
@@ -347,7 +347,7 @@ function renderWeaponCards(b) {
               aria-describedby="weaponSeasonHint" placeholder="z. B. 1">
           </label>
         </div>
-        <button class="build-weapon-art" type="button" data-pick="${slot}" aria-label="${label} wählen"></button>
+        <button class="build-weapon-art weapon-stage" type="button" data-pick="${slot}" aria-label="${label} wählen"></button>
         <div class="build-weapon-actions">
           <button type="button" class="ghost-btn" data-pick="${slot}">Waffe ändern</button>
           <button type="button" class="ghost-btn" data-attach="${slot}">
@@ -689,7 +689,7 @@ function publish() {
   clearCrop();
   modal(
     head('Veröffentlichen', 'Dein Setup auf einen Blick') +
-      '<div class="publish-preview"><div class="preview-image">' +
+      '<div class="publish-preview"><div class="preview-image weapon-stage">' +
       art(w) +
       '</div><span class="rank-tag">' +
       html(GAME[state.game]) +
@@ -762,7 +762,7 @@ async function postLoadout(e) {
     el('feedWeapon').value = 'all';
     if (el('feedDistance')) el('feedDistance').value = 'all';
     if (el('feedSeason')) el('feedSeason').value = 'all';
-    if (el('feedSetupType')) el('feedSetupType').value = 'auto';
+    if (el('rankViewAll')) el('rankViewAll').checked = true;
     el('feedSort').value = 'new';
     redrawFeed();
     const place = rankPlace(post.id);

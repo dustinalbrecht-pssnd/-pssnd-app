@@ -15,7 +15,7 @@ function weaponDetail(loadout, weapon, label) {
   const profile = weaponProfileSummary(loadout, weapon.id);
   const parts = (loadout.parts || loadout.attachments || {})[weapon.id] || [];
   return (
-    '<section class="detail-section"><div class="detail-stage"><span class="stage-label">' +
+    '<section class="detail-section"><div class="detail-stage weapon-stage"><span class="stage-label">' +
     html(label + ' · ' + CLASS[weapon.cls]) +
     (season === undefined ? '' : ' · ' + seasonLabel(season)) +
     '</span>' + art(weapon) + '<strong>' + html(name) + '</strong>' +
