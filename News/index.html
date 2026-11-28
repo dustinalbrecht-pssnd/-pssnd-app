@@ -16,8 +16,9 @@
     <meta property="og:description" content="Verfolge neue Seasons, Spielupdates und Patchnotes für MW4 und Warzone. Dazu findest du Meldungen aus der Call of Duty League.">
     <meta property="og:url" content="https://eupdategaming.com/News/">
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=20261128">
   </head>
-  <body>
+  <body class="app-interface">
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
       <div class="terms-shell">
         <div class="terms-brand">eUpdate.</div>
@@ -43,6 +44,15 @@
     </section>
     <header class="topbar">
       <a class="brand" data-view="feed" aria-label="eUpdate Rangliste" href="ranking/"><span class="logo-disc"><img src="assets/bilder/logo.jpg" alt=""></span><span>eUpdate<small>LOADOUTS AUS DER COMMUNITY</small></span></a>
+      <nav class="bottom-nav" aria-label="Hauptmenü">
+        <a data-view="feed" href="ranking/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
+              <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
+              <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
+              <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
+      </nav>
       <button class="support-top" data-support="" aria-label="eUpdate unterstützen">
         ♡ <span id="supportCount">0</span><small> Unterstützen</small>
       </button>
@@ -56,39 +66,51 @@
         <button type="button" class="erase-data-button" data-open-data-erasure="">Meine Daten löschen</button>
       </div>
       <section class="view active" id="view-events" data-title="News">
-        <div class="page-heading">
-          <span class="eyebrow">AKTUELLES &amp; TERMINE</span>
-          <div class="live-title-row">
-            <h1>News<span class="title-dot">.</span></h1>
-            <button id="liveRefresh" class="news-refresh-button">↻ Jetzt prüfen</button>
-          </div>
-          <p>Aktuelle Meldungen und kommende Termine auf einen Blick.</p>
-        </div>
-        <article id="latestNewsHero" class="news-hero" hidden="" aria-label="Neueste Meldung"></article>
-        <div class="section-line gap-top"><h2>Die nächsten Termine</h2></div>
-        <div id="eventTimeline" class="date-grid"></div>
-        <div class="section-line gap-top">
+        <div class="page-heading news-heading">
           <div>
-            <span class="eyebrow">OFFIZIELLE QUELLEN</span>
-            <h2>Frisch reingekommen</h2>
+            <h1>News<span class="title-dot">.</span></h1>
+            <p>Aktuelle Meldungen und kommende Termine auf einen Blick.</p>
           </div>
+          <button id="liveRefresh" class="news-refresh-button" type="button">↻ Jetzt prüfen</button>
         </div>
-        <p id="patchStatus" class="live-status">Inhalt geprüft am 10.10.2026.</p>
-        <div id="liveFilters" class="mode-tabs"></div>
-        <div id="patchList" class="news-grid"></div>
-        <details id="liveSources" class="live-sources">
-          <summary>Geprüfte Newsquellen</summary>
-          <p>
-            Die Quellen werden auf dem Server abgerufen. Öffnest du einen Quellenlink, besuchst du die Website
-            des jeweiligen Anbieters.
-          </p>
-          <ul id="liveSourcesList"></ul>
-        </details>
-        <p class="live-footnote">
-          Der verbundene Server prüft COD-Blogs, Patchnotes, Treyarch Game Intel und die offiziellen CDL-News
-          und Wettbewerbsregeln im eingerichteten Zeitplan. Neue Artikel und Änderungen erscheinen mit
-          Quellenlink. Bei Ausfällen bleibt der zuletzt gespeicherte Stand sichtbar.
-        </p>
+        <article id="latestNewsHero" class="news-lead" hidden aria-label="Neueste Meldung"></article>
+        <div class="news-content">
+          <aside class="news-aside">
+            <section class="news-calendar" aria-labelledby="newsCalendarHeading">
+              <h2 id="newsCalendarHeading">Kommende Termine</h2>
+              <div id="eventTimeline" class="news-dates"></div>
+              <p id="emptyNewsDates" class="news-empty-dates" hidden>Aktuell sind keine Termine eingetragen.</p>
+            </section>
+            <details id="liveSources" class="live-sources">
+              <summary>Geprüfte Newsquellen</summary>
+              <p>
+                Die Quellen werden auf dem Server abgerufen. Öffnest du einen Quellenlink, besuchst du die Website
+                des jeweiligen Anbieters.
+              </p>
+              <ul id="liveSourcesList"></ul>
+              <p class="live-footnote">
+                Der verbundene Server prüft COD-Blogs, Patchnotes, Treyarch Game Intel und die offiziellen CDL-News
+                und Wettbewerbsregeln im eingerichteten Zeitplan. Neue Artikel und Änderungen erscheinen mit
+                Quellenlink. Bei Ausfällen bleibt der zuletzt gespeicherte Stand sichtbar.
+              </p>
+            </details>
+          </aside>
+          <section class="news-articles" aria-labelledby="newsArticlesHeading">
+            <div class="news-section-heading">
+              <h2 id="newsArticlesHeading">Aktuelle Meldungen</h2>
+              <p id="patchStatus" class="live-status" role="status">Meldungen werden geladen …</p>
+            </div>
+            <div id="liveFilters" class="news-tabs" role="group" aria-label="Meldungen filtern">
+              <button type="button" data-live-filter="all" aria-pressed="true">Alle</button>
+              <button type="button" data-live-filter="mw4" aria-pressed="false">MW4</button>
+              <button type="button" data-live-filter="mp" aria-pressed="false">Multiplayer</button>
+              <button type="button" data-live-filter="dmz" aria-pressed="false">DMZ</button>
+              <button type="button" data-live-filter="wz" aria-pressed="false">Warzone</button>
+              <button type="button" data-live-filter="cdl" aria-pressed="false">CDL</button>
+            </div>
+            <div id="patchList" class="news-article-list"></div>
+          </section>
+        </div>
       </section>
 
       <div id="advertisingContact" class="fine-print"></div>
@@ -96,15 +118,6 @@
         <button id="openPrivacy">Datenschutz</button><button id="openImprint">Impressum</button><button id="openUsage">Nutzungsregeln</button><button id="myReports">Meine Meldungen</button>
       </footer>
     </main>
-    <nav class="bottom-nav" aria-label="Hauptmenü">
-      <a data-view="feed" href="ranking/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
-            <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
-            <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
-            <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
-    </nav>
     <div id="modal" class="modal" hidden="">
       <div class="shade" data-close=""></div>
       <section class="dialog" role="dialog" aria-modal="true" aria-label="Auswahl">
@@ -116,12 +129,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
-          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
-          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/news.js": "./assets/news.js?v=oberflaeche-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=oberflaeche-20261128",
+          "./assets/app.js": "./assets/app.js?v=oberflaeche-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=oberflaeche-20261128",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
           "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
-          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
-          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=oberflaeche-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=oberflaeche-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
