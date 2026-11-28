@@ -1193,3 +1193,23 @@ body.app-interface {
     border-top: 1px solid var(--app-rule);
   }
 }
+
+.app-interface .post-avatar.eupdate-author-avatar {
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+body.admin-builder-embed {
+  --app-edge: clamp(12px, 2vw, 24px);
+}
+
+.admin-builder-embed > .topbar,
+.admin-builder-embed > main > :is(.my-posts-access, .legal-footer, #advertisingContact) {
+  display: none;
+}
+
+body.admin-builder-embed > main {
+  padding-block: 19px 36px;
+}

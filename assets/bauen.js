@@ -59,6 +59,7 @@ import { avatar, rankPlace, redrawFeed } from './ranking.js';
 import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { distanceOptions, loadoutWeaponProfiles, WEAPON_DISTANCES, WEAPON_HINT_LENGTH, weaponProfile } from './waffenprofil.js';
 import { weaponCheck } from './waffencheck.js';
+import { inAdminBuilder, notifyAdminBuilder } from './admin-baukasten-kontext.js';
 
 function setGame(game) {
   if (!GAME[game]) return;
@@ -661,6 +662,21 @@ function validateDraft() {
 function publish() {
   for (const field of document.querySelectorAll('#weaponSlots [data-build-weapon]:not([hidden]) [data-weapon-season]')) {
     if (!field.reportValidity()) return;
+  }
+  if (inAdminBuilder) {
+    if (!validateDraft()) return;
+    const draft = payload();
+    if (draft.primary === draft.secondary) {
+      toast('Wähle zwei unterschiedliche Waffen.');
+      return;
+    }
+    const names = setupSlots(build().setupType).map(slot => weaponNames(weapon(slot)).de);
+    notifyAdminBuilder('prepare', {
+      draft,
+      title: names.join(' / ') + ' · ' + MODE[state.mode],
+      kind: state.publisherType === 'streamer' ? 'creators' : 'sets',
+    });
+    return;
   }
   if (API && siteConfig.communityReady !== true) {
     communityBlocked();

@@ -14,9 +14,12 @@ import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
 import { clearVisitorVerification, needsVisitorVerification, visitorVerification } from './community-verification.js?v=community-security-20261126';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
+import { ADMIN_BUILDER_STORAGE_KEY, inAdminBuilder, notifyAdminBuilder } from './admin-baukasten-kontext.js';
 
 const API = 'https://eupdate-server.dustin-albrecht.workers.dev';
 const COMMUNITY_REFRESH_MS = 60_000;
+const DRAFT_STORAGE_KEY = inAdminBuilder ? ADMIN_BUILDER_STORAGE_KEY : 'eupdate_v14';
+const OLDER_DRAFT_KEYS = inAdminBuilder ? [] : ['eupdate_v13', 'eupdate_v12'];
 
 const LOGO = new URL('./bilder/logo.jpg', import.meta.url).href;
 
@@ -45,20 +48,18 @@ const picker = { slot: '', category: 'all' };
 
 try {
   const s = JSON.parse(
-    localStorage.getItem('eupdate_v14') ||
-      localStorage.getItem('eupdate_v13') ||
-      localStorage.getItem('eupdate_v12') ||
-      'null',
+    [DRAFT_STORAGE_KEY, ...OLDER_DRAFT_KEYS].map(key => localStorage.getItem(key)).find(Boolean) || 'null',
   );
   if (s && s.builds && typeof s.builds === 'object') {
     state = { ...state, ...s };
     if (!GAME[state.game]) state.game = 'mw4';
   }
 } catch (_) {}
+if (inAdminBuilder) state.publisherType = 'player';
 
 function save() {
   try {
-    localStorage.setItem('eupdate_v14', JSON.stringify(state));
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(state));
   } catch (_) {
     toast('Speichern auf diesem Gerät nicht möglich');
   }
@@ -701,7 +702,7 @@ async function loadSiteConfig() {
       applySiteContent();
       renderLive();
     } finally {
-      checkTermsGate();
+      if (!inAdminBuilder) checkTermsGate();
     }
   })().catch(() => {}).finally(() => { siteConfigPending = null; });
   return siteConfigPending;
@@ -2126,11 +2127,38 @@ function activateView(view) {
   if (view === 'detail') renderCurrentDetail();
   if (view === 'settings') showGameSettings();
   applySiteContent();
-  countPageView(API, view);
+  if (!inAdminBuilder) countPageView(API, view);
   if (communityLoaded) refreshVisibleCommunity();
 }
 
+function startAdminBuilder() {
+  document.body.classList.add('admin-builder-embed');
+  const publishButton = el('publishLoadout');
+  if (publishButton) {
+    publishButton.textContent = 'Weiter zum Speichern →';
+    publishButton.disabled = true;
+  }
+  startNavigation(activateView);
+  Promise.all([loadSiteConfig(), loadWeaponCatalog()]).then(() => {
+    if (publishButton) publishButton.disabled = false;
+    notifyAdminBuilder('ready');
+  }).catch(() => notifyAdminBuilder('unavailable'));
+  let lastActivity = 0;
+  function reportActivity() {
+    const now = Date.now();
+    if (now - lastActivity < 10000) return;
+    lastActivity = now;
+    notifyAdminBuilder('activity');
+  }
+  document.addEventListener('pointerdown', reportActivity, { passive: true });
+  document.addEventListener('keydown', reportActivity);
+}
+
 function start() {
+  if (inAdminBuilder) {
+    startAdminBuilder();
+    return;
+  }
   const reportLink = document.createElement('button');
   reportLink.type = 'button';
   reportLink.dataset.report = 'page';

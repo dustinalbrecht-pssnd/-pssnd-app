@@ -27,6 +27,7 @@ import { currentParam, navigate, replaceViewParam } from './navigation.js';
 import { loadoutWeaponSeasons, seasonLabel, weaponSeason } from './season.js';
 import { streamerFilterKey, streamerLinks } from './creator.js';
 import { weaponProfile, weaponProfileSummary } from './waffenprofil.js';
+import { ADMIN_AUTHOR } from './admin-baukasten-kontext.js';
 
 const advancedFilters = ['feedAudience', 'feedStreamer', 'feedSeason', 'feedGame'];
 const rankingFilters = ['feedWeapon', 'feedDistance', 'feedMode', ...advancedFilters];
@@ -49,6 +50,9 @@ function badge(x) {
 }
 
 function avatar(x) {
+  if (x.authorLogo === ADMIN_AUTHOR.logo) {
+    return '<img class="post-avatar eupdate-author-avatar" src="' + html(ADMIN_AUTHOR.image) + '" alt="" loading="lazy" decoding="async">';
+  }
   const src = x.photo || '',
     safe =
       /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) || /^https:\/\/[^\s"<>]+$/.test(src);

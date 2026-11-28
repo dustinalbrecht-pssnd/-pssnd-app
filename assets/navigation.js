@@ -1,3 +1,5 @@
+import { ADMIN_BUILDER_PARAM, inAdminBuilder } from './admin-baukasten-kontext.js';
+
 const routes = {
   feed: 'ranking',
   builder: 'Bauen',
@@ -17,6 +19,7 @@ let onActivate;
 function urlFor(view, params = {}) {
   const url = new URL(routes[view], siteRoot);
   url.search = new URLSearchParams(params);
+  if (inAdminBuilder) url.searchParams.set(ADMIN_BUILDER_PARAM, '1');
   return url;
 }
 
@@ -76,6 +79,7 @@ export function replaceViewParam(name, value) {
 
 export async function navigate(view, { params, replace = false, fromHistory = false } = {}) {
   if (!Object.hasOwn(routes, view)) return false;
+  if (inAdminBuilder && view !== 'builder' && view !== 'attachments') return false;
 
   const request = ++navigationNumber;
   const url = urlFor(view, params);
