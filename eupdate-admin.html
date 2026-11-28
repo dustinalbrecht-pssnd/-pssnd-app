@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-GotfUgfkm2ehBP6VUiMylrS12hiyn4gjGHJ+QYimYsU='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-o0vQcHv22fnC8TIPmhlYSGcVqPceYVJ9I2r2TTv+xOA='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
@@ -2118,6 +2118,75 @@ label :is(input, textarea, select) {
         min-height: 0;
         padding: 10px 13px;
       }
+      #adminBuilderDialog {
+        box-sizing: border-box;
+        width: min(1260px, calc(100% - 24px));
+        height: min(960px, calc(100dvh - 24px));
+        max-width: none;
+        max-height: none;
+        padding: 0;
+        overflow: hidden;
+      }
+      #adminBuilderDialog[open] {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+      }
+      .admin-builder-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px clamp(10px, 2vw, 24px);
+        border-bottom: 1px solid var(--line);
+        background: var(--surface, #171b20);
+      }
+      .admin-builder-bar h2 {
+        margin: 0;
+        font-size: clamp(17px, 2.6vw, 22px);
+      }
+      #adminBuilderStatus {
+        margin: 8px clamp(10px, 2vw, 24px);
+      }
+      #adminBuilderFrame {
+        grid-row: 3;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: var(--bg);
+      }
+      .admin-upload-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 12px;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      .admin-upload-author strong {
+        overflow-wrap: anywhere;
+      }
+      .admin-upload-author img,
+      #postsList img.eupdate-author-avatar {
+        display: block;
+        width: 56px;
+        height: 56px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        object-fit: contain;
+      }
+      .admin-upload-author img {
+        flex: 0 0 56px;
+      }
+      @media (max-width: 620px) {
+        #adminBuilderDialog {
+          width: calc(100% - 12px);
+          height: calc(100dvh - 12px);
+        }
+      }
     </style>
   </head>
   <body>
@@ -2961,6 +3030,14 @@ label :is(input, textarea, select) {
         </div>
       </form>
     </dialog>
+    <dialog id="adminBuilderDialog" class="editor-dialog" aria-labelledby="adminBuilderHeading">
+      <div class="admin-builder-bar">
+        <h2 id="adminBuilderHeading">Loadout erstellen</h2>
+        <button type="button" id="closeAdminBuilder">Schließen</button>
+      </div>
+      <p class="muted" id="adminBuilderStatus" role="status"></p>
+      <iframe id="adminBuilderFrame" title="eUpdate-Baukasten" referrerpolicy="no-referrer"></iframe>
+    </dialog>
     <dialog id="contentDialog" class="editor-dialog" aria-labelledby="editorTitle">
       <form id="contentEditor">
         <div class="toolbar editor-heading">
@@ -3015,6 +3092,7 @@ label :is(input, textarea, select) {
       import { mountAdminSettings } from './assets/admin-einstellungen.js?v=mw4-community-20261126';
       import { mountAdminSeo } from './assets/admin-seo.js?v=datenschutz-seo-20261125';
       import { BANNER_HEIGHT, BANNER_WIDTH } from './assets/mw4-inhalte.js';
+      import { ADMIN_AUTHOR, ADMIN_BUILDER_CHANNEL, ADMIN_BUILDER_PARAM } from './assets/admin-baukasten-kontext.js?v=admin-baukasten-20261128';
       import {
         attachmentNames,
         currentAttachmentId,
@@ -3086,6 +3164,7 @@ label :is(input, textarea, select) {
           adminPortrait = null;
         }
         if ($('contentDialog').open) $('contentDialog').close();
+        if ($('adminBuilderDialog').open) $('adminBuilderDialog').close();
         if ($('deleteAdDialog').open) $('deleteAdDialog').close();
         $('editorFields').innerHTML = '';
         for (const id of ['feedbackList', 'commentsList', 'reportsList', 'postsList', 'codesList'])
@@ -3456,7 +3535,9 @@ label :is(input, textarea, select) {
                   '<article class="card" data-activity-kind="posts" data-activity-id="' +
                   x.id +
                   '">' +
-                  (x.photo ? '<img src="' + esc(x.photo) + '" alt="Profilfoto">' : '') +
+                  (x.authorLogo === ADMIN_AUTHOR.logo
+                    ? '<img class="eupdate-author-avatar" src="' + esc(ADMIN_AUTHOR.image) + '" alt="">'
+                    : x.photo ? '<img src="' + esc(x.photo) + '" alt="Profilfoto">' : '') +
                   '<div class="badge">' +
                   (x.kind === 'creators' ? 'STREAMER' : x.setupType === 'primary' ? 'PRIMÄRWAFFE' :
                     x.setupType === 'secondary' ? 'SEKUNDÄRWAFFE' : 'LOADOUT') +
@@ -4873,6 +4954,10 @@ label :is(input, textarea, select) {
           raw = new FormData(form),
           data = Object.fromEntries(raw),
           { type, item } = editorState;
+        if (type === 'builder-post') {
+          await saveAdminBuilderUpload(item, data, raw);
+          return;
+        }
         if (type === 'posts') {
           data.game = 'mw4';
           const slots = ['primary', 'secondary'].filter((slot) => data[slot]);
@@ -5000,80 +5085,155 @@ label :is(input, textarea, select) {
           note(err.message);
         }
       });
+      const adminBuilderDialog = $('adminBuilderDialog');
+      const adminBuilderFrame = $('adminBuilderFrame');
+      let adminBuilderLoadTimer;
+
+      function adminBuilderStatus(message) {
+        const status = $('adminBuilderStatus');
+        status.textContent = message;
+        status.hidden = !message;
+      }
+
       $('newAdminLoadout').onclick = () => {
-        if (serverHealth && !serverHealth.features?.includes('admin-loadout-builder')) {
-          note('Loadouts erstellen benötigt einen aktualisierten Server');
+        if (!token || adminBuilderDialog.open) return;
+        if (!serverHealth?.features?.includes('admin-loadout-builder')) {
+          note('Loadouts erstellen benötigt einen aktualisierten Server.');
           return;
         }
-        editPost({
-          kind: 'sets',
-          name: '',
-          title: '',
-          mode: 'mp',
-          primary: '',
-          secondary: '',
-          attachments: {},
-          gear: {},
-        });
-        $('editorTitle').textContent = 'Loadout erstellen';
-        $('saveContent').textContent = 'Loadout speichern';
-        const fields = $('editorFields');
-        fields.insertAdjacentHTML(
-          'afterbegin',
-          '<div class="grid">' +
-            selectField('kind', 'Für wen?', { sets: 'Spieler', creators: 'Streamer' }, 'sets') +
-            selectField(
-              'creatorInvitationId',
-              'Streamer · nur aktive Freigaben',
-              {
-                '': 'Bitte wählen',
-                ...Object.fromEntries(
-                  (dashboard.creatorCodes || []).filter((x) => x.active).map((x) => [x.id, x.name]),
-                ),
-              },
-              '',
-            ) +
-            '</div>',
-        );
-        fields.insertAdjacentHTML(
-          'beforeend',
-          selectField(
-            'status',
-            'Speichern oder veröffentlichen?',
-            {
-              pending: 'Als Entwurf für den Start speichern',
-              approved: 'Jetzt veröffentlichen · nur nach Startfreigabe',
-            },
-            'pending',
-          ) +
-            '<label class="editor-label"><input type="checkbox" name="rightsAccepted" required>Ich darf diese Inhalte und das Foto verwenden und habe bei Beiträgen für andere deren Erlaubnis.</label>',
-        );
-        const form = $('contentEditor');
-        function kind() {
-          const creator = form.elements.kind.value === 'creators';
-          form.elements.creatorInvitationId.closest('label').hidden = !creator;
-          form.elements.creatorInvitationId.required = creator;
-          form.elements.name.required = !creator;
-          if (creator) {
-            const c = dashboard.creatorCodes.find((x) => x.id === form.elements.creatorInvitationId.value);
-            form.elements.name.value = c?.name || '';
-          }
-          if (!$('adminSocial'))
-            fields.insertAdjacentHTML(
-              'beforeend',
-              '<div id="adminSocial" class="grid">' +
-                inputField('twitch', 'Twitch · optional', '', 'url') +
-                inputField('youtube', 'YouTube · optional', '', 'url') +
-                inputField('instagram', 'Instagram · optional', '', 'url') +
-                '</div>',
-            );
-          $('adminSocial').hidden = !creator;
-        }
-        form.elements.kind.onchange = kind;
-        form.elements.creatorInvitationId.onchange = kind;
-        kind();
-        wireLoadoutControls();
+        resetTimer();
+        const url = new URL('./Bauen/', location.href);
+        url.searchParams.set(ADMIN_BUILDER_PARAM, '1');
+        adminBuilderStatus('Baukasten wird geladen …');
+        adminBuilderFrame.src = url.href;
+        adminBuilderDialog.showModal();
+        adminBuilderLoadTimer = setTimeout(() => {
+          adminBuilderStatus('Der Baukasten konnte nicht geladen werden. Schließe und öffne ihn erneut.');
+        }, 15000);
       };
+
+      $('closeAdminBuilder').onclick = () => adminBuilderDialog.close();
+      adminBuilderDialog.addEventListener('close', () => {
+        clearTimeout(adminBuilderLoadTimer);
+        adminBuilderFrame.removeAttribute('src');
+      });
+
+      window.addEventListener('message', (event) => {
+        if (!token || !adminBuilderDialog.open || event.origin !== location.origin ||
+            event.source !== adminBuilderFrame.contentWindow || event.data?.channel !== ADMIN_BUILDER_CHANNEL) return;
+        const { type, draft, title, kind } = event.data;
+        if (type === 'activity') resetTimer();
+        if (type === 'ready' || type === 'unavailable') {
+          clearTimeout(adminBuilderLoadTimer);
+          adminBuilderStatus(type === 'ready' ? '' : 'Der Waffenkatalog ist gerade nicht erreichbar. Öffne den Baukasten erneut.');
+        }
+        if (type === 'prepare' && draft?.game === 'mw4' && typeof title === 'string' &&
+            (kind === 'sets' || kind === 'creators') && !$('contentDialog').open) {
+          resetTimer();
+          editAdminBuilderUpload({ draft, title, kind });
+        }
+      });
+
+      function editAdminBuilderUpload(item) {
+        const creators = (dashboard.creatorCodes || []).filter(code => code.active);
+        const forStreamer = item.kind === 'creators';
+        const approval = { pending: 'Als Entwurf speichern' };
+        if (releaseState().live) approval.approved = 'Jetzt veröffentlichen';
+        editorState = { type: 'builder-post', item, busy: false, submitting: false };
+        $('editorTitle').textContent = 'Loadout speichern';
+        $('saveContent').textContent = 'Speichern';
+        $('cancelContent').textContent = 'Zurück zum Baukasten';
+
+        $('editorFields').innerHTML =
+          '<div class="admin-upload-author"><img id="adminUploadLogo" src="' + esc(ADMIN_AUTHOR.image) +
+          '" alt="" hidden><div><small class="muted">Anzeigename im Ranking</small><br><strong id="adminUploadName"></strong></div></div>' +
+          '<div class="grid">' +
+          (forStreamer
+            ? selectField('creatorInvitationId', 'Streamer', Object.fromEntries([
+                ['', 'Bitte wählen'], ...creators.map(code => [code.id, code.name])
+              ]), '')
+            : inputField('name', 'Anzeigename', ADMIN_AUTHOR.name, 'text', true)) +
+          inputField('title', 'Titel', item.title.slice(0, 90), 'text', true) +
+          selectField('status', 'Sichtbarkeit', approval, 'pending') +
+          '</div>' +
+          areaField('note', 'Kurzer Hinweis · optional', '') +
+          (forStreamer ? '<div class="grid">' + inputField('twitch', 'Twitch · optional', '', 'url') +
+            inputField('youtube', 'YouTube · optional', '', 'url') +
+            inputField('instagram', 'Instagram · optional', '', 'url') + '</div>' : '') +
+          '<details><summary>Anderes Profilbild wählen</summary>' + imageEditor('') + '</details>' +
+          '<label class="editor-label"><input type="checkbox" name="rightsAccepted" required>Ich darf diese Inhalte und das Profilbild verwenden. Bei Beiträgen für andere habe ich ihre Erlaubnis.</label>' +
+          '<p id="adminUploadError" class="notice error" role="alert" hidden></p>';
+
+        const form = $('contentEditor');
+        form.elements.title.maxLength = 90;
+        form.elements.note.maxLength = 500;
+        if (forStreamer) form.elements.creatorInvitationId.required = true;
+        else form.elements.name.maxLength = 40;
+
+        const updateProfile = () => {
+          const name = forStreamer
+            ? creators.find(code => code.id === form.elements.creatorInvitationId.value)?.name
+            : form.elements.name.value.trim();
+          $('adminUploadName').textContent = name || (forStreamer ? 'Streamer wählen' : 'Anzeigename eingeben');
+          $('adminUploadLogo').hidden = forStreamer || name !== ADMIN_AUTHOR.name || !!editorImage;
+        };
+        const author = forStreamer ? form.elements.creatorInvitationId : form.elements.name;
+        author.addEventListener('input', updateProfile);
+        updateProfile();
+        wireAdminPortrait();
+        const choosePhoto = $('contentImageFile').onchange;
+        const removePhoto = $('removeContentImage').onclick;
+        $('contentImageFile').onchange = async (event) => {
+          await choosePhoto(event);
+          if ($('contentDialog').open && editorState.item === item) updateProfile();
+        };
+        $('removeContentImage').onclick = () => {
+          removePhoto();
+          updateProfile();
+        };
+        $('contentDialog').showModal();
+      }
+
+      async function saveAdminBuilderUpload(item, fields, raw) {
+        const editor = editorState;
+        if (editor.submitting) return;
+
+        const name = fields.name?.trim() || '';
+        const useEupdateLogo = item.kind === 'sets' && name === ADMIN_AUTHOR.name && !editorImage;
+        if (useEupdateLogo && !serverHealth?.features?.includes('admin-upload-logo')) {
+          throw Error('Für das eUpdate-Logo muss der Worker 16.20.0 bereitgestellt sein. Der Entwurf bleibt im Baukasten.');
+        }
+
+        editor.submitting = true;
+        $('adminUploadError').hidden = true;
+        $('closeContent').disabled = $('cancelContent').disabled = true;
+        try {
+          const upload = await request('/api/admin/posts', 'POST', {
+            ...item.draft,
+            kind: item.kind,
+            name,
+            title: fields.title.trim(),
+            note: fields.note.trim(),
+            photo: editorImage,
+            status: fields.status,
+            rightsAccepted: raw.has('rightsAccepted'),
+            creatorInvitationId: fields.creatorInvitationId || '',
+            twitch: fields.twitch || '',
+            youtube: fields.youtube || '',
+            instagram: fields.instagram || '',
+            useEupdateLogo,
+          });
+          if (!token || editorState !== editor) return;
+          $('contentDialog').close();
+          adminBuilderDialog.close();
+          resetPostFilters();
+          await load();
+          note(upload.status === 'approved' ? 'Loadout veröffentlicht.' : 'Loadout als Entwurf gespeichert.');
+        } finally {
+          editor.submitting = false;
+          $('closeContent').disabled = $('cancelContent').disabled = false;
+        }
+      }
 
       const NATURAL_WEAPON_STYLES = {
         'mw4-cronen-osprey': {
@@ -5246,14 +5406,20 @@ label :is(input, textarea, select) {
           $('contentImagePreview').hidden = false;
         }
         for (const id of ['adminPortraitZoom', 'adminPortraitX', 'adminPortraitY']) $(id).oninput = draw;
-        $('contentImageFile').onchange = async () => {
-          editorState.busy = true;
+        $('contentImageFile').onchange = async (event) => {
+          const input = event.currentTarget;
+          const editor = editorState;
+          const file = input.files[0];
+          if (!file) return;
+          editor.busy = true;
           try {
-            const file = $('contentImageFile').files[0];
-            if (!file) return;
             if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024)
               throw Error('PNG, JPG oder WebP bis 10 MB wählen');
             const bitmap = await createImageBitmap(file);
+            if (!$('contentDialog').open || editorState !== editor || input.files[0] !== file) {
+              bitmap.close();
+              return;
+            }
             if (adminPortrait) adminPortrait.close();
             adminPortrait = bitmap;
             for (const id of ['adminPortraitZoom', 'adminPortraitX', 'adminPortraitY'])
@@ -5261,9 +5427,9 @@ label :is(input, textarea, select) {
             $('adminPortraitTools').hidden = false;
             draw();
           } catch (err) {
-            note(err.message);
+            if (editorState === editor) note(err.message);
           } finally {
-            editorState.busy = false;
+            if (editorState === editor && (!input.files[0] || input.files[0] === file)) editor.busy = false;
           }
         };
         $('removeContentImage').onclick = () => {
@@ -5430,7 +5596,11 @@ label :is(input, textarea, select) {
         form.elements.mode.onchange();
       }
 
+      $('contentDialog').addEventListener('cancel', (event) => {
+        if (editorState?.submitting) event.preventDefault();
+      });
       $('contentDialog').addEventListener('close', () => {
+        $('cancelContent').textContent = 'Abbrechen';
         if (adminPortrait) {
           adminPortrait.close();
           adminPortrait = null;
@@ -6005,7 +6175,14 @@ label :is(input, textarea, select) {
             });
             note('Entscheidung gespeichert. Unter Meine Meldungen abrufbar.');
           } else if (form.id === 'contentEditor') {
-            await saveContentEditor();
+            try {
+              await saveContentEditor();
+            } catch (error) {
+              const notice = $('adminUploadError');
+              if (!notice) throw error;
+              notice.textContent = error.message;
+              notice.hidden = false;
+            }
             return;
           } else if (form.id === 'appearanceForm') {
             if (brandBusy) throw Error('Logo wird noch vorbereitet');
