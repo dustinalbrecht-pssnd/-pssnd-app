@@ -16,7 +16,7 @@
     <meta property="og:description" content="Erstelle dein MW4-Loadout mit Primärwaffe, Sekundärwaffe, Aufsätzen und Ausrüstung. Wähle die Einsatzdistanz und speichere deinen Build als Bild.">
     <meta property="og:url" content="https://eupdategaming.com/Bauen/">
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
-    <link rel="stylesheet" href="assets/oberflaeche.css?v=admin-baukasten-20261128">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=loadout-design-20261128">
     <link rel="stylesheet" href="assets/waffenbuehne.css?v=20261128">
   </head>
   <body class="app-interface builder-view">
@@ -106,6 +106,10 @@
             </div>
           </div>
         </div>
+        <label class="build-title-field" for="buildLoadoutTitle">
+          <span>Loadout-Titel <small>optional</small></span>
+          <input id="buildLoadoutTitle" type="text" maxlength="90" placeholder="z. B. Kleine Karten">
+        </label>
         <div class="section-line builder-section">
           <h2>Waffen</h2>
           <p id="weaponSeasonHint">Waffen-Season optional. Bei gewählter Distanz gilt für neue Beiträge standardmäßig die aktive Season.</p>
@@ -152,15 +156,16 @@
       {
         "imports": {
           "./assets/news.js": "./assets/news.js?v=bedienung-20261128",
-          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=bedienung-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=loadout-design-20261128",
           "./assets/navigation.js": "./assets/navigation.js?v=admin-baukasten-20261128",
           "./assets/admin-baukasten-kontext.js": "./assets/admin-baukasten-kontext.js?v=admin-baukasten-20261128",
-          "./assets/app.js": "./assets/app.js?v=loadout-publication-20261128",
-          "./assets/bauen.js": "./assets/bauen.js?v=loadout-publication-20261128",
-          "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
+          "./assets/katalog.js": "./assets/katalog.js?v=loadout-design-20261128",
+          "./assets/app.js": "./assets/app.js?v=loadout-design-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=loadout-design-20261128",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=loadout-design-20261128",
           "./assets/creator.js": "./assets/creator.js?v=bedienung-20261128",
-          "./assets/loadout.js": "./assets/loadout.js?v=bedienung-20261128",
-          "./assets/ranking.js": "./assets/ranking.js?v=turnstile-likes-20261128",
+          "./assets/loadout.js": "./assets/loadout.js?v=loadout-design-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=loadout-design-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
