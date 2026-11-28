@@ -6,7 +6,7 @@ import {
   gearLabel,
   gearVisual,
 } from './ausruestung.js';
-import { LOGO, build, creators, feed, head, modal, siteConfig, state, toast, weapon } from './app.js';
+import { LOGO, build, creators, feed, head, modal, setupSlots, siteConfig, state, toast, weapon } from './app.js';
 import { BY, CAT, CLASS, GAME, MODE, artSource } from './katalog.js';
 import { ATTACHMENT_ART_SLOTS, attachmentLanguage, attachmentName } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
@@ -163,8 +163,11 @@ function exportGear(b, game, mode) {
 async function exportLoadoutImages(item = null, direct = false, weaponId) {
   const b = item ? { ...item, parts: item.parts || item.attachments || {}, gear: item.gear || {} } : build(),
     weapons = [item ? BY[item.primary] : weapon('primary'), item ? BY[item.secondary] : weapon('secondary')];
-  const selectedPage = weaponId ? weapons.findIndex((w) => w?.id === weaponId) : -1;
-  if (weaponId ? selectedPage < 0 : weapons.some((w) => !w)) {
+  const slots = setupSlots(b.setupType);
+  const chosen = weaponId || (slots.length === 1 ? b[slots[0]] :
+    item && (!b.primary || !b.secondary) ? b.primary || b.secondary : '');
+  const selectedPage = chosen ? weapons.findIndex((w) => w?.id === chosen) : -1;
+  if (chosen ? selectedPage < 0 : weapons.some((w) => !w)) {
     toast('Waffen nicht verfügbar');
     return;
   }

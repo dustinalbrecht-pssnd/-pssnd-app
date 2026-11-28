@@ -6092,7 +6092,7 @@ main,
 }
 
 #view-builder .builder-settings {
-  grid-template-columns: minmax(170px, .93fr) minmax(0, 2.1fr) minmax(160px, 1fr);
+  grid-template-columns: minmax(140px, 1fr) minmax(95px, .65fr) minmax(0, 2.1fr) minmax(160px, 1fr);
   gap: 16px;
   padding: 12px 13px;
   border-color: var(--builder-outline);
@@ -6191,6 +6191,9 @@ main,
 .build-weapons {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+.build-weapons.single-weapon {
+  grid-template-columns: minmax(0, 1fr);
 }
 .build-weapon-card {
   display: grid;

@@ -11,6 +11,7 @@ import {
   refresh,
   save,
   setLikeBusy,
+  setupSlots,
   state,
   storeCommunity,
   streamerLikes,
@@ -76,7 +77,8 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     const summary = weaponProfileSummary(x, id);
     if (weaponId) return '<li><span>' + html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
     const name = weaponNames(BY[id]).de;
-    return summary ? '<li><strong>' + html(name || slot) + '</strong><span>' + html(slot + ' · ' + summary) + '</span></li>' : '';
+    return '<li><strong>' + html(name || slot) + '</strong><span>' +
+      html(summary ? slot + ' · ' + summary : slot) + '</span></li>';
   }).join('');
   const media =
     '<div class="rank-media"><span class="rank-number">#' +
@@ -135,8 +137,8 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
   );
 }
 
-function matchingWeapons(loadout, gun, distance) {
-  return [...new Set([loadout.primary, loadout.secondary])]
+function matchingWeapons(loadout, slots, gun, distance) {
+  return [...new Set(slots.map((slot) => loadout[slot]))]
     .filter((id) => BY[id] && (gun === 'all' || id === gun) &&
       (distance === 'all' || weaponProfile(loadout, id).distance === distance))
     .map((weaponId) => ({ loadout, weaponId, season: weaponSeason(loadout, weaponId) }));
@@ -170,10 +172,12 @@ function rankAudience(items) {
 function rankScope(items) {
   const game = el('feedGame').value,
     mode = el('feedMode').value,
-    streamer = el('feedStreamer')?.value || 'all';
+    streamer = el('feedStreamer')?.value || 'all',
+    fullOnly = el('feedSetupType')?.value === 'full';
   return rankAudience(items).filter((loadout) =>
     (game === 'all' || loadout.game === game) &&
     (mode === 'all' || loadout.mode === mode) &&
+    (!fullOnly || (loadout.primary && loadout.secondary)) &&
     (streamer === 'all' || streamerFilterKey(loadout) === streamer)
   );
 }
@@ -181,6 +185,7 @@ function rankScope(items) {
 function redrawFeed() {
   if (!el('feedGame')) return;
   const mode = el('feedMode').value,
+    setupType = el('feedSetupType')?.value || 'auto',
     gun = el('feedWeapon').value,
     distance = el('feedDistance')?.value || 'all',
     sort = el('feedSort').value,
@@ -189,16 +194,21 @@ function redrawFeed() {
   const meta = sort === 'meta',
     weekly = sort === 'week';
   let season = seasonFilter?.value && seasonFilter.value !== 'all' ? Number(seasonFilter.value) : undefined;
-  const showWeapons = gun !== 'all' || distance !== 'all' || season !== undefined || meta;
+  const slots = setupSlots(setupType);
+  const matchWeapons = slots.length === 1 || gun !== 'all' || distance !== 'all' || season !== undefined || meta;
+  const showWeapons = matchWeapons && setupType !== 'full';
   const items = rankingLoadouts();
   const loadouts = rankScope(weekly ? weeklyLoadouts(items, onlyStreamers) : items).sort(
     sort === 'new'
       ? (a, b) => (Date.parse(b.created) || 0) - (Date.parse(a.created) || 0)
       : compareRank,
   );
-  let shown = showWeapons
-    ? loadouts.flatMap((loadout) => matchingWeapons(loadout, gun, distance))
-    : loadouts.map((loadout) => ({ loadout }));
+  let shown = matchWeapons
+    ? loadouts.flatMap((loadout) => matchingWeapons(loadout, slots, gun, distance))
+    : loadouts.map((loadout) => ({
+      loadout,
+      weaponId: loadout.primary && loadout.secondary ? undefined : loadout.primary || loadout.secondary,
+    }));
   if (seasonFilter) seasonFilter.options[0].textContent = meta ? 'Neueste Season' : 'Alle Seasons';
   if (meta && season === undefined) {
     for (const result of shown) {
@@ -207,6 +217,9 @@ function redrawFeed() {
   }
   if (season !== undefined) shown = shown.filter((result) => result.season === season);
   if (meta) shown = season === undefined ? [] : seasonMeta(shown);
+  if (setupType === 'full' && matchWeapons) {
+    shown = [...new Set(shown.map(({ loadout }) => loadout))].map((loadout) => ({ loadout }));
+  }
   const hint = el('rankingHint');
   if (hint) {
     hint.hidden = !weekly && !meta;
@@ -243,14 +256,16 @@ function redrawFeed() {
         ? '<button type="button" class="primary-btn" id="startStreamerLoadout">Streamer-Loadout bauen →</button>'
         : '<button type="button" class="primary-btn" data-view="builder">Loadout bauen →</button>') + '</div>';
   const reset = el('resetRankFilters');
-  if (reset) reset.hidden = !onlyStreamers && el('feedGame').selectedIndex === 0 &&
+  if (reset) reset.hidden = !onlyStreamers && setupType === 'auto' && el('feedGame').selectedIndex === 0 &&
     mode === 'all' && gun === 'all' && distance === 'all' && sort === 'popular' &&
     (!seasonFilter || seasonFilter.value === 'all');
 }
 
 function updateRankStats(results, showWeapons, weekly) {
   const count = el('loadoutCount');
-  const label = showWeapons ? 'Treffer' : results.length === 1 ? 'Loadout' : 'Loadouts';
+  const label = showWeapons || results.some(({ weaponId }) => weaponId)
+    ? 'Treffer'
+    : results.length === 1 ? 'Loadout' : 'Loadouts';
   count.textContent = results.length.toLocaleString('de-DE');
   count.parentElement.replaceChildren(count, ' ' + label);
   const loadouts = [...new Set(results.map(({ loadout }) => loadout))];
@@ -289,9 +304,10 @@ function renderFeed() {
 }
 
 function updateRankOptions(scope) {
+  const slots = setupSlots(el('feedSetupType')?.value);
   const weaponFilter = el('feedWeapon'),
     old = weaponFilter.value || 'all',
-    present = new Set(scope.flatMap((x) => [x.primary, x.secondary]));
+    present = new Set(scope.flatMap((x) => slots.map((slot) => x[slot])));
   if (BY[old]) present.add(old);
   weaponFilter.innerHTML =
     '<option value="all">Alle Waffen</option>' +
@@ -302,7 +318,7 @@ function updateRankOptions(scope) {
   const seasonFilter = el('feedSeason');
   if (seasonFilter) {
     const selected = seasonFilter.value || 'all',
-      seasons = new Set(scope.flatMap((x) => loadoutWeaponSeasons(x).map(([, number]) => number)));
+      seasons = new Set(scope.flatMap((x) => slots.map((slot) => weaponSeason(x, x[slot]))).filter(number => number !== undefined));
     if (selected !== 'all') seasons.add(Number(selected));
     seasonFilter.innerHTML =
       '<option value="all">Alle Seasons</option>' +
@@ -401,7 +417,7 @@ document.addEventListener('click', (e) => {
     navigate('builder');
   }
   if (button.id === 'resetRankFilters') {
-    for (const id of ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'])
+    for (const id of ['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedSetupType', 'feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'])
       if (el(id)) el(id).selectedIndex = 0;
     replaceViewParam('streamer', '');
     renderFeed();
@@ -410,7 +426,7 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('change', (e) => {
   if (e.target.id === 'feedAudience') replaceViewParam('streamer', e.target.value === 'creators' ? '1' : '');
-  if (['feedAudience', 'feedGame', 'feedMode', 'feedStreamer'].includes(e.target.id)) renderFeed();
+  if (['feedAudience', 'feedGame', 'feedMode', 'feedStreamer', 'feedSetupType'].includes(e.target.id)) renderFeed();
   if (['feedWeapon', 'feedDistance', 'feedSeason', 'feedSort'].includes(e.target.id)) redrawFeed();
 });
 

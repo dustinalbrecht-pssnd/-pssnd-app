@@ -56,7 +56,7 @@ document.addEventListener('click', (event) => {
   if (button.dataset.likeCreator) likeCreator(Number(button.dataset.likeCreator));
   if (button.dataset.copyCreator) {
     const item = creators.find((value) => value.id === Number(button.dataset.copyCreator));
-    if (item) importLoadout(item);
+    if (item) importLoadout(item, button.dataset.loadoutWeapon);
   }
 });
 

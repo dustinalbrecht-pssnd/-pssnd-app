@@ -50,10 +50,11 @@ function renderCurrentDetail() {
       '</p>';
     return;
   }
-  const primary = BY[x.primary] || WM[0];
+  const primary = BY[x.primary];
   const secondary = BY[x.secondary];
+  const full = Boolean(primary && secondary);
   const requested = currentParam('weapon');
-  const selected = [x.primary, x.secondary].includes(requested) ? BY[requested] : undefined;
+  const selected = full ? (requested === x.primary || requested === x.secondary ? BY[requested] : undefined) : primary || secondary;
   const title = selected ? weaponNames(selected)[attachmentLanguage] : x.title;
   const place = rankPlace(x.id, kind, selected?.id);
   const liked = Boolean((streamer ? streamerLikes : likedIds)[x.id]);
@@ -63,7 +64,7 @@ function renderCurrentDetail() {
     .map(([key, value]) => GEAR_NAMES[key] + ': ' + gearLabel(key, value, x.mode));
   const weapons = selected
     ? weaponDetail(x, selected, selected.id === x.primary ? 'Primärwaffe' : 'Sekundärwaffe')
-    : weaponDetail(x, primary, 'Primärwaffe') +
+    : weaponDetail(x, primary || WM[0], 'Primärwaffe') +
       (secondary ? weaponDetail(x, secondary, 'Sekundärwaffe') : '');
   const fullButton = ' data-detail="' + x.id + '" data-detail-kind="' + kind + '"';
   const weaponAttr = selected ? ' data-loadout-weapon="' + html(selected.id) + '"' : '';
@@ -83,7 +84,7 @@ function renderCurrentDetail() {
     '</b><small>PLATZIERUNG</small><span>♥ ' +
     Number(x.likes || 0).toLocaleString('de-DE') +
     '</span></div></div>' +
-    (selected ? '<div class="detail-actions"><button class="ghost-btn"' + fullButton +
+    (selected && full ? '<div class="detail-actions"><button class="ghost-btn"' + fullButton +
       '>Ganzes Loadout anzeigen →</button></div>' : '') +
     weapons +
     (selected ? '' : '<div class="detail-section"><span class="eyebrow">AUSRÜSTUNG</span><p>' +
@@ -99,8 +100,8 @@ function renderCurrentDetail() {
     x.id +
     '" data-download-kind="' + kind + '"' + weaponAttr + '>' +
     (selected ? 'Waffenbild herunterladen' : 'Als Bild herunterladen') + ' ↓</button>' +
-    (selected ? '' : '<button class="ghost-btn" ' + (streamer ? 'data-copy-creator' : 'data-copy') + '="' +
-      x.id + '">Im Builder öffnen →</button>') + '</div>' +
+    '<button class="ghost-btn" ' + (streamer ? 'data-copy-creator' : 'data-copy') + '="' +
+    x.id + '"' + weaponAttr + '>Im Baukasten öffnen →</button></div>' +
     '<div class="comments-entry"><div><h2>Was sagt die Community?</h2><p>' +
     (API && !x.local
       ? Number(x.commentCount || 0) + ' Kommentare'

@@ -29,6 +29,7 @@ import {
   renderTips,
   save,
   serverGet,
+  setupSlots,
   siteConfig,
   state,
   storeCommunity,
@@ -100,7 +101,7 @@ function openPicker(slot) {
 
 function openArsenal() {
   arsenalMode = true;
-  picker.slot = 'primary';
+  picker.slot = setupSlots(build().setupType)[0];
   picker.category = 'all';
   modal(
     head('Waffenübersicht', MODE[state.mode]) +
@@ -114,7 +115,8 @@ function openArsenal() {
 
 function renderPicker() {
   if (el('modal').hidden || !el('pickResults')) return;
-  const list = candidates(arsenalMode ? 'secondary' : picker.slot),
+  const bothSlots = setupSlots(build().setupType).length === 2;
+  const list = candidates(arsenalMode && bothSlots ? 'secondary' : picker.slot),
     classes = [...new Set(list.map((w) => w.cls))];
   if (arsenalMode) {
     el('modalBody').querySelector('.dialog-head p').textContent = MODE[state.mode] + ' · ' + list.length + ' Waffen';
@@ -147,7 +149,7 @@ function renderPicker() {
     ? found
         .map((w) => {
           const slot =
-              arsenalMode && ['pistol', 'launcher', 'melee', 'special'].includes(w.cls)
+              arsenalMode && bothSlots && ['pistol', 'launcher', 'melee', 'special'].includes(w.cls)
                 ? 'secondary'
                 : picker.slot,
             selected = build()[slot] === w.id;
@@ -237,35 +239,46 @@ function renderPartRows(parts) {
     .join('');
 }
 
-function importLoadout(x) {
+function importLoadout(x, selectedId) {
   state.game = x.game;
   state.mode = x.mode;
   const b = build();
-  b.primary = x.primary;
-  b.secondary = x.secondary || b.secondary;
+  const selectedSlot = selectedId && (x.primary === selectedId ? 'primary' : x.secondary === selectedId ? 'secondary' : '');
+  b.setupType = selectedSlot || x.setupType || (x.primary && x.secondary ? 'full' : x.secondary ? 'secondary' : 'primary');
   b.dmzLoot = !!x.dmzLoot;
-  b.parts = { ...b.parts, ...(x.parts || x.attachments || {}) };
-  b.gear = { ...b.gear, ...(x.gear || {}) };
+  if (b.setupType === 'full') b.gear = { ...b.gear, ...(x.gear || {}) };
+  b.parts = { ...b.parts };
   b.weaponSeasons = { ...b.weaponSeasons };
-  delete b.weaponSeasons[b.primary];
-  delete b.weaponSeasons[b.secondary];
-  Object.assign(b.weaponSeasons, Object.fromEntries(loadoutWeaponSeasons(x)));
   b.weaponProfiles = { ...b.weaponProfiles };
-  delete b.weaponProfiles[b.primary];
-  delete b.weaponProfiles[b.secondary];
-  Object.assign(b.weaponProfiles, loadoutWeaponProfiles(x));
+  for (const slot of setupSlots(b.setupType)) {
+    const id = x[slot];
+    if (!id) continue;
+    b[slot] = id;
+    b.parts[id] = (x.parts || x.attachments || {})[id] || [];
+    delete b.weaponSeasons[id];
+    delete b.weaponProfiles[id];
+    const season = weaponSeason(x, id);
+    const profile = weaponProfile(x, id);
+    if (season !== undefined) b.weaponSeasons[id] = season;
+    if (profile.distance || profile.hint) b.weaponProfiles[id] = profile;
+  }
   save();
   renderBuilder();
   navigate('builder');
-  toast('Loadout übernommen ✓');
+  toast('Setup übernommen ✓');
 }
 
 function payload() {
   const b = build();
-  const seasons = loadoutWeaponSeasons(b);
-  const profiles = loadoutWeaponProfiles(b);
-  const gear = draftGear(b.gear, state.game, state.mode);
-  const attachments = Object.fromEntries(Object.entries(b.parts || {}).map(([weaponId, parts]) => {
+  const slots = setupSlots(b.setupType);
+  const primary = slots.includes('primary') ? b.primary : '';
+  const secondary = slots.includes('secondary') ? b.secondary : '';
+  const selected = { ...b, primary, secondary };
+  const seasons = loadoutWeaponSeasons(selected);
+  const profiles = loadoutWeaponProfiles(selected);
+  const gear = slots.length === 2 ? draftGear(b.gear, state.game, state.mode) : {};
+  const attachments = Object.fromEntries([...new Set([primary, secondary].filter(Boolean))].map((weaponId) => {
+    const parts = b.parts?.[weaponId] || [];
     const w = BY[weaponId];
     if (!w) return [weaponId, parts];
     const assigned = knownAttachmentIds(w, null);
@@ -279,8 +292,9 @@ function payload() {
   return {
     game: state.game,
     mode: state.mode,
-    primary: b.primary,
-    secondary: b.secondary,
+    primary,
+    secondary,
+    ...(slots.length === 1 ? { setupType: slots[0] } : {}),
     attachments,
     gear,
     dmzLoot: !!b.dmzLoot,
@@ -311,6 +325,8 @@ function updateProfileField(field, slot, key) {
 
 function renderWeaponCards(b) {
   const container = el('weaponSlots');
+  const active = setupSlots(b.setupType);
+  container.classList.toggle('single-weapon', active.length === 1);
   const slots = [
     ['primary', 'Primärwaffe', 'der Primärwaffe'],
     ['secondary', 'Sekundärwaffe', 'der Sekundärwaffe'],
@@ -352,8 +368,10 @@ function renderWeaponCards(b) {
   }
 
   for (const [slot, label] of slots) {
-    const w = weapon(slot);
     const card = container.querySelector('[data-build-weapon="' + slot + '"]');
+    card.hidden = !active.includes(slot);
+    if (card.hidden) continue;
+    const w = weapon(slot);
     const artButton = card.querySelector('.build-weapon-art');
     const name = weaponNames(w)[attachmentLanguage];
     el(slot + 'WeaponName').textContent = name || 'Waffe wählen';
@@ -490,6 +508,8 @@ function renderBuilder() {
   const g = state.game,
     mode = state.mode,
     b = build();
+  if (el('buildSetupType')) el('buildSetupType').value = b.setupType || 'full';
+  if (el('builderGear')) el('builderGear').hidden = setupSlots(b.setupType).length === 1;
   el('gameSelect').innerHTML = Object.entries(GAME)
     .map(
       ([id, name]) => '<option value="' + id + '" ' + (id === g ? 'selected' : '') + '>' + name + '</option>',
@@ -554,6 +574,7 @@ function renderBuilder() {
 }
 
 function builderGearSlots(b) {
+  if (setupSlots(b.setupType).length === 1) return [];
   const slots = gearSlots(state.game, state.mode);
   const saved = Object.keys(GEAR_NAMES).filter((key) => b.gear?.[key] && !['Keine', 'None'].includes(b.gear[key]));
   return [...new Set([...slots, ...saved])];
@@ -608,7 +629,7 @@ function chooseGear(key, value) {
 }
 
 function validateDraft() {
-  for (const slot of ['primary', 'secondary']) {
+  for (const slot of setupSlots(build().setupType)) {
     const w = weapon(slot);
     if (!w || !candidates(slot).includes(w)) {
       toast('Wähle eine freigegebene ' + (slot === 'primary' ? 'Primärwaffe' : 'Sekundärwaffe') + ' für ' + MODE[state.mode] + '.');
@@ -638,11 +659,16 @@ function validateDraft() {
 }
 
 function publish() {
-  for (const field of document.querySelectorAll('#weaponSlots [data-weapon-season]')) {
+  for (const field of document.querySelectorAll('#weaponSlots [data-build-weapon]:not([hidden]) [data-weapon-season]')) {
     if (!field.reportValidity()) return;
   }
   if (API && siteConfig.communityReady !== true) {
     communityBlocked();
+    return;
+  }
+  const slots = setupSlots(build().setupType);
+  if (API && slots.length === 1 && siteConfig.supportsSingleWeaponSetups !== true) {
+    toast('Für die Veröffentlichung von Einzelwaffen braucht der Worker das Setup-Update.');
     return;
   }
   if (!validateDraft()) return;
@@ -655,15 +681,14 @@ function publish() {
     creatorForm();
     return;
   }
-  const w = weapon('primary'),
-    s = weapon('secondary'),
-    primaryName = weaponNames(w)[attachmentLanguage],
-    secondaryName = weaponNames(s)[attachmentLanguage],
+  const w = weapon(slots[0]),
+    name = weaponNames(w)[attachmentLanguage],
+    weapons = slots.map((slot) => weaponNames(weapon(slot))[attachmentLanguage]).join(' + '),
     mode = MODE[state.mode],
     local = !API;
   clearCrop();
   modal(
-    head('Veröffentlichen', 'Dein Loadout auf einen Blick') +
+    head('Veröffentlichen', 'Dein Setup auf einen Blick') +
       '<div class="publish-preview"><div class="preview-image">' +
       art(w) +
       '</div><span class="rank-tag">' +
@@ -671,13 +696,11 @@ function publish() {
       ' · ' +
       html(mode) +
       '</span><h3>' +
-      html(primaryName) +
+      html(name) +
       ' · ' +
       html(mode) +
       '</h3><p>' +
-      html(primaryName) +
-      ' + ' +
-      html(secondaryName) +
+      html(weapons) +
       ' · ' +
       storedParts(w).length +
       ' Aufsätze</p></div>' +
@@ -721,7 +744,7 @@ async function postLoadout(e) {
   const photo = crop ? await croppedPhoto() : state.profilePhoto || '';
   const data = {
     ...payload(), name,
-    title: weaponNames(weapon('primary'))[attachmentLanguage] + ' · ' + MODE[state.mode],
+    title: weaponNames(weapon(setupSlots(build().setupType)[0]))[attachmentLanguage] + ' · ' + MODE[state.mode],
     note, photo,
   };
   state.lastName = name;
@@ -739,6 +762,7 @@ async function postLoadout(e) {
     el('feedWeapon').value = 'all';
     if (el('feedDistance')) el('feedDistance').value = 'all';
     if (el('feedSeason')) el('feedSeason').value = 'all';
+    if (el('feedSetupType')) el('feedSetupType').value = 'auto';
     el('feedSort').value = 'new';
     redrawFeed();
     const place = rankPlace(post.id);
@@ -820,7 +844,7 @@ document.addEventListener('click', (e) => {
   }
   if (button.dataset.copy) {
     const item = feed.find((v) => v.id === Number(button.dataset.copy));
-    if (item) importLoadout(item);
+    if (item) importLoadout(item, button.dataset.loadoutWeapon);
     return;
   }
   if (button.dataset.starter !== undefined) {
@@ -842,6 +866,11 @@ document.addEventListener('click', (e) => {
   if (button.id === 'publishLoadout') publish();
 });
 document.addEventListener('change', (e) => {
+  if (e.target.id === 'buildSetupType') {
+    build().setupType = e.target.value;
+    save();
+    renderBuilder();
+  }
   if (e.target.id === 'gameSelect') setGame(e.target.value);
   if (e.target.id === 'modeSelect') setMode(e.target.value);
   if (e.target.dataset.weaponDistance) updateProfileField(e.target, e.target.dataset.weaponDistance, 'distance');

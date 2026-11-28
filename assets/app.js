@@ -6,7 +6,7 @@ import { GEAR_NAMES, managedItems } from './ausruestung.js';
 import { availableInMode } from './mw4-ausruestung.js';
 import { activateRanking, avatar, renderFeed, setFeedStatus, updateCommunityConnection } from './ranking.js';
 import { renderCurrentDetail } from './loadout.js';
-import { applyNewsConfig, checkLive, patchStatus, renderLive, tick } from './news.js';
+import { applyNewsConfig, checkLive, renderLive, tick } from './news.js';
 import { attachmentLanguage, renderGunsmith } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
 import { applyGameSettingsCopy, showGameSettings } from './einstellungen.js?v=mw4-community-20261126';
@@ -96,6 +96,10 @@ function build() {
   const key = currentKey();
   if (!state.builds[key]) state.builds[key] = initial();
   return state.builds[key];
+}
+
+function setupSlots(type) {
+  return type === 'primary' || type === 'secondary' ? [type] : ['primary', 'secondary'];
 }
 
 function weapon(slot) {
@@ -205,6 +209,10 @@ async function anonId() {
 }
 
 async function apiPost(path, payload) {
+  if ((payload?.setupType === 'primary' || payload?.setupType === 'secondary') &&
+      siteConfig.supportsSingleWeaponSetups !== true) {
+    throw Error('Für die Veröffentlichung von Einzelwaffen braucht der Worker das Setup-Update. Dein Entwurf ist gespeichert.');
+  }
   if (payload?.weaponSeasons && siteConfig.supportsWeaponSeasons !== true) {
     throw Error('Der Community-Server speichert noch keine Waffen-Seasons. Dein Entwurf bleibt gespeichert.');
   }
@@ -360,7 +368,7 @@ async function submitCreator(e) {
         id: Date.now(),
         created: new Date().toISOString(),
         likes: 0,
-        title: weaponNames(weapon('primary'))[attachmentLanguage] + ' · ' + MODE[state.mode],
+        title: weaponNames(weapon(setupSlots(build().setupType)[0]))[attachmentLanguage] + ' · ' + MODE[state.mode],
         name: el('creatorName').value.trim().slice(0, 40),
         handle: el('creatorHandle').value.trim().slice(0, 45),
         note: el('creatorNote').value.trim().slice(0, 180),
@@ -598,9 +606,12 @@ async function refresh({ background = false } = {}) {
   let redrawDetail = !background;
   if (!background) setFeedStatus('Lade Community-Loadouts …');
   try {
-    const catalogRevision = await loadWeaponCatalog();
-    if (request !== communityRequest) return;
-    const r = await fetch(API + '/api/sets', { cache: 'no-store', headers: existingVisitorHeaders() });
+    const view = currentView();
+    const needsCatalog = ['feed', 'detail', 'builder', 'attachments'].includes(view);
+    const [r, catalogRevision] = await Promise.all([
+      fetch(API + '/api/sets', { cache: 'no-store', headers: existingVisitorHeaders() }),
+      needsCatalog ? loadWeaponCatalog().catch(() => communityCatalogRevision) : communityCatalogRevision,
+    ]);
     if (!r.ok) throw Error();
     const response = await r.text();
     if (request !== communityRequest) return;
@@ -610,9 +621,9 @@ async function refresh({ background = false } = {}) {
       weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
       weeklyPeriod = data.week || null;
       feed = (data.sets || [])
-        .filter((x) => BY[x.primary] && GAME[x.game] && MODE[x.mode])
+        .filter((x) => BY[x.primary || x.secondary] && GAME[x.game] && MODE[x.mode])
         .map((x) => ({ ...x, description: x.note }));
-      creators = (data.creators || []).filter((x) => BY[x.primary] && GAME[x.game]);
+      creators = (data.creators || []).filter((x) => BY[x.primary || x.secondary] && GAME[x.game]);
       for (const x of feed) likedIds[x.id] = !!x.liked;
       for (const x of creators) streamerLikes[x.id] = !!x.liked;
       state.liked = !!data.supportLiked;
@@ -658,6 +669,7 @@ let siteConfig = {
   communityReady: false,
 };
 let communityCopyReady = false;
+let siteConfigPending = null;
 
 const OWNER_KEY = 'eupdate_v16_own_posts';
 
@@ -681,16 +693,19 @@ async function serverGet(path) {
 
 async function loadSiteConfig() {
   if (!API) return;
-  try {
-    siteConfig = await serverGet('/api/config');
-    communityCopyReady = true;
-    applyNewsConfig(siteConfig);
-    applySiteContent();
-    renderLive();
-    checkTermsGate();
-  } catch (_) {
-    checkTermsGate();
-  }
+  if (siteConfigPending) return siteConfigPending;
+  siteConfigPending = (async () => {
+    try {
+      siteConfig = await serverGet('/api/config');
+      communityCopyReady = true;
+      applyNewsConfig(siteConfig);
+      applySiteContent();
+      renderLive();
+    } finally {
+      checkTermsGate();
+    }
+  })().catch(() => {}).finally(() => { siteConfigPending = null; });
+  return siteConfigPending;
 }
 
 function legacyUsageMarkup() {
@@ -2035,10 +2050,11 @@ function activateView(view) {
   if (view === 'feed') activateRanking();
   if (view === 'builder') renderBuilder();
   if (view === 'attachments') {
-    picker.slot = currentParam('slot') === 'secondary' ? 'secondary' : 'primary';
+    const slots = setupSlots(build().setupType);
+    picker.slot = slots.includes(currentParam('slot')) ? currentParam('slot') : slots[0];
     renderGunsmith();
   }
-  if (view === 'events') renderLive();
+  if (view === 'events') checkLive();
   if (view === 'detail') renderCurrentDetail();
   if (view === 'settings') showGameSettings();
   applySiteContent();
@@ -2057,7 +2073,6 @@ function start() {
   if (!API) el('supportCount').textContent = state.liked ? '1' : '0';
   startNavigation(activateView);
   renderTips();
-  patchStatus();
   refresh();
   loadSiteConfig();
   try {
@@ -2067,11 +2082,11 @@ function start() {
     }
   } catch {}
   setInterval(tick, 1000);
-  setInterval(checkLive, 600000);
+  setInterval(() => { if (currentView() === 'events') checkLive(); }, 600000);
   setInterval(refreshVisibleCommunity, COMMUNITY_REFRESH_MS);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) return;
-    checkLive();
+    if (currentView() === 'events') checkLive();
     refreshVisibleCommunity();
   });
 }
@@ -2276,6 +2291,7 @@ export {
   save,
   serverGet,
   setLikeBusy,
+  setupSlots,
   siteConfig,
   state,
   storeCommunity,
