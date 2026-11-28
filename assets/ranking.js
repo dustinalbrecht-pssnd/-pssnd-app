@@ -65,8 +65,8 @@ function avatar(x) {
 
 function postLikeButton(item, kind) {
   const streamer = kind === 'creators';
-  const pending = likeBusy.get(kind + ':' + item.id);
-  const vote = pending || { liked: Boolean((streamer ? streamerLikes : likedIds)[item.id]), likes: Number(item.likes || 0) };
+  const pending = likeBusy.has(kind + ':' + item.id);
+  const vote = { liked: Boolean((streamer ? streamerLikes : likedIds)[item.id]), likes: Number(item.likes || 0) };
   return '<button type="button" class="like-btn vote-button" ' +
     (streamer ? 'data-like-creator' : 'data-like') + '="' + item.id +
     '" aria-label="Loadout liken" aria-pressed="' + vote.liked + '"' +

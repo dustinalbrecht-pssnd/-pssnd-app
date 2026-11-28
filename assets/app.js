@@ -12,7 +12,7 @@ import { weaponNames } from './katalog-abgleich.js';
 import { applyGameSettingsCopy, showGameSettings } from './einstellungen.js?v=mw4-community-20261126';
 import { BANNER_HEIGHT, BANNER_WIDTH } from './mw4-inhalte.js';
 import { countPageView } from './zugriffe.js';
-import { clearVisitorVerification, needsVisitorVerification, visitorVerification } from './community-verification.js?v=community-security-20261126';
+import { clearVisitorVerification, needsVisitorVerification, visitorVerification } from './community-verification.js?v=turnstile-likes-20261128';
 import { applyPageSeo, SEO_PAGES } from './seo.js';
 import { ADMIN_BUILDER_STORAGE_KEY, inAdminBuilder, notifyAdminBuilder } from './admin-baukasten-kontext.js';
 
@@ -209,7 +209,7 @@ async function anonId() {
   return id;
 }
 
-async function apiPost(path, payload) {
+async function apiPost(path, payload, { keepalive = false, onSend } = {}) {
   if ((payload?.setupType === 'primary' || payload?.setupType === 'secondary') &&
       siteConfig.supportsSingleWeaponSetups !== true) {
     throw Error('Für die Veröffentlichung von Einzelwaffen braucht der Worker das Setup-Update. Dein Entwurf ist gespeichert.');
@@ -225,10 +225,13 @@ async function apiPost(path, payload) {
   const verify = id && siteConfig.visitorVerification === true && needsVisitorVerification(path, payload);
   const headers = { 'content-type': 'application/json', ...(id ? { 'x-eupdate-visitor': id } : {}) };
   if (verify) headers['x-eupdate-session'] = await visitorVerification(API, id, siteConfig.turnstileSiteKey);
-  const send = () => fetch(API + path, {
-    method: 'POST', credentials: 'omit', redirect: 'error', headers,
-    body: JSON.stringify({ ...termsReceipt(), ...(payload || {}) }),
-  });
+  const send = () => {
+    onSend?.();
+    return fetch(API + path, {
+      method: 'POST', credentials: 'omit', redirect: 'error', headers, keepalive,
+      body: JSON.stringify({ ...termsReceipt(), ...(payload || {}) }),
+    });
+  };
   let r = await send();
   if (verify && r.status === 428 && (await r.clone().json().catch(() => ({}))).code === 'visitor_verification') {
     clearVisitorVerification();
@@ -615,6 +618,7 @@ async function refresh({ background = false, includeCatalog = true } = {}) {
         weeklyPeriod = data.week || null;
         state.liked = !!data.supportLiked;
         supportLikes = Number(data.supportLikes || 0);
+        settleResumedLikes(data);
       }
       updateSupportHeart();
       renderFeed();
@@ -1126,7 +1130,7 @@ function openSupport() {
       siteConfig.supportText || 'Danke, dass du dabei bist.',
     ) +
       '<div class="stats"><div><b id="supportModalCount">' +
-      supportLikes.toLocaleString('de-DE') +
+      displayLikeCount(supportLikes) +
       '</b><span>' +
       (API ? 'App-Likes' : 'Dein Like auf diesem Gerät') +
       '</span></div></div><div class="dialog-actions"><button class="primary-btn" id="likeApp" aria-pressed="' +
@@ -1336,12 +1340,14 @@ document.addEventListener('click', (e) => {
 });
 
 const likeBusy = new Map(),
+  PENDING_LIKES_KEY = 'eupdate_pending_like_requests',
+  LIKE_RELOAD_WINDOW_MS = 12_000,
   COMMENTS_KEY = 'eupdate_v16_own_comments',
   REPORTS_KEY = 'eupdate_v16_own_reports';
 
 let commentsContext = null,
   previousModalFocus = null,
-  supportLikes = 0;
+  supportLikes = null;
 
 function arrangeHeader() {
   const bar = document.querySelector('.topbar'),
@@ -1364,26 +1370,90 @@ function existingVisitorHeaders() {
   }
 }
 
+function storePendingLikeRequests() {
+  const time = Date.now();
+  const pending = Array.from(likeBusy, ([key, vote]) => [key, vote.liked, vote.expiresAt])
+    .filter(([, , expiresAt]) => expiresAt > time);
+  try {
+    if (pending.length) sessionStorage.setItem(PENDING_LIKES_KEY, JSON.stringify(pending));
+    else sessionStorage.removeItem(PENDING_LIKES_KEY);
+  } catch {}
+}
+
+function settleResumedLikes(data) {
+  let changed = false;
+  for (const [key, vote] of likeBusy) {
+    if (!vote.resumed) continue;
+    const [kind, id] = key.split(':');
+    const liked = kind === 'support' ? data?.supportLiked : data?.[kind]?.find(post => post.id === Number(id))?.liked;
+    if (liked === vote.liked || data?.paused || vote.expiresAt <= Date.now()) {
+      likeBusy.delete(key);
+      changed = true;
+    }
+  }
+  if (changed) storePendingLikeRequests();
+  return changed;
+}
+
+function resumePendingLikeRequests() {
+  try {
+    const pending = JSON.parse(sessionStorage.getItem(PENDING_LIKES_KEY) || '[]');
+    for (const [key, liked, expiresAt] of pending) {
+      if (/^(support|(sets|creators):\d+)$/.test(key) &&
+          typeof liked === 'boolean' && expiresAt > Date.now()) {
+        likeBusy.set(key, { liked, expiresAt, resumed: true });
+      }
+    }
+  } catch {}
+  if (!likeBusy.size) return;
+  for (const delay of [600, 1700, 4000, 8500, LIKE_RELOAD_WINDOW_MS + 100]) {
+    setTimeout(() => {
+      if (settleResumedLikes()) {
+        updateSupportHeart();
+        renderFeed();
+        renderCurrentDetail();
+      }
+      if (Array.from(likeBusy.values()).some(vote => vote.resumed)) {
+        refresh({ background: true, includeCatalog: false });
+      }
+    }, delay);
+  }
+}
+
 async function toggleLike(key, path, vote, show) {
   if (likeBusy.has(key)) return null;
-  const next = { liked: !vote.liked, likes: Math.max(0, vote.likes + (vote.liked ? -1 : 1)) };
-  likeBusy.set(key, next);
-  show(next, true);
+  const request = { liked: !vote.liked, expiresAt: 0 };
+  likeBusy.set(key, request);
+  let receivedReply = false;
   try {
-    if (path && !communityCopyReady && next.liked) await loadSiteConfig();
-    if (path && next.liked && communityCopyReady && siteConfig.communityReady === false) {
+    show(vote, true);
+    if (path && !communityCopyReady && request.liked) await loadSiteConfig();
+    if (path && request.liked && communityCopyReady && siteConfig.communityReady === false) {
       throw Error('Neue Likes sind derzeit pausiert.');
     }
-    const saved = path ? await apiPost(path, { liked: next.liked }) : next;
+    const saved = path ? await apiPost(path, { liked: request.liked }, {
+      keepalive: true,
+      onSend: () => {
+        request.expiresAt = Date.now() + LIKE_RELOAD_WINDOW_MS;
+        storePendingLikeRequests();
+      },
+    }) : { liked: request.liked, likes: Math.max(0, (vote.likes ?? 0) + (request.liked ? 1 : -1)) };
     if (typeof saved.liked !== 'boolean' || !Number.isSafeInteger(saved.likes)) throw Error('Like konnte nicht bestätigt werden.');
+    receivedReply = true;
     communityVoteRevision++;
     return saved;
   } catch (error) {
+    receivedReply = error.status >= 400 && error.status < 500;
     toast(error.message);
     return null;
   } finally {
     likeBusy.delete(key);
+    if (request.expiresAt && receivedReply) storePendingLikeRequests();
   }
+}
+
+function displayLikeCount(count) {
+  return count?.toLocaleString('de-DE') ?? '–';
 }
 
 function paintVoteButton(button, vote, busy) {
@@ -1396,14 +1466,14 @@ function paintVoteButton(button, vote, busy) {
     button.removeAttribute('aria-disabled');
   }
   button.querySelector('.vote-symbol').textContent = vote.liked ? '♥' : '♡';
-  button.querySelector('.vote-count').textContent = vote.likes.toLocaleString('de-DE');
+  button.querySelector('.vote-count').textContent = displayLikeCount(vote.likes);
 }
 
 function supportVote() {
   return { liked: Boolean(state.liked), likes: supportLikes };
 }
 
-function updateSupportHeart(vote = likeBusy.get('support') || supportVote(), busy = likeBusy.has('support')) {
+function updateSupportHeart(vote = supportVote(), busy = likeBusy.has('support')) {
   const button = el('quickSupportLike');
   if (button) {
     paintVoteButton(button, vote, busy);
@@ -1414,7 +1484,7 @@ function updateSupportHeart(vote = likeBusy.get('support') || supportVote(), bus
     modalButton.disabled = busy;
     modalButton.textContent = vote.liked ? '♥ Like entfernen' : '♡ App liken';
     modalButton.setAttribute('aria-pressed', String(vote.liked));
-    el('supportModalCount').textContent = vote.likes.toLocaleString('de-DE');
+    el('supportModalCount').textContent = displayLikeCount(vote.likes);
   }
 }
 
@@ -2166,6 +2236,7 @@ function start() {
   document.querySelector('.legal-footer #myReports')?.before(reportLink);
   checkTermsGate();
   if (!API) supportLikes = state.liked ? 1 : 0;
+  else resumePendingLikeRequests();
   updateSupportHeart();
   startNavigation(activateView);
   renderTips();
