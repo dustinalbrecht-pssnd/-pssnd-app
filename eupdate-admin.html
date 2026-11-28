@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-37bziTPFZaIB852GY16k1pJLVzBTjgV/NacdEPZ5yAg='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-GotfUgfkm2ehBP6VUiMylrS12hiyn4gjGHJ+QYimYsU='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
+    <link rel="stylesheet" href="assets/waffenbuehne.css?v=20261128" />
     <script>
       if (location.protocol === 'http:' && location.hostname === 'eupdategaming.com') {
         location.replace('https://' + location.host + location.pathname + location.search + location.hash);
@@ -2090,6 +2091,33 @@ label :is(input, textarea, select) {
       .seo-indexing a {
         font-weight: 650;
       }
+      #adminWeaponPreviews {
+        grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+        margin: 12px 0;
+      }
+      #adminWeaponPreviews .admin-weapon-preview {
+        min-width: 0;
+        padding: 11px;
+      }
+      .admin-weapon-preview h3 {
+        margin: 3px 0 8px;
+        overflow-wrap: anywhere;
+      }
+      .admin-weapon-preview .weapon-stage {
+        display: grid;
+        place-items: center;
+        height: clamp(150px, 19vw, 230px);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      .admin-weapon-preview img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 10px 13px;
+      }
     </style>
   </head>
   <body>
@@ -3490,11 +3518,14 @@ label :is(input, textarea, select) {
               )
               .join('')
           : '<p>Die Quellen erscheinen nach der ersten Prüfung.</p>';
-        $('newsStatus').textContent =
-          dashboard.newsError ||
-          (dashboard.newsSuccess
-            ? 'Zuletzt geprüft am ' + new Date(dashboard.newsSuccess).toLocaleString('de-DE')
-            : 'Die automatische Prüfung steht noch aus.');
+        const lastChange = dashboard.newsStatus?.lastContentUpdate;
+        $('newsStatus').textContent = [
+          dashboard.newsSuccess
+            ? 'Quellen geprüft am ' + new Date(dashboard.newsSuccess).toLocaleString('de-DE')
+            : 'Die automatische Prüfung steht noch aus.',
+          lastChange ? 'Letzte automatische Inhaltsänderung am ' + new Date(lastChange).toLocaleString('de-DE') : '',
+          dashboard.newsError,
+        ].filter(Boolean).join(' · ');
 
         const query = $('newsSearch').value.trim().toLowerCase();
         const visibility = $('newsVisibility').value;
@@ -4733,9 +4764,10 @@ label :is(input, textarea, select) {
         const names = Object.fromEntries((dashboard.weapons || []).map((w) => [w.id, w.name]));
         const seasons = new Map(loadoutWeaponSeasons(x));
         const profiles = loadoutWeaponProfiles(x);
-        const slots = [['primary', 'Primärwaffe'], ['secondary', 'Sekundärwaffe']].filter(([slot]) => x[slot]);
-        const primary = Boolean(x.primary);
-        const secondary = Boolean(x.secondary);
+        const creating = !x.id;
+        const slots = [['primary', 'Primärwaffe'], ['secondary', 'Sekundärwaffe']].filter(([slot]) => creating || x[slot]);
+        const primary = creating || Boolean(x.primary);
+        const secondary = creating || Boolean(x.secondary);
         const editSeasons = serverHealth?.features?.includes('weapon-seasons');
         const editProfiles = serverHealth?.features?.includes('weapon-profiles');
         $('editorTitle').textContent =
@@ -5342,22 +5374,21 @@ label :is(input, textarea, select) {
             box = $('adminWeaponPreviews');
           }
           box.innerHTML = ['primary', 'secondary'].filter((slot) => form.elements[slot].type !== 'hidden')
-            .map((slot) => form.elements[slot].value)
-            .map((id) => {
-              const w = dashboard.weapons.find((w) => w.id === id),
-                img = w?.img || MW_IMAGES[w?.name] || '';
+            .map((slot) => {
+              const w = dashboard.weapons.find((w) => w.id === form.elements[slot].value),
+                name = weaponNames(w).de || 'Waffe wählen',
+                img = w ? weaponImageSource(w).src : '';
               return (
-                '<div class="panel"><h3>' +
-                esc(w?.name || 'Waffe wählen') +
-                '</h3>' +
+                '<div class="panel admin-weapon-preview"><small>' + (slot === 'primary' ? 'Primärwaffe' : 'Sekundärwaffe') + '</small><h3>' +
+                esc(name) + '</h3><div class="weapon-stage">' +
                 (img
-                  ? '<img style="width:100%;height:150px;object-fit:contain" alt="' +
-                    esc(w.name) +
+                  ? '<img alt="' +
+                    esc(name) +
                     '" src="' +
                     esc(naturalWeaponImage(w, img)) +
                     '">'
-                  : '') +
-                '</div>'
+                  : '<span class="muted">Keine Bildvorschau</span>') +
+                '</div></div>'
               );
             })
             .join('');
