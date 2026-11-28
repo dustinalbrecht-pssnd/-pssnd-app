@@ -13,7 +13,7 @@
       content="eUpdate: Community-Ranking, Loadouts, Creator und Events für Call of Duty."
     />
     <title>eUpdate · Loadout</title>
-    <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125" />
+    <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127" />
   </head>
   <body>
     <section
@@ -125,6 +125,19 @@
       </section>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="assets/app.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
+          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
+          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
+        }
+      }
+    </script>
+    <script type="module">import "./assets/app.js";</script>
   </body>
 </html>
