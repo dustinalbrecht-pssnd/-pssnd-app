@@ -15,7 +15,7 @@
     <meta property="og:title" content="eUpdateGaming – MW4 Waffenaufsätze">
     <meta property="og:description" content="Entdecke Optiken, Läufe, Mündungen und weitere Aufsätze für MW4. Wähle die passenden Teile für deine Waffe und übernimm sie in dein Loadout.">
     <meta property="og:url" content="https://eupdategaming.com/Aufsaetze/">
-    <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
+    <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
   </head>
   <body>
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -97,7 +97,20 @@
       </section>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="assets/app.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
+          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
+          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
+        }
+      }
+    </script>
+    <script type="module">import "./assets/app.js";</script>
   
 
 </body></html>
