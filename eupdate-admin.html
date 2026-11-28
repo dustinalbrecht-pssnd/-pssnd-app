@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-o0vQcHv22fnC8TIPmhlYSGcVqPceYVJ9I2r2TTv+xOA='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-E4UBYqyDujkiq0++6J1zSIJLs3wjJ8pXFt1jP250FUo='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
@@ -5199,6 +5199,11 @@ label :is(input, textarea, select) {
         if (editor.submitting) return;
 
         const name = fields.name?.trim() || '';
+        const title = fields.title.trim();
+        const customTitle = (item.draft.customTitle || title !== item.title.slice(0, 90).trim()) ? title : '';
+        if ((customTitle || item.draft.weaponSkins) && !serverHealth?.features?.includes('loadout-designs')) {
+          throw Error('Titel und Skins brauchen das Worker-Update 16.24.0. Der Entwurf bleibt im Baukasten.');
+        }
         const useEupdateLogo = item.kind === 'sets' && name === ADMIN_AUTHOR.name && !editorImage;
         if (useEupdateLogo && !serverHealth?.features?.includes('admin-upload-logo')) {
           throw Error('Für das eUpdate-Logo muss der Worker 16.20.0 bereitgestellt sein. Der Entwurf bleibt im Baukasten.');
@@ -5212,7 +5217,8 @@ label :is(input, textarea, select) {
             ...item.draft,
             kind: item.kind,
             name,
-            title: fields.title.trim(),
+            title,
+            ...(customTitle ? { customTitle } : {}),
             note: fields.note.trim(),
             photo: editorImage,
             status: fields.status,
