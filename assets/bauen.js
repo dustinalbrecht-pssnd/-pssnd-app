@@ -16,6 +16,7 @@ import {
   croppedPhoto,
   el,
   feed,
+  finishLoadoutSubmission,
   head,
   html,
   localPosts,
@@ -25,7 +26,6 @@ import {
   privacyReceipt,
   publicationRules,
   refresh,
-  rememberSubmission,
   renderTips,
   save,
   serverGet,
@@ -702,6 +702,7 @@ function publish() {
     weapons = slots.map((slot) => weaponNames(weapon(slot))[attachmentLanguage]).join(' + '),
     mode = MODE[state.mode],
     local = !API;
+  const publishesDirectly = siteConfig.supportsDirectLoadoutPublishing === true;
   clearCrop();
   modal(
     head('Veröffentlichen', 'Dein Setup auf einen Blick') +
@@ -736,12 +737,14 @@ function publish() {
         ? ''
         : '<label class="wide consent"><input type="checkbox" name="consent" required><span>Ich willige in die öffentliche Veröffentlichung meines Spielernamens, Loadouts, Tipps und optionalen Fotos ein. Widerruf und Löschung sind jederzeit über „Meine Beiträge“ oder den Betreiberkontakt möglich.</span></label>') +
       '<button class="primary-btn wide" type="submit">' +
-      (local ? 'Auf diesem Gerät veröffentlichen' : 'Ohne Konto zur Prüfung senden') +
+      (local ? 'Auf diesem Gerät veröffentlichen' : publishesDirectly ? 'Loadout veröffentlichen' : 'Ohne Konto zur Prüfung senden') +
       ' →</button></form>' +
       '<p class="fine-print">' +
       (local
         ? 'Ein öffentlicher Beitrag für alle benötigt den Community-Server. Dieser Beitrag bleibt auf diesem Gerät.'
-        : 'Nach Prüfung erscheint dein Beitrag in der Rangliste.') +
+        : publishesDirectly
+          ? 'Dein Beitrag erscheint nach erfolgreicher Besucherprüfung direkt im Ranking.'
+          : 'Nach Prüfung erscheint dein Beitrag in der Rangliste.') +
       '</p>',
   );
 }
@@ -786,14 +789,12 @@ async function postLoadout(e) {
     return;
   }
   const btn = e.target.querySelector('button[type=submit]');
+  if (btn.disabled) return;
   btn.disabled = true;
   btn.textContent = 'Wird gesendet …';
   try {
-    rememberSubmission('sets', await apiPost('/api/sets', { ...data, ...privacyReceipt(e.target) }));
-    closeModal();
-    toast('Eingereicht · nach Prüfung sichtbar ✓');
-    navigate('feed');
-    refresh();
+    const submission = await apiPost('/api/sets', { ...data, ...privacyReceipt(e.target) });
+    finishLoadoutSubmission('sets', submission);
   } catch (err) {
     await updateChangedPrivacy(e.target, err);
     btn.disabled = false;

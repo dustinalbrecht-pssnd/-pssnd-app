@@ -260,15 +260,23 @@ function creatorForm() {
     communityBlocked();
     return;
   }
+  const publishesDirectly = siteConfig.supportsDirectLoadoutPublishing === true;
+  const publishLabel = publishesDirectly
+    ? 'Streamer-Loadout veröffentlichen'
+    : 'Streamer-Loadout speichern';
   clearCrop();
   modal(
     head('Streamer-Loadout zeigen', 'Dein gebautes Loadout · Foto und Links sind optional') +
       '<form id="creatorForm" class="form-grid"><label class="wide">Dein Freigabecode<input id="creatorCode" class="field" type="password" required maxlength="64" autocomplete="off" placeholder="Code von eUpdate" spellcheck="false"><small>Dein Code ordnet den Beitrag deinem Streamer-Namen zu.</small></label><label>Name<input id="creatorName" class="field" maxlength="40" required placeholder="Dein Creator-Name"></label><label>Kanalname<input id="creatorHandle" class="field" maxlength="45" placeholder="@deinname"></label><label class="wide">Kurz zum Loadout<textarea id="creatorNote" class="field" maxlength="180" placeholder="Warum nutzt du es?"></textarea></label><label>YouTube · optional<input id="creatorYoutube" class="field" type="url" placeholder="https://youtube.com/@…"></label><label>Twitch · optional<input id="creatorTwitch" class="field" type="url" placeholder="https://twitch.tv/…"></label><label class="wide">Instagram · optional<input id="creatorInstagram" class="field" type="url" placeholder="https://instagram.com/…"></label><label class="wide">Dein Foto (bis 10 MB)<input class="field" id="creatorPhoto" type="file" accept="image/jpeg,image/png,image/webp"></label><div class="wide" id="cropArea" hidden><div class="crop-box" id="cropBox"><img id="cropImage" alt="Fotoausschnitt"></div><div class="crop-controls"><span>−</span><input type="range" id="cropZoom" min="1" max="3" step=".02" value="1" aria-label="Foto zoomen"><span>＋</span></div><p class="fine-print">Bild mit dem Finger verschieben und mit dem Regler zoomen.</p></div>' +
       privacyConfirmation() +
       publicationRules() +
-      '<label class="wide consent"><input type="checkbox" name="consent" required><span>Ich darf diese Inhalte verwenden und willige in die öffentliche Veröffentlichung meines Namens, Loadouts, optionalen Fotos und meiner Kanal-Links ein. Widerruf und Löschung sind jederzeit über „Meine Beiträge“ oder den Betreiberkontakt möglich.</span></label><div class="dialog-actions wide"><button type="submit" class="primary-btn">Streamer-Loadout speichern ↗</button><button type="button" class="ghost-btn" data-close>Zurück</button></div></form><p class="fine-print">' +
+      '<label class="wide consent"><input type="checkbox" name="consent" required><span>Ich darf diese Inhalte verwenden und willige in die öffentliche Veröffentlichung meines Namens, Loadouts, optionalen Fotos und meiner Kanal-Links ein. Widerruf und Löschung sind jederzeit über „Meine Beiträge“ oder den Betreiberkontakt möglich.</span></label><div class="dialog-actions wide"><button type="submit" class="primary-btn">' +
+      publishLabel +
+      ' ↗</button><button type="button" class="ghost-btn" data-close>Zurück</button></div></form><p class="fine-print">' +
       (API
-        ? 'Dein Beitrag wird nach Prüfung öffentlich sichtbar.'
+        ? publishesDirectly
+          ? 'Dein Beitrag erscheint nach erfolgreicher Besucherprüfung direkt im Ranking.'
+          : 'Dein Beitrag wird nach Prüfung öffentlich sichtbar.'
         : 'Zum Veröffentlichen als Streamer muss der Community-Server verbunden sein. Dort wird dein persönlicher Code geprüft.') +
       '</p>',
   );
@@ -364,6 +372,7 @@ async function submitCreator(e) {
       return;
     }
   const btn = e.target.querySelector('button[type=submit]');
+  if (btn.disabled) return;
   btn.disabled = true;
   try {
     const photo = await croppedPhoto(),
@@ -379,29 +388,12 @@ async function submitCreator(e) {
         photo,
         ...links,
       };
-    if (API) {
-      rememberSubmission(
-        'creators',
-        await apiPost('/api/creators', {
-          ...item,
-          creatorCode: el('creatorCode').value.trim(),
-          ...privacyReceipt(e.target),
-        }),
-      );
-      toast('Zur Freigabe gesendet ✓');
-    } else {
-      localStreamers.unshift(item);
-      try {
-        localStorage.setItem(STREAMER_KEY, JSON.stringify(localStreamers.slice(0, 25)));
-      } catch (_) {
-        localStreamers.shift();
-        throw Error('Gerätespeicher voll. Bitte freien Speicher schaffen.');
-      }
-      creators = localStreamers;
-      toast('Auf diesem Gerät gespeichert ✓');
-    }
-    closeModal();
-    navigate('feed', { params: { streamer: '1' } });
+    const submission = await apiPost('/api/creators', {
+      ...item,
+      creatorCode: el('creatorCode').value.trim(),
+      ...privacyReceipt(e.target),
+    });
+    finishLoadoutSubmission('creators', submission);
   } catch (err) {
     await updateChangedPrivacy(e.target, err);
     btn.disabled = false;
@@ -688,6 +680,14 @@ function rememberSubmission(kind, r) {
   }
 }
 
+function finishLoadoutSubmission(kind, submission) {
+  rememberSubmission(kind, submission);
+  closeModal();
+  toast(submission.status === 'approved' ? 'Dein Loadout ist im Ranking veröffentlicht ✓' : 'Eingereicht · nach Prüfung sichtbar ✓');
+  refresh({ includeCatalog: false });
+  navigate('feed', kind === 'creators' ? { params: { streamer: '1' } } : undefined);
+}
+
 async function serverGet(path) {
   const r = await fetch(API + path, { cache: 'no-store', credentials: 'omit' });
   const data = await r.json();
@@ -713,7 +713,7 @@ async function loadSiteConfig() {
 }
 
 function legacyUsageMarkup() {
-  return '<div class="legal-text"><h3>Öffentlich teilen ab 18 Jahren</h3><p>Öffentliche Loadouts, Streamer-Beiträge und Kommentare sind für volljährige Personen vorgesehen. Es wird kein Geburtsdatum und kein Ausweisdokument erhoben. Die Altersbestätigung ist eine Selbstauskunft. Bauen und Bildexport sind auch ohne Veröffentlichung möglich.</p><h3>Deine Inhalte und Rechte</h3><p>Verwende nur eigene Inhalte oder solche, für die du die erforderlichen Rechte hast. Lade nur dein eigenes Profilfoto hoch, auf dem keine weiteren Personen erkennbar sind. Keine fremden Fotos, Spiel-Screenshots, kopierten Grafiken, Adressen oder anderen privaten Angaben. Nutze einen Spielernamen. Veröffentliche keine Beleidigungen, Drohungen, rechtswidrigen Inhalte, Spam oder Werbung.</p><h3>Was eUpdate mit deinem Beitrag macht</h3><p>Du erlaubst eUpdate für die Dauer deiner Veröffentlichung, den Beitrag zu speichern, anzuzeigen und anderen Nutzern als Loadout-Bild bereitzustellen. Damit überträgst du nicht deine Urheberrechte. Du kannst die Veröffentlichung jederzeit unter „Meine Beiträge“ beenden. Bereits von anderen gespeicherte Bilder lassen sich nicht zurückholen. Loadouts werden vor Veröffentlichung geprüft. Kommentare werden gemäß den angezeigten Kommentarregeln geprüft.</p><h3>Meldungen und Entscheidungen</h3><p>Über „Inhalt melden“ oder den Kontakt im Impressum kannst du problematische Inhalte melden. eUpdate kann Inhalte ausblenden oder entfernen. Die Begründung findest du mit deinem privaten Löschschlüssel unter „Meine Beiträge“. Gegen eine Entscheidung kannst du dich über den Betreiberkontakt wenden und die Beitragsnummer nennen. Es gibt keine automatische E-Mail-Benachrichtigung; öffne „Meine Beiträge“ zum Abrufen. Gesetzliche Rechte bleiben unberührt.</p></div>';
+  return '<div class="legal-text"><h3>Öffentlich teilen ab 18 Jahren</h3><p>Öffentliche Loadouts, Streamer-Beiträge und Kommentare sind für volljährige Personen vorgesehen. Es wird kein Geburtsdatum und kein Ausweisdokument erhoben. Die Altersbestätigung ist eine Selbstauskunft. Bauen und Bildexport sind auch ohne Veröffentlichung möglich.</p><h3>Deine Inhalte und Rechte</h3><p>Verwende nur eigene Inhalte oder solche, für die du die erforderlichen Rechte hast. Lade nur dein eigenes Profilfoto hoch, auf dem keine weiteren Personen erkennbar sind. Keine fremden Fotos, Spiel-Screenshots, kopierten Grafiken, Adressen oder anderen privaten Angaben. Nutze einen Spielernamen. Veröffentliche keine Beleidigungen, Drohungen, rechtswidrigen Inhalte, Spam oder Werbung.</p><h3>Was eUpdate mit deinem Beitrag macht</h3><p>Du erlaubst eUpdate für die Dauer deiner Veröffentlichung, den Beitrag zu speichern, anzuzeigen und anderen Nutzern als Loadout-Bild bereitzustellen. Damit überträgst du nicht deine Urheberrechte. Du kannst die Veröffentlichung jederzeit unter „Meine Beiträge“ beenden. Bereits von anderen gespeicherte Bilder lassen sich nicht zurückholen. Loadouts werden nach den erforderlichen Bestätigungen und der erfolgreichen Besucherprüfung direkt im Ranking veröffentlicht. Kommentare werden gemäß den angezeigten Kommentarregeln geprüft.</p><h3>Meldungen und Entscheidungen</h3><p>Über „Inhalt melden“ oder den Kontakt im Impressum kannst du problematische Inhalte melden. eUpdate kann Inhalte ausblenden oder entfernen. Die Begründung findest du mit deinem privaten Löschschlüssel unter „Meine Beiträge“. Gegen eine Entscheidung kannst du dich über den Betreiberkontakt wenden und die Beitragsnummer nennen. Es gibt keine automatische E-Mail-Benachrichtigung; öffne „Meine Beiträge“ zum Abrufen. Gesetzliche Rechte bleiben unberührt.</p></div>';
 }
 
 function publicationRules() {
@@ -759,7 +759,11 @@ function privacyMarkup() {
       : '<p class="legal-draft">Die konkreten Angaben zu Hosting-Verträgen, Speicherregion und Übermittlungsgarantien werden vor der Startfreigabe ergänzt. Neue Veröffentlichungen sind bis dahin gesperrt.</p>') +
     '<h3>Statistik zu Seitenaufrufen</h3><p>eUpdate zählt pro Tag die aufgerufene Seite, die Herkunfts-Domain und das Land, soweit diese Angaben vorliegen. Für diese Zählung speichert eUpdate weder Besucherkennungen noch IP-Adressen und setzt keine Analyse-Cookies. Do Not Track und Global Privacy Control werden berücksichtigt.</p>' +
     '<h3>KI-gestützte Aufbereitung öffentlicher Gaming-Nachrichten</h3><p>eUpdate nutzt Cloudflare Workers AI (Cloudflare, Inc.) zur automatisierten sprachlichen Bearbeitung, Übersetzung und Zusammenfassung öffentlich zugänglicher Gaming-Nachrichten. Dabei werden Artikeltexte, Überschriften und Quellenangaben an das KI-Modell übermittelt. Nutzereingaben aus Kommentaren, Loadouts, Profilen, Feedback und private Kontaktdaten werden für diese News-Funktion nicht an das KI-Modell übermittelt. Die News-Verarbeitung erfolgt serverseitig unabhängig vom einzelnen Besuch. Beim bloßen Lesen einer News wird keine personenbezogene Anfrage an das KI-Modell gesendet. Enthalten öffentlich zugängliche Quellartikel personenbezogene Angaben, können diese Teil der KI-Eingabe sein; ihre Verarbeitung muss im Einzelfall auf eine Rechtsgrundlage gestützt werden. Die hierfür eingesetzten Cloudflare-Dienste und etwaige Drittlandübermittlungen sind unter den Hostingangaben beschrieben. Weitere Informationen: <a href="https://developers.cloudflare.com/workers-ai/platform/data-usage/" target="_blank" rel="noopener noreferrer">Cloudflare Workers AI – Datenverwendung ↗</a>.</p>' +
-    '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden. Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Profilfotos werden im Browser zugeschnitten und auf dem Server mit Cloudflare Images als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
+    '<h3>3. Loadouts, Fotos und Streamer-Beiträge</h3><p>Deine freiwilligen Angaben umfassen Spielernamen, Texte, Waffen, Aufsätze, Ausrüstung, gegebenenfalls Fotos und Kanal-Links. ' +
+    (c.supportsDirectLoadoutPublishing === true
+      ? 'Nach deiner Einwilligung und erfolgreicher Besucherprüfung werden diese Angaben direkt im Ranking veröffentlicht. Öffentliche Loadouts können als Bild heruntergeladen werden.'
+      : 'Wir speichern sie zunächst privat zur Prüfung. Nach Freigabe sind sie öffentlich abrufbar und können als Bild heruntergeladen werden.') +
+    ' Gib einen Spielernamen statt deines vollständigen Namens an und veröffentliche keine fremden personenbezogenen Daten. Profilfotos werden im Browser zugeschnitten und auf dem Server mit Cloudflare Images als neues Bild ohne die ursprünglichen Metadaten erzeugt. Grundlage der freiwilligen Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Prüfung zum Schutz der Community beruht außerdem auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und deinen Beitrag unter „Meine Beiträge“ löschen oder den Betreiber kontaktieren. Vor dem Senden bestätigst du, dass du die Datenschutzhinweise zur Kenntnis genommen hast, und erteilst getrennt deine Einwilligung zur Veröffentlichung. Zeitpunkt und Fassung der Hinweise werden mit dem Beitrag gespeichert und erscheinen nicht öffentlich. Ohne Einwilligung wird kein Beitrag veröffentlicht. Bauen und Bildexport bleiben möglich. Von Dritten gespeicherte Bilder können wir nicht zurückholen.</p><p>Streamer-Freigabecodes werden zur Prüfung als Hash und für die erneute Anzeige im geschützten Adminbereich zusätzlich verschlüsselt gespeichert. Der Entschlüsselungsschlüssel wird aus einem Cloudflare-Secret abgeleitet und steht nicht in der öffentlichen App. Nur der angemeldete Administrator kann die Codes erneut anzeigen und kopieren; die Speicherung dient der Verwaltung, bis der Code ersetzt oder entfernt wird. Sie ermöglichen die Zuordnung zum freigegebenen Streamer-Namen und können vom Betreiber gesperrt werden. Die App erstellt daraus kein Spielerprofil. Öffentliches Veröffentlichen ist ab 18 Jahren vorgesehen. Wir speichern die Bestätigung mit Zeitpunkt im Beitrag, ohne Geburtsdatum oder Ausweiskopie. Du bestätigst zudem deine Nutzungsrechte. Die Angaben sind Selbstauskünfte; sie ersetzen keine Prüfung bei konkreten Zweifeln.</p>' +
     '<h3>4. Kommentare und Moderation</h3><p>Bei einem Kommentar speichern wir den optionalen Spielernamen, Text, Loadout-Bezug, Zeitpunkt, Freigabestatus, Nachweis deiner Bestätigung und Einwilligung und einen Hash deines privaten Löschschlüssels. Kommentare bleiben bis zur manuellen Freigabe privat. Für öffentliche Kommentare bestätigst du ebenfalls Volljährigkeit und die Nutzungsregeln. Ohne Namen erscheint „Gast“. Grundlage der Veröffentlichung ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO; Moderation und Missbrauchsschutz beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Du kannst deine Kommentare über „Meine Beiträge“ löschen oder deine Einwilligung über den Betreiberkontakt widerrufen.</p><p>Ein serverseitiger Regelfilter prüft Namen und Text auf hinterlegte Begriffe, Links, mögliche Kontaktangaben, auffällige Schreibweisen und Spam. Bekannte gesperrte Ausdrücke und direkte Links führen zur Ablehnung; andere erkannte Auffälligkeiten zur manuellen Prüfung. Dabei wird keine externe KI genutzt und kein Kommentar an einen KI-Anbieter gesendet. Abgewiesene Texte werden nicht in der App-Datenbank gespeichert. Der Filter kann harmlose Texte anhalten oder problematische Texte übersehen. Öffentliche Inhalte lassen sich melden; der Betreiber kann sie ausblenden oder löschen. Bei einer irrtümlichen Ablehnung oder einer offenen Prüfung kannst du den Betreiber kontaktieren.</p>' +
     '<h3>5. Meldungen problematischer Inhalte</h3>' +
     (c.reportContactMode === 'in-app'
@@ -777,7 +781,7 @@ function privacyMarkup() {
   );
 }
 
-const PRIVACY_TEMPLATE_VERSION = '2026-11-27-reports-in-app';
+const PRIVACY_TEMPLATE_VERSION = '2026-11-28-loadout-publication';
 
 function noticeVersion() {
   return siteConfig.privacyNoticeVersion || PRIVACY_TEMPLATE_VERSION;
@@ -2045,7 +2049,7 @@ document.addEventListener('input', (e) => {
 });
 
 const BASE_TERMS =
-  'Nutzungsbedingungen für eUpdate\n\n1. Angebot und Nutzung\neUpdate ist eine unabhängige Community zum Austausch von Call-of-Duty-Loadouts. Ein Benutzerkonto ist nicht erforderlich. Die Rangliste basiert auf Likes und ist keine Garantie für die Leistung eines Loadouts. Es besteht keine offizielle Verbindung zu Activision oder Call of Duty.\n\n2. Öffentliche Inhalte\nÖffentliche Loadouts, Streamer-Beiträge und Kommentare sind ab 18 Jahren vorgesehen. Verwende einen Spielernamen und nur Inhalte, für die du die erforderlichen Rechte besitzt. Ein Profilfoto darf nur dich zeigen. Veröffentliche keine fremden Fotos, kopierten Spielgrafiken, privaten Kontaktdaten oder sonstigen vertraulichen Informationen.\n\n3. Community-Regeln\nBeleidigungen, Bedrohungen, diskriminierende oder strafbare Inhalte, Spam, Identitätstäuschungen, unerlaubte Werbung und die Verletzung fremder Rechte sind untersagt. Likes dürfen nicht manipuliert werden.\n\n4. Veröffentlichung und Löschung\nMit einer Veröffentlichung erlaubst du eUpdate, deinen Beitrag für deren Dauer zu speichern, öffentlich anzuzeigen und als Loadout-Bild zum Download bereitzustellen. Deine Rechte an eigenen Inhalten bleiben erhalten. Eigene Beiträge und Kommentare kannst du unter „Meine Beiträge“ löschen. Bereits von anderen gespeicherte Bilder können wir nicht zurückholen. Private Löschschlüssel bleiben auf deinem Gerät; nach deren Verlust wende dich an den Betreiber.\n\n5. Moderation und Meldungen\nLoadouts werden vor Veröffentlichung geprüft. Kommentare können je nach Einstellung nach einem automatischen Regelfilter direkt erscheinen oder bis zur manuellen Prüfung zurückgehalten werden. Der Filter kann Fehler machen. Problematische Inhalte kannst du über „Inhalt melden“ oder den Betreiberkontakt melden. Inhalte können nach Prüfung zurückgehalten, ausgeblendet oder gelöscht werden. Begründungen und Bearbeitungsstände sind mit deinem privaten Empfangs- oder Löschschlüssel unter „Meine Beiträge“ beziehungsweise „Meine Meldungen“ abrufbar. Gegen eine Entscheidung kannst du dich über den Betreiberkontakt wenden. Gesetzliche Rechte bleiben unberührt.\n\n6. Datenschutz und Änderungen\nDiese Nutzungsbedingungen sind keine Einwilligung zur Veröffentlichung personenbezogener Daten. Die Datenschutzhinweise erläutern die Verarbeitung. Vor einer Veröffentlichung oder privatem Feedback wird die dafür erforderliche Einwilligung separat abgefragt. Ändern sich die Nutzungsbedingungen, ist vor der weiteren App-Nutzung eine erneute Bestätigung erforderlich. Datenschutz, Impressum, eigene Löschmöglichkeiten und Inhaltsmeldungen bleiben ohne diese Bestätigung erreichbar.';
+  'Nutzungsbedingungen für eUpdate\n\n1. Angebot und Nutzung\neUpdate ist eine unabhängige Community zum Austausch von Call-of-Duty-Loadouts. Ein Benutzerkonto ist nicht erforderlich. Die Rangliste basiert auf Likes und ist keine Garantie für die Leistung eines Loadouts. Es besteht keine offizielle Verbindung zu Activision oder Call of Duty.\n\n2. Öffentliche Inhalte\nÖffentliche Loadouts, Streamer-Beiträge und Kommentare sind ab 18 Jahren vorgesehen. Verwende einen Spielernamen und nur Inhalte, für die du die erforderlichen Rechte besitzt. Ein Profilfoto darf nur dich zeigen. Veröffentliche keine fremden Fotos, kopierten Spielgrafiken, privaten Kontaktdaten oder sonstigen vertraulichen Informationen.\n\n3. Community-Regeln\nBeleidigungen, Bedrohungen, diskriminierende oder strafbare Inhalte, Spam, Identitätstäuschungen, unerlaubte Werbung und die Verletzung fremder Rechte sind untersagt. Likes dürfen nicht manipuliert werden.\n\n4. Veröffentlichung und Löschung\nMit einer Veröffentlichung erlaubst du eUpdate, deinen Beitrag für deren Dauer zu speichern, öffentlich anzuzeigen und als Loadout-Bild zum Download bereitzustellen. Deine Rechte an eigenen Inhalten bleiben erhalten. Eigene Beiträge und Kommentare kannst du unter „Meine Beiträge“ löschen. Bereits von anderen gespeicherte Bilder können wir nicht zurückholen. Private Löschschlüssel bleiben auf deinem Gerät; nach deren Verlust wende dich an den Betreiber.\n\n5. Moderation und Meldungen\nLoadouts werden nach den erforderlichen Bestätigungen und der erfolgreichen Besucherprüfung direkt im Ranking veröffentlicht. Kommentare können je nach Einstellung nach einem automatischen Regelfilter direkt erscheinen oder bis zur manuellen Prüfung zurückgehalten werden. Der Filter kann Fehler machen. Problematische Inhalte kannst du über „Inhalt melden“ oder den Betreiberkontakt melden. Inhalte können nach Prüfung zurückgehalten, ausgeblendet oder gelöscht werden. Begründungen und Bearbeitungsstände sind mit deinem privaten Empfangs- oder Löschschlüssel unter „Meine Beiträge“ beziehungsweise „Meine Meldungen“ abrufbar. Gegen eine Entscheidung kannst du dich über den Betreiberkontakt wenden. Gesetzliche Rechte bleiben unberührt.\n\n6. Datenschutz und Änderungen\nDiese Nutzungsbedingungen sind keine Einwilligung zur Veröffentlichung personenbezogener Daten. Die Datenschutzhinweise erläutern die Verarbeitung. Vor einer Veröffentlichung oder privatem Feedback wird die dafür erforderliche Einwilligung separat abgefragt. Ändern sich die Nutzungsbedingungen, ist vor der weiteren App-Nutzung eine erneute Bestätigung erforderlich. Datenschutz, Impressum, eigene Löschmöglichkeiten und Inhaltsmeldungen bleiben ohne diese Bestätigung erreichbar.';
 
 const TERMS_KEY = 'eupdate_terms_acceptance_v1';
 
@@ -2444,6 +2448,7 @@ export {
   croppedPhoto,
   el,
   feed,
+  finishLoadoutSubmission,
   head,
   html,
   likeBusy,
@@ -2458,7 +2463,6 @@ export {
   privacyReceipt,
   publicationRules,
   refresh,
-  rememberSubmission,
   renderTips,
   save,
   serverGet,
