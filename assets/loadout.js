@@ -1,8 +1,8 @@
 import { currentParam, currentView } from './navigation.js';
-import { API, communityLoaded, el, html, likeBusy, likedIds, streamerLikes } from './app.js';
+import { API, communityLoaded, el, html } from './app.js';
 import { BY, CLASS, WM, art } from './katalog.js';
 import { GEAR_NAMES, gearLabel } from './ausruestung.js';
-import { avatar, badge, findRankLoadout, rankPlace } from './ranking.js';
+import { avatar, badge, findRankLoadout, postLikeButton, rankPlace } from './ranking.js';
 import { streamerLinks } from './creator.js';
 import { attachmentLanguage, attachmentName, languageButtons } from './aufsaetze.js';
 import { weaponNames } from './katalog-abgleich.js';
@@ -57,8 +57,6 @@ function renderCurrentDetail() {
   const selected = full ? (requested === x.primary || requested === x.secondary ? BY[requested] : undefined) : primary || secondary;
   const title = selected ? weaponNames(selected)[attachmentLanguage] : x.title;
   const place = rankPlace(x.id, kind, selected?.id);
-  const liked = Boolean((streamer ? streamerLikes : likedIds)[x.id]);
-  const busy = likeBusy.has(kind + ':' + x.id);
   const gear = selected ? [] : Object.entries(x.gear || {})
     .filter(([key, value]) => value && GEAR_NAMES[key])
     .map(([key, value]) => GEAR_NAMES[key] + ': ' + gearLabel(key, value, x.mode));
@@ -81,38 +79,22 @@ function renderCurrentDetail() {
     html(x.name || 'Community') +
     '</span></p>' + (streamer ? streamerLinks(x) : '') + '</div><div class="detail-place"><b>' +
     (place ? '#' + place : '—') +
-    '</b><small>PLATZIERUNG</small><span>♥ ' +
-    Number(x.likes || 0).toLocaleString('de-DE') +
-    '</span></div></div>' +
+    '</b><small>PLATZIERUNG</small></div></div>' +
     (selected && full ? '<div class="detail-actions"><button class="ghost-btn"' + fullButton +
       '>Ganzes Loadout anzeigen →</button></div>' : '') +
     weapons +
     (selected ? '' : '<div class="detail-section"><span class="eyebrow">AUSRÜSTUNG</span><p>' +
       html(gear.join(' · ') || 'Keine angegeben') + '</p></div>') +
     (!selected && (x.note || x.description) ? '<p class="creator-note">' + html(x.note || x.description) + '</p>' : '') +
-    '<div class="detail-actions"><button class="ghost-btn" aria-pressed="' +
-    liked +
-    '"' + (busy ? ' disabled' : '') + ' ' + (streamer ? 'data-like-creator' : 'data-like') + '="' +
-    x.id +
-    '">' +
-    (liked ? '♥ Like entfernen' : '♡ Liken') +
-    '</button><button class="primary-btn" data-download="' +
+    '<div class="detail-actions">' + postLikeButton(x, kind) + '<button class="primary-btn" data-download="' +
     x.id +
     '" data-download-kind="' + kind + '"' + weaponAttr + '>' +
     (selected ? 'Waffenbild herunterladen' : 'Als Bild herunterladen') + ' ↓</button>' +
     '<button class="ghost-btn" ' + (streamer ? 'data-copy-creator' : 'data-copy') + '="' +
     x.id + '"' + weaponAttr + '>Im Baukasten öffnen →</button></div>' +
-    '<div class="comments-entry"><div><h2>Was sagt die Community?</h2><p>' +
     (API && !x.local
-      ? Number(x.commentCount || 0) + ' Kommentare'
-      : 'Kommentare sind nach der öffentlichen Veröffentlichung verfügbar.') +
-    '</p></div><button class="ghost-btn" data-comments="' + kind + ':' +
-    x.id +
-    '">Kommentare öffnen →</button>' +
-    (API && !x.local
-      ? '<button class="text-action" data-report="' + kind + ':' + x.id + '">Inhalt melden</button>'
+      ? '<div class="detail-report"><button class="text-action" data-report="' + kind + ':' + x.id + '">Loadout melden</button></div>'
       : '') +
-    '</div>' +
     (x.local ? '<p class="fine-print">Dieser Beitrag ist nur auf diesem Gerät gespeichert.</p>' : '');
 }
 

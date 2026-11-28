@@ -1,0 +1,10 @@
+.weapon-stage,
+.publish-preview .weapon-stage {
+  background: #25282b url('./bilder/waffen-buehne.webp') center / cover no-repeat;
+}
+
+.weapon-stage :is(img, svg),
+.weapon-picker .weapon-stage :is(img, svg) {
+  object-fit: contain;
+  filter: brightness(1.25) contrast(1.04) saturate(.91) drop-shadow(0 10px 7px #000a);
+}

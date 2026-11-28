@@ -407,34 +407,14 @@ async function submitCreator(e) {
 
 async function likeApp() {
   if (likeBusy.has('support')) return;
-  const wanted = !state.liked;
-  likeBusy.add('support');
-  if (el('likeApp')) el('likeApp').disabled = true;
-  try {
-    let count;
-    if (!API) {
-      state.liked = wanted;
-      count = wanted ? 1 : 0;
-    } else {
-      const x = await apiPost('/api/support/like', { liked: wanted });
-      state.liked = x.liked;
-      count = x.likes;
-    }
+  const confirmed = await toggleLike('support', API ? '/api/support/like' : null, supportVote(), updateSupportHeart);
+  if (confirmed) {
+    state.liked = confirmed.liked;
+    supportLikes = confirmed.likes;
     save();
-    el('supportCount').textContent = count;
-    updateSupportHeart();
-    if (el('supportModalCount')) el('supportModalCount').textContent = count;
-    if (el('likeApp')) {
-      el('likeApp').textContent = state.liked ? '♥ Like entfernen' : '♡ App liken';
-      el('likeApp').setAttribute('aria-pressed', String(!!state.liked));
-    }
-    toast(wanted ? 'Danke für deinen Support ♥' : 'Like entfernt');
-  } catch (e) {
-    toast(e.message);
-  } finally {
-    likeBusy.delete('support');
-    if (el('likeApp')) el('likeApp').disabled = false;
+    toast(confirmed.liked ? 'Danke für dein App-Like ♥' : 'App-Like entfernt');
   }
+  updateSupportHeart();
 }
 
 const TIPS = {
@@ -585,9 +565,10 @@ function storeCommunity() {
 let communityRequest = 0,
   communityLoading = false,
   communityResponse = '',
-  communityCatalogRevision = 0;
+  communityCatalogRevision = 0,
+  communityVoteRevision = 0;
 
-async function refresh({ background = false } = {}) {
+async function refresh({ background = false, includeCatalog = true } = {}) {
   if (!API) {
     creators = localStreamers;
     feed = localPosts
@@ -602,12 +583,13 @@ async function refresh({ background = false } = {}) {
   }
   if (background && communityLoading) return;
   const request = ++communityRequest;
+  const voteRevision = communityVoteRevision;
   communityLoading = true;
   let redrawDetail = !background;
   if (!background) setFeedStatus('Lade Community-Loadouts …');
   try {
     const view = currentView();
-    const needsCatalog = ['feed', 'detail', 'builder', 'attachments'].includes(view);
+    const needsCatalog = includeCatalog && ['feed', 'detail', 'builder', 'attachments'].includes(view);
     const [r, catalogRevision] = await Promise.all([
       fetch(API + '/api/sets', { cache: 'no-store', headers: existingVisitorHeaders() }),
       needsCatalog ? loadWeaponCatalog().catch(() => communityCatalogRevision) : communityCatalogRevision,
@@ -615,22 +597,27 @@ async function refresh({ background = false } = {}) {
     if (!r.ok) throw Error();
     const response = await r.text();
     if (request !== communityRequest) return;
-    if (!background || catalogRevision !== communityCatalogRevision || response !== communityResponse) {
+    const staleVotes = voteRevision !== communityVoteRevision;
+    if (!background || staleVotes || catalogRevision !== communityCatalogRevision || response !== communityResponse) {
       const data = JSON.parse(response);
-      weeklyWinnerIds = Array.isArray(data.weeklyWinnerIds) ? data.weeklyWinnerIds : [];
-      weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
-      weeklyPeriod = data.week || null;
+      const previousSets = staleVotes ? new Map(feed.map(item => [item.id, item])) : null;
+      const previousCreators = staleVotes ? new Map(creators.map(item => [item.id, item])) : null;
       feed = (data.sets || [])
         .filter((x) => BY[x.primary || x.secondary] && GAME[x.game] && MODE[x.mode])
         .map((x) => ({ ...x, description: x.note }));
       creators = (data.creators || []).filter((x) => BY[x.primary || x.secondary] && GAME[x.game]);
-      for (const x of feed) likedIds[x.id] = !!x.liked;
-      for (const x of creators) streamerLikes[x.id] = !!x.liked;
-      state.liked = !!data.supportLiked;
-      el('supportCount').textContent = data.supportLikes || 0;
+      reconcileVotes(feed, likedIds, previousSets);
+      reconcileVotes(creators, streamerLikes, previousCreators);
+      if (!staleVotes) {
+        weeklyWinnerIds = Array.isArray(data.weeklyWinnerIds) ? data.weeklyWinnerIds : [];
+        weeklyStreamerWinnerIds = Array.isArray(data.weeklyStreamerWinnerIds) ? data.weeklyStreamerWinnerIds : null;
+        weeklyPeriod = data.week || null;
+        state.liked = !!data.supportLiked;
+        supportLikes = Number(data.supportLikes || 0);
+      }
       updateSupportHeart();
       renderFeed();
-      communityResponse = response;
+      communityResponse = staleVotes ? '' : response;
       communityCatalogRevision = catalogRevision;
       redrawDetail = true;
     }
@@ -651,6 +638,18 @@ async function refresh({ background = false } = {}) {
       communityLoaded = true;
       if (redrawDetail) renderCurrentDetail();
     }
+  }
+}
+
+function reconcileVotes(items, liked, previous) {
+  for (const item of items) {
+    const old = previous?.get(item.id);
+    if (old) {
+      item.likes = old.likes;
+      item.weekLikes = old.weekLikes;
+      item.liked = liked[item.id];
+    }
+    liked[item.id] = Boolean(item.liked);
   }
 }
 
@@ -1126,7 +1125,7 @@ function openSupport() {
       siteConfig.supportText || 'Danke, dass du dabei bist.',
     ) +
       '<div class="stats"><div><b id="supportModalCount">' +
-      el('supportCount').textContent +
+      supportLikes.toLocaleString('de-DE') +
       '</b><span>' +
       (API ? 'App-Likes' : 'Dein Like auf diesem Gerät') +
       '</span></div></div><div class="dialog-actions"><button class="primary-btn" id="likeApp" aria-pressed="' +
@@ -1145,6 +1144,7 @@ function openSupport() {
         : 'Der öffentliche Zähler startet nach der Serveranbindung.') +
       '</p>',
   );
+  updateSupportHeart();
 }
 
 document.addEventListener('click', (e) => {
@@ -1334,12 +1334,13 @@ document.addEventListener('click', (e) => {
   }
 });
 
-const likeBusy = new Set(),
+const likeBusy = new Map(),
   COMMENTS_KEY = 'eupdate_v16_own_comments',
   REPORTS_KEY = 'eupdate_v16_own_reports';
 
 let commentsContext = null,
-  previousModalFocus = null;
+  previousModalFocus = null,
+  supportLikes = 0;
 
 function arrangeHeader() {
   const bar = document.querySelector('.topbar'),
@@ -1347,7 +1348,7 @@ function arrangeHeader() {
     main = document.querySelector('main');
   if (!access) return;
   if (matchMedia('(min-width:900px)').matches) {
-    if (access.parentElement !== bar) bar.insertBefore(access, bar.querySelector('.support-top'));
+    if (access.parentElement !== bar) bar.insertBefore(access, bar.querySelector('.topbar-actions'));
   } else if (access.parentElement !== main) main.insertBefore(access, main.firstElementChild);
 }
 
@@ -1362,20 +1363,87 @@ function existingVisitorHeaders() {
   }
 }
 
-function setLikeBusy(attribute, id, busy) {
-  for (const b of document.querySelectorAll('[' + attribute + '="' + id + '"]')) b.disabled = busy;
-}
-
-function updateSupportHeart() {
-  const b = document.querySelector('.support-top');
-  if (b) {
-    b.setAttribute('aria-pressed', String(!!state.liked));
-    b.classList.toggle('liked', !!state.liked);
+async function toggleLike(key, path, vote, show) {
+  if (likeBusy.has(key)) return null;
+  const next = { liked: !vote.liked, likes: Math.max(0, vote.likes + (vote.liked ? -1 : 1)) };
+  likeBusy.set(key, next);
+  show(next, true);
+  try {
+    if (path && !communityCopyReady && next.liked) await loadSiteConfig();
+    if (path && next.liked && communityCopyReady && siteConfig.communityReady === false) {
+      throw Error('Neue Likes sind derzeit pausiert.');
+    }
+    const saved = path ? await apiPost(path, { liked: next.liked }) : next;
+    if (typeof saved.liked !== 'boolean' || !Number.isSafeInteger(saved.likes)) throw Error('Like konnte nicht bestätigt werden.');
+    communityVoteRevision++;
+    return saved;
+  } catch (error) {
+    toast(error.message);
+    return null;
+  } finally {
+    likeBusy.delete(key);
   }
 }
 
-function commentIcon() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 1-8 8H5l-3 3v-9a9 9 0 0 1 18-2Z"/><path d="M7 9h8M7 13h5"/></svg>';
+function paintVoteButton(button, vote, busy) {
+  button.setAttribute('aria-pressed', String(vote.liked));
+  if (busy) {
+    button.setAttribute('aria-busy', 'true');
+    button.setAttribute('aria-disabled', 'true');
+  } else {
+    button.removeAttribute('aria-busy');
+    button.removeAttribute('aria-disabled');
+  }
+  button.querySelector('.vote-symbol').textContent = vote.liked ? '♥' : '♡';
+  button.querySelector('.vote-count').textContent = vote.likes.toLocaleString('de-DE');
+}
+
+function supportVote() {
+  return { liked: Boolean(state.liked), likes: supportLikes };
+}
+
+function updateSupportHeart(vote = likeBusy.get('support') || supportVote(), busy = likeBusy.has('support')) {
+  const button = el('quickSupportLike');
+  if (button) {
+    paintVoteButton(button, vote, busy);
+    button.classList.toggle('liked', vote.liked);
+  }
+  const modalButton = el('likeApp');
+  if (modalButton) {
+    modalButton.disabled = busy;
+    modalButton.textContent = vote.liked ? '♥ Like entfernen' : '♡ App liken';
+    modalButton.setAttribute('aria-pressed', String(vote.liked));
+    el('supportModalCount').textContent = vote.likes.toLocaleString('de-DE');
+  }
+}
+
+function openAppGuide() {
+  const steps = [
+    ['builder', 'Setup bauen und Aufsätze wählen',
+      'Wähle unter Bauen zuerst dein Setup und den Modus. Tippe auf das Waffenbild, um die Waffe zu ändern. Unter Aufsätze kannst du eine Kategorie öffnen und einen Vorschlag direkt übernehmen. Für ein ganzes Loadout wählst du zusätzlich Perks und Granaten.',
+      'Zum Baukasten'],
+    ['feed', 'Im Ranking filtern und speichern',
+      'Wähle Primärwaffen, Sekundärwaffen oder ganze Loadouts aus. Filtere nach Waffe, Distanz oder Modus. Tippe auf ein Bild, um die Aufsätze zu sehen. Mit Bild speichern lädst du das gewählte Setup herunter.',
+      'Zum Ranking'],
+    ['settings', 'Spieleinstellungen nachschlagen',
+      'Wähle Controller oder Maus und Tastatur. Öffne einen Einstellungsbereich und tippe auf eine Zeile, um ihre Erklärung zu lesen.',
+      'Zu den Einstellungen'],
+    ['events', 'News und Patchnotes lesen',
+      'Die neueste passende Meldung steht oben. Über die Filter findest du Meldungen für deinen Modus. Jede Meldung verlinkt ihre offizielle Quelle.',
+      'Zu den News'],
+    [null, 'Likes und eigene Beiträge',
+      'Mit dem Herz oben likst du eUpdate. Mit einem Herz im Ranking bewertest du ein Loadout. Ein erneuter Tipp nimmt dein Like zurück. Unter Meine Beiträge findest du deine veröffentlichten und gespeicherten Beiträge.',
+      ''],
+  ];
+  const active = currentView();
+  const currentTopic = active === 'attachments' ? 'builder' : active === 'detail' ? 'feed' : active || 'builder';
+  modal(
+    head('Anleitung', 'So nutzt du eUpdate') +
+    '<div class="app-guide">' + steps.map(([view, title, text, label]) =>
+      '<details' + (currentTopic === view ? ' open' : '') + '><summary>' + title + '</summary><p>' + text + '</p>' +
+      (view ? '<button class="ghost-btn" type="button" data-guide-view="' + view + '">' + label + '</button>' : '') +
+      '</details>').join('') + '</div>',
+  );
 }
 
 function readLocalList(key) {
@@ -1886,7 +1954,7 @@ document.addEventListener('submit', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Tab' || el('modal').hidden) return;
   const nodes = [
-    ...el('modalBody').querySelectorAll('button,a[href],input,select,textarea,[tabindex]'),
+    ...el('modalBody').querySelectorAll('button,a[href],input,select,textarea,summary,[tabindex]'),
   ].filter((n) => !n.disabled && n.tabIndex >= 0 && n.getClientRects().length);
   if (!nodes.length) return;
   const first = nodes[0],
@@ -2069,8 +2137,8 @@ function start() {
   reportLink.textContent = 'Inhalt melden';
   document.querySelector('.legal-footer #myReports')?.before(reportLink);
   checkTermsGate();
+  if (!API) supportLikes = state.liked ? 1 : 0;
   updateSupportHeart();
-  if (!API) el('supportCount').textContent = state.liked ? '1' : '0';
   startNavigation(activateView);
   renderTips();
   refresh();
@@ -2081,8 +2149,8 @@ function start() {
       toast('Deine zugeordneten Daten wurden gelöscht.');
     }
   } catch {}
-  setInterval(tick, 1000);
-  setInterval(() => { if (currentView() === 'events') checkLive(); }, 600000);
+  setInterval(() => { if (currentView() === 'events' && !document.hidden) tick(); }, 1000);
+  setInterval(() => { if (currentView() === 'events' && !document.hidden) checkLive(); }, COMMUNITY_REFRESH_MS);
   setInterval(refreshVisibleCommunity, COMMUNITY_REFRESH_MS);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) return;
@@ -2101,7 +2169,12 @@ document.addEventListener('click', (e) => {
     renderTips();
   }
   if (closeDialog !== undefined) closeModal();
-  if (button.id === 'likeApp') likeApp();
+  if (button.id === 'openAppGuide') openAppGuide();
+  if (button.dataset.guideView) {
+    closeModal();
+    navigate(button.dataset.guideView);
+  }
+  if (button.id === 'quickSupportLike' || button.id === 'likeApp') likeApp();
   if (support !== undefined) openSupport();
 });
 
@@ -2263,7 +2336,6 @@ export {
   build,
   candidates,
   closeModal,
-  commentIcon,
   communityBlocked,
   communityLoaded,
   confirmedPrivacy,
@@ -2281,6 +2353,7 @@ export {
   localPosts,
   localStreamers,
   modal,
+  paintVoteButton,
   picker,
   privacyConfirmation,
   privacyReceipt,
@@ -2290,7 +2363,6 @@ export {
   renderTips,
   save,
   serverGet,
-  setLikeBusy,
   setupSlots,
   siteConfig,
   state,
@@ -2298,6 +2370,7 @@ export {
   storedParts,
   streamerLikes,
   toast,
+  toggleLike,
   updateChangedPrivacy,
   weapon,
   weeklyStreamerWinnerIds,

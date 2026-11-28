@@ -1,21 +1,22 @@
 import {
   API,
-  apiPost,
-  commentIcon,
   creators,
   el,
   feed,
   html,
   likeBusy,
   likedIds,
+  paintVoteButton,
   refresh,
   save,
-  setLikeBusy,
   setupSlots,
   state,
   storeCommunity,
   streamerLikes,
-  toast,
+  STREAMER_KEY,
+  STREAMER_LIKES_KEY,
+  localStreamers,
+  toggleLike,
   weeklyStreamerWinnerIds,
   weeklyWinnerIds,
 } from './app.js';
@@ -58,6 +59,18 @@ function avatar(x) {
         '</span>';
 }
 
+function postLikeButton(item, kind) {
+  const streamer = kind === 'creators';
+  const pending = likeBusy.get(kind + ':' + item.id);
+  const vote = pending || { liked: Boolean((streamer ? streamerLikes : likedIds)[item.id]), likes: Number(item.likes || 0) };
+  return '<button type="button" class="like-btn vote-button" ' +
+    (streamer ? 'data-like-creator' : 'data-like') + '="' + item.id +
+    '" aria-label="Loadout liken" aria-pressed="' + vote.liked + '"' +
+    (pending ? ' aria-busy="true" aria-disabled="true"' : '') +
+    '><span class="vote-symbol" aria-hidden="true">' + (vote.liked ? '♥' : '♡') +
+    '</span><span class="vote-count">' + vote.likes.toLocaleString('de-DE') + '</span></button>';
+}
+
 function rankCard({ loadout: x, weaponId }, i, weekly) {
   const weapon = BY[weaponId || x.primary] || WM[0],
     title = weaponId ? weaponNames(weapon).de : x.title,
@@ -65,8 +78,6 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     isTop = weekly || i === 0,
     by = x.name || 'Community',
     streamer = x.kind === 'creators',
-    liked = Boolean((streamer ? streamerLikes : likedIds)[x.id]),
-    busy = likeBusy.has(x.kind + ':' + x.id),
     weaponAttr = weaponId ? ' data-loadout-weapon="' + html(weaponId) + '"' : '',
     detailAttrs = ' data-detail="' + x.id + '" data-detail-kind="' + x.kind + '"' + weaponAttr;
   const seasons = loadoutWeaponSeasons(x)
@@ -90,10 +101,8 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
   const media =
     '<div class="rank-media weapon-stage"><span class="rank-number" aria-label="Platz ' + n + '">#' +
     n +
-    '</span><span class="rank-heart">♥ ' +
-    Number(weekly ? x.weekLikes || 0 : x.likes || 0).toLocaleString('de-DE') +
-    (weekly ? ' diese Woche' : '') +
-    '</span><button class="rank-art"' + detailAttrs + ' aria-label="' +
+    '</span>' + (weekly ? '<span class="rank-heart">♥ ' + Number(x.weekLikes || 0).toLocaleString('de-DE') + ' diese Woche</span>' : '') +
+    '<button class="rank-art"' + detailAttrs + ' aria-label="' +
     (weaponId ? '' : 'Loadout ') + html(title) +
     ' öffnen">' +
     art(weapon) +
@@ -119,22 +128,7 @@ function rankCard({ loadout: x, weaponId }, i, weekly) {
     html(CLASS[weapon.cls]) +
     '</span></p>' + (profiles ? '<ul class="rank-weapon-profiles">' + profiles + '</ul>' : '') +
     (streamer ? streamerLinks(x) : '') +
-    '</div><div class="rank-actions"><button class="like-btn" ' + (streamer ? 'data-like-creator' : 'data-like') + '="' +
-    x.id +
-    '" aria-pressed="' +
-    liked + '"' + (busy ? ' disabled' : '') +
-    ' aria-label="' +
-    (liked ? 'Like entfernen' : 'Loadout liken') +
-    '">' +
-    (liked ? '♥' : '♡') +
-    '</button>' +
-    '<button class="comment-btn" data-comments="' + x.kind + ':' +
-    x.id +
-    '" aria-label="Kommentare öffnen">' +
-    commentIcon() +
-    '<span class="comment-label">Kommentare</span>' +
-    (API && !x.local ? '<span class="comment-count">' + Number(x.commentCount || 0) + '</span>' : '') +
-    '</button>' +
+    '</div><div class="rank-actions">' + postLikeButton(x, x.kind) +
     '<button class="copy-btn" data-download="' +
     x.id +
     '" data-download-kind="' + x.kind + '"' + weaponAttr + '>' +
@@ -359,34 +353,40 @@ function activateRanking() {
   renderFeed();
 }
 
-async function like(id) {
-  const item = feed.find((v) => v.id === id);
-  if (!item) return;
-  const key = 'sets:' + id;
-  if (likeBusy.has(key)) return;
-  const wanted = !likedIds[id];
-  likeBusy.add(key);
-  setLikeBusy('data-like', id, true);
-  try {
-    if (!API || item.local) {
-      likedIds[id] = wanted;
-      item.likes = Math.max(0, Number(item.likes || 0) + (wanted ? 1 : -1));
-    } else {
-      const x = await apiPost('/api/sets/' + id + '/like', { liked: wanted });
-      likedIds[id] = x.liked;
-      item.likes = x.likes;
-    }
-    storeCommunity();
-    if (API && !item.local) await refresh();
-    else renderFeed();
-    renderCurrentDetail();
-    toast(wanted ? 'Like hinzugefügt ♥' : 'Like entfernt');
-  } catch (err) {
-    toast(err.message);
-  } finally {
-    likeBusy.delete(key);
-    setLikeBusy('data-like', id, false);
+async function likePost(id, kind) {
+  const key = kind + ':' + id;
+  const item = findRankLoadout(id, kind);
+  if (!item || likeBusy.has(key)) return;
+  const streamer = kind === 'creators';
+  const likes = streamer ? streamerLikes : likedIds;
+  const selector = '[' + (streamer ? 'data-like-creator' : 'data-like') + '="' + id + '"]';
+  const vote = { liked: Boolean(likes[id]), likes: Number(item.likes || 0) };
+  const path = API && !item.local ? '/api/' + kind + '/' + id + '/like' : null;
+  const paint = (value, busy) => {
+    for (const button of document.querySelectorAll(selector)) paintVoteButton(button, value, busy);
+  };
+  const saved = await toggleLike(key, path, vote, paint);
+  const current = findRankLoadout(id, kind);
+  if (!saved || !current) {
+    paint({ liked: Boolean(likes[id]), likes: Number(current?.likes ?? vote.likes) }, false);
+    return;
   }
+  likes[id] = saved.liked;
+  current.liked = saved.liked;
+  current.likes = saved.likes;
+  if (streamer) {
+    try {
+      if (!API) localStorage.setItem(STREAMER_KEY, JSON.stringify(localStreamers));
+      localStorage.setItem(STREAMER_LIKES_KEY, JSON.stringify(likes));
+    } catch {}
+  } else {
+    storeCommunity();
+  }
+  const focused = document.activeElement?.matches(selector);
+  redrawFeed();
+  renderCurrentDetail();
+  if (focused) document.querySelector('.view.active ' + selector)?.focus({ preventScroll: true });
+  if (path && el('feedSort')?.value === 'week') refresh({ background: true, includeCatalog: false });
 }
 
 function updateCommunityConnection(status) {
@@ -396,7 +396,7 @@ function updateCommunityConnection(status) {
   box.hidden = !status;
   box.innerHTML =
     status === 'setup'
-      ? '<strong>Die Community wird gerade eingerichtet.</strong><p>Öffentliche Loadouts und Kommentare sind danach verfügbar. Du kannst schon Waffen ansehen und dein Loadout bauen.</p>'
+      ? '<strong>Die Community wird gerade eingerichtet.</strong><p>Öffentliche Loadouts und Likes sind danach verfügbar. Du kannst schon Waffen ansehen und dein Loadout bauen.</p>'
       : status === 'offline'
         ? '<strong>Die Community ist gerade nicht erreichbar.</strong><p>Deine Daten bleiben erhalten. Versuche es über „Neu laden“ erneut.</p>'
         : '';
@@ -433,7 +433,8 @@ document.addEventListener('click', (e) => {
     ...(button.dataset.detailKind === 'creators' ? { kind: 'creators' } : {}),
     ...(button.dataset.loadoutWeapon ? { weapon: button.dataset.loadoutWeapon } : {}),
   } });
-  if (button.dataset.like) like(Number(button.dataset.like));
+  if (button.dataset.like) likePost(Number(button.dataset.like), 'sets');
+  if (button.dataset.likeCreator) likePost(Number(button.dataset.likeCreator), 'creators');
   if (button.id === 'refreshFeed') refresh();
   if (button.id === 'startStreamerLoadout') {
     state.publisherType = 'streamer';
@@ -467,6 +468,7 @@ export {
   avatar,
   badge,
   findRankLoadout,
+  postLikeButton,
   rankPlace,
   redrawFeed,
   renderFeed,

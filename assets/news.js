@@ -5,6 +5,7 @@ const DATA_VERSION = '2026-10-11.16.8';
 const LIVE_CACHE_KEY = 'eupdate_live_v16_3';
 
 const LIVE_DAY = 86400000;
+const NEWS_REFRESH_INTERVAL = 300_000;
 const externalIcon = '<svg class="news-external-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12l8-8M5 4h7v7"/></svg>';
 
 const OFFICIAL_BLOG = 'https://www.callofduty.com/blog';
@@ -201,11 +202,20 @@ function liveNewsLabel(item) {
   );
 }
 
+function articleCreated(item) {
+  return Date.parse(item.created || item.published_at || item.publishedAt || '') || 0;
+}
+
+function articleDay(item) {
+  const day = String(item.date || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(day) && Number.isFinite(Date.parse(day))) return day;
+  return articleCreated(item) ? berlinDay(articleCreated(item)) : '';
+}
+
 function newsMeta(item) {
-  const date = String(item.date || '');
-  const dateAttribute = /^\d{4}-\d{2}-\d{2}$/.test(date) ? ' datetime="' + date + '"' : '';
-  return '<div class="news-byline"><span>' + html(liveNewsLabel(item)) + '</span><time' +
-    dateAttribute + '>' + html(liveDate(item.date)) + '</time></div>';
+  const day = articleDay(item);
+  return '<div class="news-byline"><span>' + html(liveNewsLabel(item)) + '</span>' +
+    (day ? '<time datetime="' + day + '">' + html(liveDate(day)) + '</time>' : '') + '</div>';
 }
 
 function newsSource(item) {
@@ -215,8 +225,57 @@ function newsSource(item) {
 
 function newsAiNote(item) {
   return item.aiAssisted
-    ? '<p class="news-ai-note">KI-unterstützt aufbereitet · Automatische Zusammenfassung/Übersetzung; Fehler möglich.</p>'
+    ? '<p class="news-ai-note">KI-unterstützt aufbereitet · Automatische Zusammenfassung oder Übersetzung. Fehler möglich.</p>'
     : '';
+}
+
+function newsImage(item, featured) {
+  if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(item.img || '')) return '';
+  return '<figure class="news-image"><img src="' + html(item.img) + '" alt="" decoding="async"' +
+    (featured ? '' : ' loading="lazy"') + '></figure>';
+}
+
+function archiveNewsSummary(item) {
+  const text = String(item.summary || '').trim();
+  if (text.length <= 220) return '<p class="news-story-summary">' + html(text) + '</p>';
+  const firstLine = text.slice(0, 215).replace(/\s+\S*$/, '');
+  return '<p class="news-story-summary news-excerpt">' + html(firstLine) + ' …</p>' +
+    '<details class="news-read-more" data-news-url="' + html(item.url) +
+    '"><summary>Zusammenfassung lesen</summary><p class="news-story-summary">' + html(text) + '</p></details>';
+}
+
+let renderedStories = '';
+
+function renderNewsStories(items) {
+  const key = JSON.stringify(items.map(item => [
+    item.id, item.url, articleDay(item), item.title, item.summary, item.kind, item.mode, item.aiAssisted, item.img
+  ]));
+  if (key === renderedStories) return;
+  renderedStories = key;
+  const [latest, ...archive] = items;
+  const lead = el('latestNewsHero');
+  const archiveNode = el('patchList');
+  const openStories = new Set([...archiveNode.querySelectorAll('.news-read-more[open]')].map(node => node.dataset.newsUrl));
+  lead.hidden = !latest;
+  if (latest) {
+    const picture = newsImage(latest, true);
+    lead.classList.toggle('has-image', Boolean(picture));
+    lead.innerHTML = '<div class="news-feature-copy">' + newsMeta(latest) + '<h2>' + html(latest.title) +
+      '</h2><p class="news-feature-summary">' + html(latest.summary || '') + '</p>' +
+      newsAiNote(latest) + newsSource(latest) + '</div>' + picture;
+  } else lead.replaceChildren();
+  el('newsArticlesHeading').hidden = !archive.length;
+  archiveNode.innerHTML = items.length
+    ? archive.map(item => {
+      const picture = newsImage(item, false);
+      return '<article class="news-story' + (picture ? ' has-image' : '') + '"><div class="news-story-copy">' +
+        newsMeta(item) + '<h3>' + html(item.title) + '</h3>' + archiveNewsSummary(item) +
+        newsAiNote(item) + newsSource(item) + '</div>' + picture + '</article>';
+    }).join('')
+    : '<p class="empty">Für diese Auswahl gibt es gerade keine Meldungen.</p>';
+  for (const details of archiveNode.querySelectorAll('.news-read-more')) {
+    details.open = openStories.has(details.dataset.newsUrl);
+  }
 }
 
 function renderLive() {
@@ -225,43 +284,18 @@ function renderLive() {
   for (const button of filters.querySelectorAll('[data-live-filter]')) {
     button.setAttribute('aria-pressed', String(button.dataset.liveFilter === liveFilter));
   }
-  const newsTime = (x) => {
-    const raw = String(x.date || '').trim();
-    const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? Date.parse(raw + 'T00:00:00Z') : Date.parse(raw);
-    return Number.isFinite(date) ? date : 0;
-  };
-  const createdTime = (x) => {
-    const t = Date.parse(x.created || x.published_at || x.publishedAt || '');
-    return Number.isFinite(t) ? t : 0;
-  };
   const allItems = liveState.items
-    .filter((x) => x && x.kind !== 'bo7')
-    .sort(
-      (a, b) =>
-        newsTime(b) - newsTime(a) || createdTime(b) - createdTime(a) || Number(b.id || 0) - Number(a.id || 0),
-    );
+    .filter(x => x && x.kind !== 'bo7')
+    .sort((a, b) => articleDay(b).localeCompare(articleDay(a)) || articleCreated(b) - articleCreated(a) ||
+      Number(b.id || 0) - Number(a.id || 0));
   const items = allItems.filter(
-    (x) => liveFilter === 'all' || (liveFilter === 'mw4' ? x.kind === 'mw4' : liveNewsMode(x) === liveFilter),
+    item => liveFilter === 'all' || (liveFilter === 'mw4' ? item.kind === 'mw4' : liveNewsMode(item) === liveFilter)
   );
-  const latestNews = allItems[0],
-    hero = el('latestNewsHero');
-  hero.hidden = !latestNews;
-  if (latestNews) {
-    hero.innerHTML =
-      '<div class="news-lead-copy">' + newsMeta(latestNews) +
-      '<h2>' + html(latestNews.title) + '</h2><p class="news-lead-summary">' +
-      html(latestNews.summary || '') + '</p>' + newsAiNote(latestNews) + newsSource(latestNews) + '</div>';
-  }
-  el('patchList').innerHTML = items.length
-    ? items
-        .map(
-          (x) =>
-            '<article class="news-story">' + newsMeta(x) + '<h3>' + html(x.title) +
-            '</h3><p class="news-story-summary">' + html(x.summary || '') + '</p>' +
-            newsAiNote(x) + newsSource(x) + '</article>',
-        )
-        .join('')
-    : '<div class="empty">Keine aktuellen Meldungen verfügbar.</div>';
+  renderNewsStories(items);
+  const latestDay = allItems[0] ? articleDay(allItems[0]) : '';
+  const latestDate = el('latestNewsDate');
+  latestDate.hidden = !latestDay;
+  latestDate.textContent = latestDay ? 'Neueste Meldung vom ' + liveDate(latestDay) : '';
   const events = LIVE_EVENTS.filter((e) =>
     e.instant ? Date.parse(e.instant) > Date.now() : eventDays(e.date) >= 0,
   ).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
@@ -297,23 +331,16 @@ function renderLive() {
         minute: '2-digit',
       })
     : '';
-  const newest = items.find((x) => x.date)?.date,
-    latest = newest ? ' · Neuester Artikel: ' + liveDate(newest) : '';
-  const msg = liveBusy
-    ? 'Prüfe offizielle Meldungen …'
+  const status = liveBusy
+    ? 'Meldungen werden geladen …'
     : liveState.status === 'paused'
-      ? 'Automatische News sind vom Betreiber pausiert.'
+      ? 'Automatische Quellenprüfung pausiert'
       : liveState.status === 'error'
-        ? 'Letzter Quellenabruf fehlgeschlagen. ' +
-          (success ? 'Letzter erfolgreicher Abruf: ' + success + ' Uhr.' : 'Noch kein erfolgreicher Abruf.')
+        ? 'Abruf fehlgeschlagen' + (success ? ' · Quellen zuletzt geprüft am ' + success + ' Uhr' : '')
         : success
-          ? 'Offizielle Quellen zuletzt geprüft: ' + success + ' Uhr.' + latest
-          : 'Verbunden. Die erste erfolgreiche Quellenprüfung steht noch aus.';
-  el('patchStatus').textContent = !API
-    ? 'Gespeicherter Stand vom 10.10.2026. Automatische Updates starten nach der Serveranbindung.'
-    : !liveBusy && liveState.pendingFirstCheck
-      ? 'Server verbunden. Die erste geplante Quellenprüfung steht noch aus.'
-      : msg;
+          ? 'Quellen geprüft am ' + success + ' Uhr'
+          : 'Die erste Quellenprüfung steht noch aus';
+  el('patchStatus').textContent = status;
   el('patchStatus').title = liveState.warning || '';
   const sources = liveState.sources || [],
     sourceTime = (value) =>
@@ -345,11 +372,7 @@ function renderLive() {
     : '<li>Die Quellenübersicht erscheint nach der ersten Prüfung mit dem aktualisierten Server.</li>';
 
   el('liveRefresh').disabled = liveBusy;
-  el('liveRefresh').textContent = !API
-    ? 'Server noch nicht verbunden'
-    : liveBusy
-      ? '↻ News werden geprüft …'
-      : '↻ News jetzt prüfen';
+  el('liveRefresh').textContent = liveBusy ? 'Lädt …' : 'Meldungen laden';
   tick();
 }
 
@@ -449,12 +472,11 @@ async function checkLive(force = false) {
     renderLive();
     return;
   }
-  if (!force && Date.now() - newsFetchedAt < 600000) return;
+  if (!force && Date.now() - newsFetchedAt < NEWS_REFRESH_INTERVAL) return;
   liveBusy = true;
   renderLive();
   try {
-    await loadSiteConfig();
-    const data = await serverGet('/api/news' + (force ? '?refresh=1' : '?v=20261015'));
+    const [data] = await Promise.all([serverGet('/api/news'), loadSiteConfig()]);
     liveState.items = Array.isArray(data.items) ? data.items.filter((x) => x && x.kind !== 'bo7') : [];
     liveState.lastSuccess = data.lastSuccess ? Date.parse(data.lastSuccess) : 0;
     liveState.lastAttempt = data.lastAttempt ? Date.parse(data.lastAttempt) : 0;
@@ -466,8 +488,6 @@ async function checkLive(force = false) {
     const failed = data.failed === true;
     liveState.status = data.paused ? 'paused' : failed ? 'error' : data.lastSuccess ? 'ok' : 'seed';
     newsFetchedAt = Date.now();
-    if (!data.lastSuccess) liveState.pendingFirstCheck = true;
-    else liveState.pendingFirstCheck = false;
   } catch (err) {
     liveState.status = 'error';
     liveState.warning = String(err?.message || err);
