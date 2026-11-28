@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-YMbGeB6CcgV2lZBQb7ERVl10GGdtLI1UxkrheTZBR/k='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'sha256-vgSILoJUMSFvl9fjIinurizOPd5GlWg4dxDt/9DRGrA=' 'sha256-37bziTPFZaIB852GY16k1pJLVzBTjgV/NacdEPZ5yAg='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://eupdate-server.dustin-albrecht.workers.dev blob: data:; img-src 'self' data: blob: https:; font-src 'self' data:" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>eUpdate · Admin</title>
@@ -2979,7 +2979,7 @@ label :is(input, textarea, select) {
     </dialog>
     <div id="status" role="status" aria-live="polite"></div>
     <script type="module">
-      import { MW_IMAGES } from './assets/waffenbilder.js';
+      import { MW_IMAGES } from './assets/waffenbilder.js?v=einzelwaffen-20261127';
       import { mountCatalogImport } from './assets/katalog-import.js?v=waffencheck-20261125';
       import { availableInMode, mw4GearSlots } from './assets/mw4-ausruestung.js';
       import { loadoutWeaponSeasons, weaponSeason } from './assets/season.js';
@@ -3420,7 +3420,7 @@ label :is(input, textarea, select) {
           if (id !== null) return Number(post.id) === id;
           return [post.title, post.name].some((value) => String(value || '').toLocaleLowerCase('de').includes(query));
         });
-        $('postResultCount').textContent = list.length + ' von ' + dashboard.posts.length + ' Loadouts';
+        $('postResultCount').textContent = list.length + ' von ' + dashboard.posts.length + ' Beiträgen';
         $('postsList').innerHTML = list.length
           ? list
               .map(
@@ -3430,7 +3430,8 @@ label :is(input, textarea, select) {
                   '">' +
                   (x.photo ? '<img src="' + esc(x.photo) + '" alt="Profilfoto">' : '') +
                   '<div class="badge">' +
-                  (x.kind === 'creators' ? 'STREAMER' : 'LOADOUT') +
+                  (x.kind === 'creators' ? 'STREAMER' : x.setupType === 'primary' ? 'PRIMÄRWAFFE' :
+                    x.setupType === 'secondary' ? 'SEKUNDÄRWAFFE' : 'LOADOUT') +
                   ' · ' +
                   esc(
                     { pending: 'Ausstehend', approved: 'Veröffentlicht', hidden: 'Ausgeblendet' }[x.status] ||
@@ -4732,6 +4733,9 @@ label :is(input, textarea, select) {
         const names = Object.fromEntries((dashboard.weapons || []).map((w) => [w.id, w.name]));
         const seasons = new Map(loadoutWeaponSeasons(x));
         const profiles = loadoutWeaponProfiles(x);
+        const slots = [['primary', 'Primärwaffe'], ['secondary', 'Sekundärwaffe']].filter(([slot]) => x[slot]);
+        const primary = Boolean(x.primary);
+        const secondary = Boolean(x.secondary);
         const editSeasons = serverHealth?.features?.includes('weapon-seasons');
         const editProfiles = serverHealth?.features?.includes('weapon-profiles');
         $('editorTitle').textContent =
@@ -4741,7 +4745,7 @@ label :is(input, textarea, select) {
           inputField('name', 'Anzeigename', x.name, 'text', true) +
           inputField('title', 'Loadout-Titel', x.title, 'text', true) +
           selectField('mode', 'Modus', adminModes, x.mode) +
-          selectField(
+          (primary ? selectField(
             'primary',
             'Primärwaffe',
             Object.fromEntries(
@@ -4750,16 +4754,15 @@ label :is(input, textarea, select) {
                 .map((w) => [w.id, w.name]),
             ),
             x.primary,
-          ) +
-          selectField('secondary', 'Sekundärwaffe', names, x.secondary) +
+          ) : '<input type="hidden" name="primary" value="">') +
+          (secondary ? selectField('secondary', 'Sekundärwaffe', names, x.secondary)
+            : '<input type="hidden" name="secondary" value="">') +
           (editSeasons
-            ? '<label>Season der Primärwaffe<input name="primarySeason" type="number" min="0" max="9007199254740991" step="1" value="' +
-              (weaponSeason(x, x.primary) ?? '') +
-              '"></label><label>Season der Sekundärwaffe<input name="secondarySeason" type="number" min="0" max="9007199254740991" step="1" value="' +
-              (weaponSeason(x, x.secondary) ?? '') +
-              '"></label>'
+            ? slots.map(([slot, label]) => '<label>Season · ' + label + '<input name="' + slot +
+              'Season" type="number" min="0" max="9007199254740991" step="1" value="' +
+              (weaponSeason(x, x[slot]) ?? '') + '"></label>').join('')
             : '') +
-          (editProfiles ? [['primary', 'Primärwaffe'], ['secondary', 'Sekundärwaffe']].map(([slot, label]) => {
+          (editProfiles ? slots.map(([slot, label]) => {
             const profile = profiles[x[slot]];
             return '<label>Einsatzdistanz · ' + label + '<select name="' + slot + 'Distance">' +
               distanceOptions('Distanz wählen', profile?.distance) + '</select></label><label>Waffenhinweis · ' + label +
@@ -4777,21 +4780,23 @@ label :is(input, textarea, select) {
           imageEditor(x.photo) +
           '<label class="editor-label"><input name="dmzLoot" type="checkbox" ' +
           (x.dmzLoot ? 'checked' : '') +
-          '>DMZ-Fundwaffe · bis zu 8 Aufsätze (nur DMZ)</label><p class="notice">Aufsätze: Standardmäßig maximal 5 pro Waffe. Im DMZ-Modus mit aktivierter Fundwaffen-Option bis zu 8. Der Worker prüft diese Grenze beim Speichern.</p><h3>Primärwaffe · Aufsätze</h3><div id="editPrimaryParts" class="grid">' +
-          postPartsFields(x.primary, (x.attachments || x.parts || {})[x.primary], x.mode) +
-          '</div><h3>Sekundärwaffe · Aufsätze</h3><div id="editSecondaryParts" class="grid">' +
-          postPartsFields(x.secondary, (x.attachments || x.parts || {})[x.secondary], x.mode) +
-          '</div><h3>Ausrüstung</h3><div class="grid">' +
+          '>DMZ-Fundwaffe · bis zu 8 Aufsätze (nur DMZ)</label><p class="notice">Aufsätze: Standardmäßig maximal 5 pro Waffe. Im DMZ-Modus mit aktivierter Fundwaffen-Option bis zu 8. Der Worker prüft diese Grenze beim Speichern.</p>' +
+          (primary ? '<h3>Primärwaffe · Aufsätze</h3><div id="editPrimaryParts" class="grid">' +
+            postPartsFields(x.primary, (x.attachments || x.parts || {})[x.primary], x.mode) + '</div>' : '') +
+          (secondary ? '<h3>Sekundärwaffe · Aufsätze</h3><div id="editSecondaryParts" class="grid">' +
+            postPartsFields(x.secondary, (x.attachments || x.parts || {})[x.secondary], x.mode) + '</div>' : '') +
+          (primary && secondary ? '<h3>Ausrüstung</h3><div class="grid">' +
           Object.entries(gearLabels)
             .map(([key, label]) => {
               const saved = x.gear?.[key] || '';
               return selectField('gear_' + key, label, { '': 'Keine', ...(saved ? { [saved]: saved } : {}) }, saved);
             })
             .join('') +
-          '</div>';
+          '</div>' : '');
         const form = $('contentEditor');
         for (const [slot, partsId] of [['primary', 'editPrimaryParts'], ['secondary', 'editSecondaryParts']]) {
           const weapon = form.elements[slot];
+          if (weapon.type === 'hidden') continue;
           const season = form.elements[slot + 'Season'];
           const distance = form.elements[slot + 'Distance'];
           const hint = form.elements[slot + 'Hint'];
@@ -4819,7 +4824,7 @@ label :is(input, textarea, select) {
               if (season.value === '') seasons.delete(weapon.value);
               else seasons.set(weapon.value, season.valueAsNumber);
               const otherSlot = slot === 'primary' ? 'secondary' : 'primary';
-              if (form.elements[otherSlot].value === weapon.value) {
+              if (form.elements[otherSlot + 'Season'] && form.elements[otherSlot].value === weapon.value) {
                 form.elements[otherSlot + 'Season'].value = season.value;
               }
             };
@@ -4838,19 +4843,20 @@ label :is(input, textarea, select) {
           { type, item } = editorState;
         if (type === 'posts') {
           data.game = 'mw4';
-          if (raw.has('primarySeason')) {
+          const slots = ['primary', 'secondary'].filter((slot) => data[slot]);
+          if (slots.some((slot) => raw.has(slot + 'Season'))) {
             data.weaponSeasons = {};
-            for (const slot of ['primary', 'secondary']) {
+            for (const slot of slots) {
               const value = raw.get(slot + 'Season');
-              if (value !== '') data.weaponSeasons[data[slot]] = Number(value);
+              if (value) data.weaponSeasons[data[slot]] = Number(value);
               delete data[slot + 'Season'];
             }
           }
-          if (raw.has('primaryDistance')) {
-            data.weaponProfiles = Object.fromEntries(['primary', 'secondary'].map(slot => [
+          if (slots.some((slot) => raw.has(slot + 'Distance'))) {
+            data.weaponProfiles = Object.fromEntries(slots.map(slot => [
               data[slot], { distance: raw.get(slot + 'Distance'), hint: raw.get(slot + 'Hint').trim() },
             ]));
-            for (const slot of ['primary', 'secondary']) {
+            for (const slot of slots) {
               delete data[slot + 'Distance'];
               delete data[slot + 'Hint'];
             }
@@ -4860,7 +4866,7 @@ label :is(input, textarea, select) {
           data.gear = {};
           for (const k of Object.keys(gearLabels)) data.gear[k] = data['gear_' + k] || '';
           data.attachments = {};
-          for (const weapon of [data.primary, data.secondary]) data.attachments[weapon] = [];
+          for (const slot of slots) data.attachments[data[slot]] = [];
           for (const n of form.querySelectorAll('[data-post-slot]')) {
             if (!n.value) continue;
             const a =
@@ -5277,6 +5283,10 @@ label :is(input, textarea, select) {
           $('adminPartsEN')?.classList.toggle('primary', lang === 'en');
         }
         function refreshGearOptions() {
+          if (!form.elements.gear_tactical) {
+            language(localStorage.getItem('eupdate_admin_editor_lang') === 'en' ? 'en' : 'de');
+            return;
+          }
           const mode = form.elements.mode.value;
           const catalogGear = (dashboard.content || []).filter((row) => row.type === 'gear');
           const keys = mw4GearSlots(mode, catalogGear);
@@ -5315,16 +5325,10 @@ label :is(input, textarea, select) {
                 (n) => n.dataset.postWeapon === id && n.dataset.postSlot !== 'apex' && n.value,
               ).length,
           );
-          counts.textContent =
-            'Primär ' +
-            values[0] +
-            '/' +
-            limit +
-            ' · Sekundär ' +
-            values[1] +
-            '/' +
-            limit +
-            ' · Apex zählt zusätzlich.';
+          counts.textContent = ['primary', 'secondary']
+            .map((slot, index) => form.elements[slot].type === 'hidden' ? '' :
+              (slot === 'primary' ? 'Primär ' : 'Sekundär ') + values[index] + '/' + limit)
+            .filter(Boolean).join(' · ') + ' · Apex zählt zusätzlich.';
           for (const n of form.querySelectorAll('[data-post-slot]')) {
             const count = n.dataset.postWeapon === form.elements.primary.value ? values[0] : values[1];
             n.setCustomValidity(count > limit ? 'Zu viele Aufsätze für diesen Modus' : '');
@@ -5337,7 +5341,8 @@ label :is(input, textarea, select) {
             counts.insertAdjacentHTML('beforebegin', '<div id="adminWeaponPreviews" class="grid"></div>');
             box = $('adminWeaponPreviews');
           }
-          box.innerHTML = [form.elements.primary.value, form.elements.secondary.value]
+          box.innerHTML = ['primary', 'secondary'].filter((slot) => form.elements[slot].type !== 'hidden')
+            .map((slot) => form.elements[slot].value)
             .map((id) => {
               const w = dashboard.weapons.find((w) => w.id === id),
                 img = w?.img || MW_IMAGES[w?.name] || '';
@@ -5371,6 +5376,7 @@ label :is(input, textarea, select) {
           const valid = dashboard.weapons.filter((w) => availableInMode(w, mode));
           for (const key of ['primary', 'secondary']) {
             const field = form.elements[key];
+            if (field.type === 'hidden') continue;
             const allowed = key === 'primary'
               ? valid.filter((w) => !['pistol', 'launcher', 'melee', 'special'].includes(w.cls))
               : valid;
