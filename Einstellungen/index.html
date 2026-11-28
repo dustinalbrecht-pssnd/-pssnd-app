@@ -15,7 +15,7 @@
     <meta property="og:title" content="eUpdateGaming – MW4 Spieleinstellungen">
     <meta property="og:description" content="MW4-Einstellungen für Controller, Tastatur und Maus, Grafik, Audio und Interface. Mit einfachen Erklärungen, eigenem Setup und Bildexport auf Deutsch und Englisch.">
     <meta property="og:url" content="https://eupdategaming.com/Einstellungen/">
-    <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
+    <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
     <link rel="stylesheet" id="gameSettingsStyles" href="assets/einstellungen-menue.css?v=mw4-community-20261126">
   </head>
   <body>
@@ -126,7 +126,20 @@
       </section>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="assets/app.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
+          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
+          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
+        }
+      }
+    </script>
+    <script type="module">import "./assets/app.js";</script>
   
 
 </body></html>
