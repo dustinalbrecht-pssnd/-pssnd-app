@@ -16,7 +16,8 @@
     <meta property="og:description" content="MW4-Einstellungen für Controller, Tastatur und Maus, Grafik, Audio und Interface. Mit einfachen Erklärungen, eigenem Setup und Bildexport auf Deutsch und Englisch.">
     <meta property="og:url" content="https://eupdategaming.com/Einstellungen/">
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
-    <link rel="stylesheet" href="assets/oberflaeche.css?v=20261128">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=bedienung-20261128">
+    <link rel="stylesheet" href="assets/waffenbuehne.css?v=20261128">
     <link rel="stylesheet" id="gameSettingsStyles" href="assets/einstellungen-menue.css?v=mw4-community-20261126">
   </head>
   <body class="app-interface">
@@ -54,15 +55,21 @@
               <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
               <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
       </nav>
-      <button class="support-top" data-support="" aria-label="eUpdate unterstützen">
-        ♡ <span id="supportCount">0</span><small> Unterstützen</small>
-      </button>
+      <div class="topbar-actions">
+        <button class="topbar-tool" type="button" id="openAppGuide" aria-haspopup="dialog">Hilfe</button>
+        <button class="support-top vote-button" type="button" id="quickSupportLike" aria-label="App liken" aria-pressed="false">
+          <span class="vote-symbol" aria-hidden="true">♡</span><span class="vote-count" id="supportCount">0</span><small>App liken</small>
+        </button>
+        <button class="topbar-tool support-more" type="button" data-support aria-label="Unterstützung und Feedback" title="Unterstützung und Feedback" aria-haspopup="dialog">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
+        </button>
+      </div>
     </header>
     <main>
       <div class="my-posts-access">
         <button id="ownPosts" class="my-posts-button">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 3h8l4 4v14H8zM16 3v5h4M4 7v14M11 12h6M11 16h6"></path></svg><span><strong>Meine Beiträge</strong><small>Loadouts &amp; Kommentare verwalten</small></span><span class="my-posts-arrow" aria-hidden="true">→</span>
+            <path d="M8 3h8l4 4v14H8zM16 3v5h4M4 7v14M11 12h6M11 16h6"></path></svg><span><strong>Meine Beiträge</strong><small>Beiträge verwalten</small></span><span class="my-posts-arrow" aria-hidden="true">→</span>
         </button>
         <button type="button" class="erase-data-button" data-open-data-erasure="">Meine Daten löschen</button>
       </div>
@@ -130,14 +137,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./assets/news.js": "./assets/news.js?v=oberflaeche-20261128",
-          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=oberflaeche-20261128",
-          "./assets/app.js": "./assets/app.js?v=oberflaeche-20261128",
-          "./assets/bauen.js": "./assets/bauen.js?v=oberflaeche-20261128",
+          "./assets/news.js": "./assets/news.js?v=bedienung-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=bedienung-20261128",
+          "./assets/app.js": "./assets/app.js?v=bedienung-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=bedienung-20261128",
           "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
-          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
-          "./assets/loadout.js": "./assets/loadout.js?v=oberflaeche-20261128",
-          "./assets/ranking.js": "./assets/ranking.js?v=oberflaeche-20261128",
+          "./assets/creator.js": "./assets/creator.js?v=bedienung-20261128",
+          "./assets/loadout.js": "./assets/loadout.js?v=bedienung-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=bedienung-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
