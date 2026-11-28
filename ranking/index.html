@@ -17,8 +17,9 @@
     <meta property="og:url" content="https://eupdategaming.com/ranking/">
     <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "eUpdateGaming", "alternateName": ["eUpdate Gaming", "eUpdate"], "url": "https://eupdategaming.com/"}</script>
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=20261128">
   </head>
-  <body>
+  <body class="app-interface">
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
       <div class="terms-shell">
         <div class="terms-brand">eUpdate.</div>
@@ -44,6 +45,15 @@
     </section>
     <header class="topbar">
       <a class="brand" data-view="feed" aria-label="eUpdate Rangliste" href="ranking/"><span class="logo-disc"><img src="assets/bilder/logo.jpg" alt=""></span><span>eUpdate<small>LOADOUTS AUS DER COMMUNITY</small></span></a>
+      <nav class="bottom-nav" aria-label="Hauptmenü">
+        <a data-view="feed" href="ranking/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
+              <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
+              <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
+              <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
+      </nav>
       <button class="support-top" data-support="" aria-label="eUpdate unterstützen">
         ♡ <span id="supportCount">0</span><small> Unterstützen</small>
       </button>
@@ -59,7 +69,6 @@
       <section class="view active" id="view-feed" data-title="Community-Ranking">
         <div class="rank-heading">
           <div>
-            <span class="eyebrow">COMMUNITY</span>
             <h1 id="rankingTitle">Eure besten Loadouts<span class="title-dot">.</span></h1>
             <p id="rankingSubtitle">Wähle dein Loadout. Lade es als Bild herunter.</p>
           </div>
@@ -67,47 +76,73 @@
                 <path d="M10 3v14M3 10h14" fill="none" stroke="currentColor" stroke-width="2"></path></svg></span>
             Eigenes bauen</a>
         </div>
-        <div class="rank-filters">
-          <label>Spiel<select id="feedGame">
-              <option value="mw4" selected="">MW4</option>
-            </select></label><label>Beiträge<select id="feedAudience">
-              <option value="all">Alle Loadouts</option>
-              <option value="creators">Nur Streamer</option>
-            </select></label><label hidden="">Streamer<select id="feedStreamer"><option value="all">Alle Streamer</option></select></label><label>Modus<select id="feedMode">
-              <option value="all">Alle Modi</option>
-              <option value="wz">Warzone</option>
-              <option value="mp">Multiplayer</option>
-              <option value="ranked">Ranked</option>
-              <option value="dmz">DMZ</option>
-            </select></label><label>Ansicht<select id="feedSetupType">
-              <option value="auto">Automatisch</option>
-              <option value="primary">Primärwaffen</option>
-              <option value="secondary">Sekundärwaffen</option>
-              <option value="full">Gesamte Loadouts</option>
-            </select></label><label>Waffe<select id="feedWeapon">
+        <section class="ranking-controls" aria-label="Ranking-Filter">
+          <fieldset id="feedSetupType" class="ranking-views">
+            <legend>Ansicht</legend>
+            <div class="ranking-view-options">
+              <label><input type="radio" name="rankView" id="rankViewAll" value="auto" checked><span>Alle Setups</span></label>
+              <label><input type="radio" name="rankView" value="primary"><span>Primärwaffen</span></label>
+              <label><input type="radio" name="rankView" value="secondary"><span>Sekundärwaffen</span></label>
+              <label><input type="radio" name="rankView" value="full"><span>Ganze Loadouts</span></label>
+            </div>
+          </fieldset>
+          <div class="rank-filter-fields">
+            <label class="rank-field">Waffe<select id="feedWeapon">
               <option value="all">Alle Waffen</option>
-            </select></label><label>Einsatzdistanz<select id="feedDistance">
+            </select></label>
+            <label class="rank-field">Einsatzdistanz<select id="feedDistance">
               <option value="all">Alle Distanzen</option>
               <option value="short">Kurze Distanz</option>
               <option value="mid">Mittlere Distanz</option>
               <option value="long">Große Distanz</option>
               <option value="allround">Allrounder</option>
-            </select></label><label>Waffen-Season<select id="feedSeason">
-              <option value="all">Alle Seasons</option>
-            </select></label><label>Sortieren<select id="feedSort">
+            </select></label>
+            <label class="rank-field">Modus<select id="feedMode">
+              <option value="all">Alle Modi</option>
+              <option value="wz">Warzone</option>
+              <option value="mp">Multiplayer</option>
+              <option value="ranked">Ranked</option>
+              <option value="dmz">DMZ</option>
+            </select></label>
+            <label class="rank-field">Sortierung<select id="feedSort">
               <option value="popular">Beliebteste</option>
               <option value="week">Loadout der Woche</option>
               <option value="meta">META der Season</option>
               <option value="new">Neueste</option>
             </select></label>
-        </div>
+          </div>
+          <details class="rank-filter-more">
+            <summary>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M9 4v6m6 4v6" /></svg>
+              Weitere Filter <span id="rankExtraCount" hidden></span>
+            </summary>
+            <div class="rank-filter-fields rank-filter-secondary">
+              <label class="rank-field">Beiträge<select id="feedAudience">
+                <option value="all">Alle Beiträge</option>
+                <option value="creators">Nur Streamer</option>
+              </select></label>
+              <label class="rank-field" hidden>Streamer<select id="feedStreamer">
+                <option value="all">Alle Streamer</option>
+              </select></label>
+              <label class="rank-field">Waffen-Season<select id="feedSeason">
+                <option value="all">Alle Seasons</option>
+              </select></label>
+              <label class="rank-field">Spiel<select id="feedGame">
+                <option value="mw4" selected>Modern Warfare 4</option>
+              </select></label>
+            </div>
+          </details>
+          <div id="rankSelectedFilters" class="rank-selected-filters" hidden>
+            <div id="rankFilterChips" class="rank-filter-chips" role="group" aria-label="Aktive Filter" hidden></div>
+            <button type="button" id="resetRankFilters" class="text-action">Filter zurücksetzen</button>
+          </div>
+        </section>
         <p id="rankingHint" class="ranking-hint" aria-live="polite" hidden=""></p>
         <div id="communityConnection" class="community-connection" role="status" hidden=""></div>
         <div id="appAdvertising" class="ad-grid"></div>
         <div class="ranking-status-row">
           <div class="rank-meta">
             <span id="feedStatus"></span><button id="refreshFeed" class="text-action">↻ Neu laden</button>
-            <button type="button" id="resetRankFilters" class="text-action" hidden="">Filter zurücksetzen</button>
           </div>
           <div class="rank-summary" id="communityStats">
             <span><b id="loadoutCount">0</b> Loadouts</span><span><b id="likesCount">0</b> Likes</span><span><b id="creatorCount">0</b> Streamer</span>
@@ -121,15 +156,6 @@
         <button id="openPrivacy">Datenschutz</button><button id="openImprint">Impressum</button><button id="openUsage">Nutzungsregeln</button><button id="myReports">Meine Meldungen</button>
       </footer>
     </main>
-    <nav class="bottom-nav" aria-label="Hauptmenü">
-      <a data-view="feed" href="ranking/" class="active" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M10 4h12v9a6 6 0 0 1-4.5 5.8V23H23v4H9v-4h5.5v-4.2A6 6 0 0 1 10 13V4Z"></path>
-            <path d="M8 6H4v5a7 7 0 0 0 5 6v-3a4 4 0 0 1-2-3V9h1V6Zm16 0h4v5a7 7 0 0 1-5 6v-3a4 4 0 0 0 2-3V9h-1V6Z"></path></svg></span>Ranking</a><a data-view="builder" href="Bauen/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M23 3a7 7 0 0 0-7 8c.1.8.4 1.6.8 2.3L5 25a3 3 0 0 0 4.2 4.2L21 17.5A7 7 0 0 0 30 10l-4.6 3-4.2-4.2L24 3h-1ZM7 25.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"></path>
-            <path d="m6 4 5 5-2 2-5-5 2-2Zm3 9 2-2 3 3-2 2-3-3Z"></path></svg></span>Bauen</a><a data-view="settings" href="Einstellungen/"><span class="nav-icon settings-nav-icon" aria-hidden="true">⚙︎</span><span class="settings-nav-label">Einstellungen</span></a><a data-view="events" href="News/"><span class="nav-icon"><svg viewBox="0 0 32 32" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
-            <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
-    </nav>
     <div id="modal" class="modal" hidden="">
       <div class="shade" data-close=""></div>
       <section class="dialog" role="dialog" aria-modal="true" aria-label="Auswahl">
@@ -141,12 +167,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
-          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
-          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/news.js": "./assets/news.js?v=oberflaeche-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=oberflaeche-20261128",
+          "./assets/app.js": "./assets/app.js?v=oberflaeche-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=oberflaeche-20261128",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
           "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
-          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
-          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=oberflaeche-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=oberflaeche-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
