@@ -15,7 +15,7 @@
     <meta property="og:title" content="eUpdateGaming – MW4 Loadout erstellen">
     <meta property="og:description" content="Erstelle dein MW4-Loadout mit Primärwaffe, Sekundärwaffe, Aufsätzen und Ausrüstung. Wähle die Einsatzdistanz und speichere deinen Build als Bild.">
     <meta property="og:url" content="https://eupdategaming.com/Bauen/">
-    <link rel="stylesheet" href="assets/eupdate.css?v=datenschutz-seo-20261125">
+    <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
   </head>
   <body class="builder-view">
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -65,6 +65,14 @@
         </div>
         <div class="builder-settings">
           <label class="builder-setting">
+            <span>Setup</span>
+            <select id="buildSetupType">
+              <option value="full">Ganzes Loadout</option>
+              <option value="primary">Nur Primärwaffe</option>
+              <option value="secondary">Nur Sekundärwaffe</option>
+            </select>
+          </label>
+          <label class="builder-setting">
             <span>Spiel</span>
             <select id="gameSelect" aria-label="Spiel wählen"></select>
           </label>
@@ -87,14 +95,16 @@
         </div>
         <div id="weaponSlots" class="build-weapons"></div>
         <div id="dmzLootPanel" class="dmz-loot-panel" hidden=""></div>
-        <div class="section-line builder-section">
-          <div>
-            <h2>Ausrüstung</h2>
-            <p class="game-note" id="gameNote" hidden=""></p>
+        <div id="builderGear">
+          <div class="section-line builder-section">
+            <div>
+              <h2>Ausrüstung</h2>
+              <p class="game-note" id="gameNote" hidden=""></p>
+            </div>
+            <div id="gearLanguage"></div>
           </div>
-          <div id="gearLanguage"></div>
+          <div id="gearSlots" class="equipment-grid"></div>
         </div>
-        <div id="gearSlots" class="equipment-grid"></div>
         <div class="loadout-actions">
           <button class="ghost-btn" id="shareLoadout" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -130,7 +140,20 @@
       </section>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="assets/app.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "./assets/app.js": "./assets/app.js?v=einzelwaffen-20261127",
+          "./assets/bauen.js": "./assets/bauen.js?v=einzelwaffen-20261127",
+          "./assets/bildexport.js": "./assets/bildexport.js?v=einzelwaffen-20261127",
+          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
+          "./assets/loadout.js": "./assets/loadout.js?v=einzelwaffen-20261127",
+          "./assets/ranking.js": "./assets/ranking.js?v=einzelwaffen-20261127",
+          "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
+        }
+      }
+    </script>
+    <script type="module">import "./assets/app.js";</script>
   
 
 </body></html>
