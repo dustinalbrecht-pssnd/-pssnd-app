@@ -16,7 +16,8 @@
     <meta property="og:description" content="Verfolge neue Seasons, Spielupdates und Patchnotes für MW4 und Warzone. Dazu findest du Meldungen aus der Call of Duty League.">
     <meta property="og:url" content="https://eupdategaming.com/News/">
     <link rel="stylesheet" href="assets/eupdate.css?v=einzelwaffen-20261127">
-    <link rel="stylesheet" href="assets/oberflaeche.css?v=20261128">
+    <link rel="stylesheet" href="assets/oberflaeche.css?v=bedienung-20261128">
+    <link rel="stylesheet" href="assets/waffenbuehne.css?v=20261128">
   </head>
   <body class="app-interface">
     <section id="termsGate" class="terms-gate" hidden="" role="dialog" aria-modal="true" aria-labelledby="termsHeading">
@@ -53,15 +54,21 @@
               <path fill-rule="evenodd" d="M5 5a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15h-3v11H5V8h13V5H5Zm3 6h10v3H8v-3Zm0 7h15v2.5H8V18Zm0 5h10v2H8v-2Z"></path>
               <circle cx="25" cy="7" r="4"></circle></svg></span>News</a>
       </nav>
-      <button class="support-top" data-support="" aria-label="eUpdate unterstützen">
-        ♡ <span id="supportCount">0</span><small> Unterstützen</small>
-      </button>
+      <div class="topbar-actions">
+        <button class="topbar-tool" type="button" id="openAppGuide" aria-haspopup="dialog">Hilfe</button>
+        <button class="support-top vote-button" type="button" id="quickSupportLike" aria-label="App liken" aria-pressed="false">
+          <span class="vote-symbol" aria-hidden="true">♡</span><span class="vote-count" id="supportCount">0</span><small>App liken</small>
+        </button>
+        <button class="topbar-tool support-more" type="button" data-support aria-label="Unterstützung und Feedback" title="Unterstützung und Feedback" aria-haspopup="dialog">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
+        </button>
+      </div>
     </header>
     <main>
       <div class="my-posts-access">
         <button id="ownPosts" class="my-posts-button">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 3h8l4 4v14H8zM16 3v5h4M4 7v14M11 12h6M11 16h6"></path></svg><span><strong>Meine Beiträge</strong><small>Loadouts &amp; Kommentare verwalten</small></span><span class="my-posts-arrow" aria-hidden="true">→</span>
+            <path d="M8 3h8l4 4v14H8zM16 3v5h4M4 7v14M11 12h6M11 16h6"></path></svg><span><strong>Meine Beiträge</strong><small>Beiträge verwalten</small></span><span class="my-posts-arrow" aria-hidden="true">→</span>
         </button>
         <button type="button" class="erase-data-button" data-open-data-erasure="">Meine Daten löschen</button>
       </div>
@@ -69,12 +76,24 @@
         <div class="page-heading news-heading">
           <div>
             <h1>News<span class="title-dot">.</span></h1>
-            <p>Aktuelle Meldungen und kommende Termine auf einen Blick.</p>
+            <p>Meldungen, Patchnotes und Turniere</p>
           </div>
-          <button id="liveRefresh" class="news-refresh-button" type="button">↻ Jetzt prüfen</button>
+          <button id="liveRefresh" class="news-refresh-button" type="button">Meldungen laden</button>
         </div>
-        <article id="latestNewsHero" class="news-lead" hidden aria-label="Neueste Meldung"></article>
+        <div class="news-health" aria-label="Aktualität der Meldungen">
+          <p id="patchStatus" role="status">Meldungen werden geladen …</p>
+          <p id="latestNewsDate" hidden></p>
+        </div>
+        <div id="liveFilters" class="news-tabs" role="group" aria-label="Meldungen filtern">
+          <button type="button" data-live-filter="all" aria-pressed="true">Alle</button>
+          <button type="button" data-live-filter="mw4" aria-pressed="false">MW4</button>
+          <button type="button" data-live-filter="mp" aria-pressed="false">Multiplayer</button>
+          <button type="button" data-live-filter="dmz" aria-pressed="false">DMZ</button>
+          <button type="button" data-live-filter="wz" aria-pressed="false">Warzone</button>
+          <button type="button" data-live-filter="cdl" aria-pressed="false">CDL</button>
+        </div>
         <div class="news-content">
+          <article id="latestNewsHero" class="news-feature" hidden aria-label="Neueste passende Meldung"></article>
           <aside class="news-aside">
             <section class="news-calendar" aria-labelledby="newsCalendarHeading">
               <h2 id="newsCalendarHeading">Kommende Termine</h2>
@@ -83,31 +102,14 @@
             </section>
             <details id="liveSources" class="live-sources">
               <summary>Geprüfte Newsquellen</summary>
-              <p>
-                Die Quellen werden auf dem Server abgerufen. Öffnest du einen Quellenlink, besuchst du die Website
-                des jeweiligen Anbieters.
-              </p>
               <ul id="liveSourcesList"></ul>
               <p class="live-footnote">
-                Der verbundene Server prüft COD-Blogs, Patchnotes, Treyarch Game Intel und die offiziellen CDL-News
-                und Wettbewerbsregeln im eingerichteten Zeitplan. Neue Artikel und Änderungen erscheinen mit
-                Quellenlink. Bei Ausfällen bleibt der zuletzt gespeicherte Stand sichtbar.
+                Offizielle COD- und CDL-Quellen werden auf dem Server im eingerichteten Zeitplan geprüft.
               </p>
             </details>
           </aside>
           <section class="news-articles" aria-labelledby="newsArticlesHeading">
-            <div class="news-section-heading">
-              <h2 id="newsArticlesHeading">Aktuelle Meldungen</h2>
-              <p id="patchStatus" class="live-status" role="status">Meldungen werden geladen …</p>
-            </div>
-            <div id="liveFilters" class="news-tabs" role="group" aria-label="Meldungen filtern">
-              <button type="button" data-live-filter="all" aria-pressed="true">Alle</button>
-              <button type="button" data-live-filter="mw4" aria-pressed="false">MW4</button>
-              <button type="button" data-live-filter="mp" aria-pressed="false">Multiplayer</button>
-              <button type="button" data-live-filter="dmz" aria-pressed="false">DMZ</button>
-              <button type="button" data-live-filter="wz" aria-pressed="false">Warzone</button>
-              <button type="button" data-live-filter="cdl" aria-pressed="false">CDL</button>
-            </div>
+            <h2 id="newsArticlesHeading">Weitere Meldungen</h2>
             <div id="patchList" class="news-article-list"></div>
           </section>
         </div>
@@ -129,14 +131,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./assets/news.js": "./assets/news.js?v=oberflaeche-20261128",
-          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=oberflaeche-20261128",
-          "./assets/app.js": "./assets/app.js?v=oberflaeche-20261128",
-          "./assets/bauen.js": "./assets/bauen.js?v=oberflaeche-20261128",
+          "./assets/news.js": "./assets/news.js?v=bedienung-20261128",
+          "./assets/aufsaetze.js": "./assets/aufsaetze.js?v=bedienung-20261128",
+          "./assets/app.js": "./assets/app.js?v=bedienung-20261128",
+          "./assets/bauen.js": "./assets/bauen.js?v=bedienung-20261128",
           "./assets/bildexport.js": "./assets/bildexport.js?v=oberflaeche-20261128",
-          "./assets/creator.js": "./assets/creator.js?v=einzelwaffen-20261127",
-          "./assets/loadout.js": "./assets/loadout.js?v=oberflaeche-20261128",
-          "./assets/ranking.js": "./assets/ranking.js?v=oberflaeche-20261128",
+          "./assets/creator.js": "./assets/creator.js?v=bedienung-20261128",
+          "./assets/loadout.js": "./assets/loadout.js?v=bedienung-20261128",
+          "./assets/ranking.js": "./assets/ranking.js?v=bedienung-20261128",
           "./assets/waffenbilder.js": "./assets/waffenbilder.js?v=einzelwaffen-20261127"
         }
       }
